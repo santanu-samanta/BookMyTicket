@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Update Company Profile - <%= company.company_name %></title>
+
+  <!-- FontAwesome -->
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet" />
+  <!-- Bootstrap CSS -->
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet" />
+
+  <style>
+    body {
+      background-color: #f4f7fa;
+      font-family: "Nunito", sans-serif;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-control:focus {
+      box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+      border-color: #4e73df;
+    }
+
+    .btn-custom {
+      min-width: 120px;
+    }
+  </style>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body id="page-top">
+
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <%- include('../../layout/corporatelayout/corporate_sidebar.ejs') %>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Navbar -->
+        <%- include('../../layout/corporatelayout/corporate_navbar.ejs') %>
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <h1 class="h3 mb-4 text-gray-800">Update Company Profile</h1>
+
+          <div class="card shadow mb-4" style="background-color: rgb(204, 219, 215);">
+            <div class="card-header py-3  text-white" style="background-color: rgb(60, 139, 117);">
+              <h6 class="m-0 font-weight-bold">Edit Company Details</h6>
+            </div>
+            <div class="card-body">
+              <form action="/organizer/profile-update-data" method="POST" enctype="multipart/form-data">
+
+                <div class="row g-3">
+                  <!-- Company Name -->
+                  <div class="col-md-6">
+                    <label for="company_name" class="form-label">Company Name</label>
+                    <input type="text" class="form-control" id="company_name" name="company_name" value="<%= company.company_name %>" required />
+                  </div>
+
+                  <!-- Phone -->
+                  <div class="col-md-6">
+                    <label for="phone" class="form-label">Phone</label>
+                    <input type="tel" class="form-control" id="phone" name="phone" value="<%= company.phone %>" required />
+                  </div>
+
+                  <!-- Email -->
+                  <div class="col-md-6">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" value="<%= company.email %>" required  readonly/>
+                  </div>
+
+                  <!-- Company Type -->
+                  <!-- <div class="col-md-6">
+                    <label for="company_type" class="form-label">Company Type</label>
+                    <select class="form-control" name="company_type" id="company_type" required  >
+                      <option value="" disabled>Select Company Type</option>
+                      <% ['Production House', 'Event Management', 'Theatre Company', 'Sports Academy', 'Stadium Management', 'Drama Club'].forEach(type => { %>
+                        <option value="<%= type %>" <%= company.company_type === type ? 'selected' : '' %>><%= type %></option>
+                      <% }) %>
+                    </select>
+                  </div> -->
+
+                  <!-- Address Group -->
+                  <fieldset class="border p-3 mb-3 col-12">
+                    <legend class="w-auto px-2">Address</legend>
+                    <div class="row g-3">
+                      <div class="col-md-3">
+                        <label for="address_city" class="form-label">City</label>
+                        <input type="text" class="form-control" id="address_city" name="address_city" value="<%= company.address.city %>" />
+                      </div>
+                      <div class="col-md-3">
+                        <label for="address_state" class="form-label">State</label>
+                        <input type="text" class="form-control" id="address_state" name="address_state" value="<%= company.address.state %>" />
+                      </div>
+                      <div class="col-md-3">
+                        <label for="address_pin" class="form-label">PIN</label>
+                        <input type="text" class="form-control" id="address_pin" name="address_pin" value="<%= company.address.pin %>" />
+                      </div>
+                      <div class="col-md-3">
+                        <label for="address_landmark" class="form-label">Landmark</label>
+                        <input type="text" class="form-control" id="address_landmark" name="address_landmark" value="<%= company.address.landmark %>" />
+                      </div>
+                    </div>
+                  </fieldset>
+
+                  <!-- Facilities -->
+                 <!-- Facilities -->
+                  <!-- <div class="col-md-6">
+                    <label for="facilities" class="form-label">Movie Quality</label>
+                    <select class="form-control" id="facilities" name="facilities">
+                      <option value="">-- Select Screen Type --</option>
+                      <optgroup label="Standard Formats">
+                        <option value="2D" <%= company.facilities === '2D' ? 'selected' : '' %>>2D</option>
+                        <option value="3D" <%= company.facilities === '3D' ? 'selected' : '' %>>3D</option>
+                        <option value="Subtitled" <%= company.facilities === 'Subtitled' ? 'selected' : '' %>>Subtitled</option>
+                      </optgroup>
+                      <optgroup label="Premium Formats">
+                        <option value="IMAX 2D" <%= company.facilities === 'IMAX 2D' ? 'selected' : '' %>>IMAX 2D</option>
+                        <option value="IMAX 3D" <%= company.facilities === 'IMAX 3D' ? 'selected' : '' %>>IMAX 3D</option>
+                        <option value="4DX" <%= company.facilities === '4DX' ? 'selected' : '' %>>4DX</option>
+                        <option value="MX4D" <%= company.facilities === 'MX4D' ? 'selected' : '' %>>MX4D</option>
+                        <option value="D-BOX" <%= company.facilities === 'D-BOX' ? 'selected' : '' %>>D-BOX</option>
+                        <option value="ScreenX" <%= company.facilities === 'ScreenX' ? 'selected' : '' %>>ScreenX</option>
+                      </optgroup>
+                      <optgroup label="Audio Enhancements">
+                        <option value="Dolby Atmos" <%= company.facilities === 'Dolby Atmos' ? 'selected' : '' %>>Dolby Atmos</option>
+                        <option value="Dolby Cinema" <%= company.facilities === 'Dolby Cinema' ? 'selected' : '' %>>Dolby Cinema</option>
+                      </optgroup>
+                    </select>
+                  </div>
+ -->
+
+                  <!-- Additional Facilities -->
+                  <div class="col-md-6">
+                    <label for="facilities_avl" class="form-label">Additional Facilities</label>
+                    <textarea class="form-control" id="facilities_avl" name="facilities_avl" rows="2"><%= company.facilities_avl || '' %></textarea>
+                  </div>
+
+                  <!-- Screens -->
+                  <!-- <div class="col-md-6">
+                    <label for="screens" class="form-label">Number of Screens</label>
+                    <input type="number" class="form-control" id="screens" name="screens" value="<%= company.screens %>" min="0" />
+                  </div> -->
+
+                  <!-- Logo URL and Upload -->
+                  <div class="col-md-6">
+                    
+
+                    <label for="logoFile" class="form-label">Or Upload Logo File</label>
+                    <input type="file" class="form-control mb-2" id="logoFile" name="logo" accept="image/*" />
+
+                    <div>
+                      
+                      <img id="logoPreview" src="<%= company.logo !== 'null' ? '/' + company.logo.replace(/^uploads[\\/]/, '').replace(/\\/g, '/') : '' %>" alt="Logo Preview" style="max-width: 100%; max-height: 200px; display: <%= company.logo && company.logo !== 'null' ? 'block' : 'none' %>;" />
+                    </div>
+                  </div>
+
+                  
+                <div class="mt-4">
+                  <button type="submit" class="btn btn-primary btn-custom">
+                    <i class="fas fa-save"></i> Update
+                  </button>
+                  <a href="/company/profile/<%= company._id %>" class="btn btn-secondary btn-custom ms-2">
+                    <i class="fas fa-arrow-left"></i> Back to Profile
+                  </a>
+                </div>
+
+              </form>
+            </div>
+          </div>
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <%- include('../../layout/corporatelayout/corporate_footer.ejs') %>
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Bootstrap core JavaScript and dependencies -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script src="/js/sb-admin-2.min.js"></script>
+
+  <script>
+    $(function () {
+      // Toggle reject reason div (if used in future)
+      $('#status').on('change', function () {
+        const showReject = $(this).val() === 'Reject';
+        $('#rejectReasonDiv').toggle(showReject);
+        if (!showReject) $('#reject_reason').val('');
+      });
+
+      // Preview logo image from URL input
+      $('#logo').on('input', function () {
+        const url = this.value.trim();
+        if (url) {
+          $('#logoPreview').attr('src', url).show();
+          $('#logoFile').val('');
+        } else {
+          $('#logoPreview').hide();
+        }
+      });
+
+      // Preview logo image from file input
+      $('#logoFile').on('change', function () {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = e => {
+            $('#logoPreview').attr('src', e.target.result).show();
+            $('#logo').val('');
+          };
+          reader.readAsDataURL(file);
+        } else {
+          $('#logoPreview').hide();
+        }
+      });
+    });
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add Movie - Admin Panel</title>
+
+  <!-- Fonts & Styles -->
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,700" rel="stylesheet" />
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet" />
+<!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    #poster-preview img {
+      height: 150px;
+      width: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+
+    .form-section {
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      background-color: #f9f9f9;
+    }
+
+    .form-section h5 {
+      margin-bottom: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .required:after {
+      content: "*";
+      color: red;
+      margin-left: 4px;
+    }
+
+    select[multiple] {
+      height: auto;
+      min-height: 120px;
+    }
+
+    .person-row {
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #ccc;
+    }
+  </style>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+
+<body id="page-top">
+
+  <div id="wrapper">
+    <%- include('../../layout/adminlayout/admin_sidebar.ejs') %>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+      <div id="content">
+        <%- include('../../layout/adminlayout/admin_navbar.ejs') %>
+
+        <div class="container-fluid">
+          <div class="container mt-5 mb-5">
+            <h2 class="mb-4 text-center">Add New Movie</h2>
+
+            <form action="/admin/movie-add-data" method="POST" enctype="multipart/form-data">
+              <!-- Basic Info -->
+              <div class="form-section">
+                <h5>Basic Information</h5>
+
+                <div class="row mb-3">
+                  <div class="col-md-4">
+                    <label class="form-label required">Poster Images</label>
+                    <input type="file" name="posters" id="poster" class="form-control" accept="image/*" multiple required />
+                    <div id="poster-preview" class="d-flex flex-wrap"></div>
+                  </div>
+
+                  <div class="col-md-8">
+                    <label class="form-label required">Movie Title</label>
+                    <input type="text" name="name" class="form-control" placeholder="Enter movie name" required />
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-4">
+                    <label class="form-label required">Language(s)</label>
+                    <select class="form-control" name="languages" multiple required>
+                      <option>English</option>
+                      <option>Hindi</option>
+                      <option>Bengali</option>
+                      <option>Telugu</option>
+                      <option>Tamil</option>
+                      <option>Malayalam</option>
+                      <option>Kannada</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label required">Genres</label>
+                    <select class="form-control" name="genre" multiple required>
+                      <option>Action</option>
+                      <option>Drama</option>
+                      <option>Comedy</option>
+                      <option>Horror</option>
+                      <option>Thriller</option>
+                      <option>Romance</option>
+                      <option>Adventure</option>
+                      <option>Fantasy</option>
+                      <option>Sci-Fi</option>
+                      <option>Biography</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label for="movieCertificate">Movie Certificate</label>
+                    <select class="form-control" id="movieCertificate" name="movieCertificate" required>
+                      <option value="">-- Select Certificate --</option>
+                      <option value="U">U</option>
+                      <option value="UA">UA</option>
+                      <option value="S">S</option>
+                      <option value="A">A</option>
+                      <option value="UA7+">UA7+</option>
+                      <option value="UA13+">UA13+</option>
+                      <option value="UA16+">UA16+</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cast Section -->
+              <div class="form-section">
+                <h5>Cast Members</h5>
+                <div id="cast-section"></div>
+                <button type="button" class="btn btn-success btn-sm mt-2" onclick="addCast()">+ Add Cast Member</button>
+              </div>
+
+              <!-- Crew Section -->
+              <div class="form-section">
+                <h5>Crew Members</h5>
+                <div id="crew-section"></div>
+                <button type="button" class="btn btn-success btn-sm mt-2" onclick="addCrew()">+ Add Crew Member</button>
+              </div>
+
+              <!-- Movie Description -->
+              <div class="form-section">
+                <h5>Movie Details</h5>
+                <div class="row">
+                  <div class="col-6">
+                    <div class="mb-3">
+                      <label class="form-label required">Duration (in minutes)</label>
+                      <input type="number" name="duration" class="form-control" placeholder="e.g. 120" min="1" required />
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="mb-3">
+                      <label class="form-label required">Release Date</label>
+                      <input type="date" name="releaseDate" class="form-control" required />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label required">Movie Description</label>
+                  <textarea name="description" rows="4" class="form-control" placeholder="Write a short description..." required></textarea>
+                </div>
+              </div>
+
+              <!-- Trailer Upload Section -->
+              <div class="form-section">
+                <h5>Trailer Uploads</h5>
+                <div id="trailer-section"></div>
+                <button type="button" class="btn btn-success btn-sm mt-2" onclick="addTrailer()">+ Add Trailer</button>
+              </div>
+
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">Submit Movie</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <%- include('../../layout/adminlayout/admin_footer.ejs') %>
+    </div>
+  </div>
+
+  <!-- JS Scripts -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const artists = <%- JSON.stringify(artists) %>;
+
+    const createPersonRow = (type) => {
+      const options = artists.map(a => `<option value="${a._id}">${a.artist_name}</option>`).join('');
+      return `
+        <div class="row align-items-end person-row">
+          <div class="col-md-4 mb-2">
+            <label class="form-label">Artist</label>
+            <select name="${type}_id[]" class="form-control" required>${options}</select>
+          </div>
+          <div class="col-md-3 mb-2">
+            <label class="form-label">Role</label>
+            <input type="text" name="${type}_role[]" class="form-control" placeholder="e.g. Lead" required />
+          </div>
+          <div class="col-md-3 mb-2">
+            <label class="form-label">Nickname</label>
+            <input type="text" name="${type}_nickname[]" class="form-control" placeholder="Optional" />
+          </div>
+          <div class="col-md-2 mb-2">
+            <button type="button" class="btn btn-danger btn-sm mt-4" onclick="removeRow(this)">−</button>
+          </div>
+        </div>
+      `;
+    };
+
+    function createTrailerRow() {
+      return `
+        <div class="row align-items-end person-row">
+          <div class="col-lg-5 mb-2">
+            <label class="form-label required">Trailer Language</label>
+            <select class="form-control" name="trailerLanguages[]" required>
+              <option value="">Select Language</option>
+              <option>English</option>
+              <option>Hindi</option>
+              <option>Bengali</option>
+              <option>Telugu</option>
+              <option>Tamil</option>
+              <option>Malayalam</option>
+              <option>Kannada</option>
+            </select>
+          </div>
+          <div class="col-lg-5 mb-2">
+            <label class="form-label required">Upload Trailer</label>
+            <input type="file" name="trailers" class="form-control" accept="video/*" required />
+          </div>
+          <div class="col-lg-2 mb-2">
+            <button type="button" class="btn btn-danger btn-sm mt-4" onclick="removeRow(this)">−</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function addCast() {
+      $('#cast-section').append(createPersonRow('cast'));
+    }
+
+    function addCrew() {
+      $('#crew-section').append(createPersonRow('crew'));
+    }
+
+    function addTrailer() {
+      $('#trailer-section').append(createTrailerRow());
+    }
+
+    function removeRow(button) {
+      $(button).closest('.person-row').remove();
+    }
+
+    $('#poster').on('change', function () {
+      const files = this.files;
+      const previewContainer = $('#poster-preview');
+      previewContainer.empty();
+
+      if (files.length > 0) {
+        Array.from(files).forEach(file => {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            const img = $('<img>').attr('src', e.target.result);
+            previewContainer.append(img);
+          };
+          reader.readAsDataURL(file);
+        });
+        previewContainer.show();
+      } else {
+        previewContainer.hide();
+      }
+    });
+
+    $(document).ready(() => {
+      addCast();
+      addCrew();
+      addTrailer(); // Add one trailer upload field on page load
+    });
+  </script>
+</body>
+
+</html>

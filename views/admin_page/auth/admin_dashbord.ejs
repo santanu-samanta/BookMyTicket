@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin Dashboard</title>
+
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,700" rel="stylesheet" />
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet" />
+
+  <style>
+    body {
+      background-color: #f8f9fc;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    .card {
+      border-radius: 0.5rem;
+      box-shadow: 0 0.15rem 1.75rem 0 rgb(58 59 69 / 15%);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .card:hover {
+      transform: scale(1.03);
+    }
+
+    .chart-container {
+      animation: fadeIn 1s ease-in;
+      margin-bottom: 1.5rem;
+    }
+
+    h6.text-primary {
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .container-fluid {
+      padding-top: 2rem;
+      padding-bottom: 3rem;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <%- include('../../layout/adminlayout/admin_sidebar.ejs') %>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+      <div id="content">
+        <%- include('../../layout/adminlayout/admin_navbar.ejs') %>
+
+        <div class="container-fluid">
+          <!-- Cards Row -->
+          <div class="row">
+            <% stats.forEach(stat => { %>
+              <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card border-left-<%= stat.color %> shadow h-100 py-2">
+                  <div class="card-body p-4">
+                    <div class="row no-gutters align-items-center">
+                      <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-<%= stat.color %> text-uppercase mb-1">
+                          <%= stat.title %></div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800"><%= stat.value %></div>
+                      </div>
+                      <div class="col-auto">
+                        <i class="fas fa-<%= stat.icon %> fa-2x text-gray-300"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+
+          <!-- Big Area Charts -->
+          <div class="row chart-container">
+              <!-- New Monthly Bookings by Category Chart -->
+            <div class="col-xl-8 col-lg-8 mb-4">
+              <div class="card shadow mb-4">
+                <div
+                  class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Monthly Bookings by Category</h6>
+                </div>
+                <div class="card-body p-4">
+                  <div class="chart-area" style="height: 320px;">
+                    <canvas id="areaChartCategory"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+              <!-- Pie Chart -->
+             <div class="col-xl-4 col-lg-5">
+              <div class="card shadow mb-4">
+                <div
+                  class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Bookings by Category</h6>
+                </div>
+                <div class="card-body p-4">
+                  <div class="chart-pie pt-4 pb-2" style="height: 320px;">
+                    <canvas id="pieChart"></canvas>
+                  </div>
+                  <div class="mt-4 text-center small">
+                    <% pieLabels.forEach(label => { %>
+                      <span class="mr-3">
+                        <i class="fas fa-circle text-<%= label.color %>"></i> <%= label.name %>
+                      </span>
+                    <% }) %>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Big Area Chart: User Signups Over Time -->
+          <div class="col-xl-6 col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+              <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Monthly Movie Booking </h6>
+              </div>
+              <div class="card-body p-4">
+                <div class="chart-area" style="height: 350px;">
+                  <canvas id="areaChartSignups"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+            <!-- Existing Event Booking Trends Chart -->
+            <div class="col-xl-6 col-lg-6 mb-4">
+              <div class="card shadow mb-4">
+                <div
+                  class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                  <h6 class="m-0 font-weight-bold text-primary">Monthly Event Booking </h6>
+                </div>
+                <div class="card-body p-4">
+                  <div class="chart-area" style="height: 350px;">
+                    <canvas id="areaChartLarge"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>  
+             <!-- Bar Chart -->
+            <div class="col-xl-6 col-md-6 mb-4">
+              <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                  <h6 class="m-0 font-weight-bold text-primary">Monthly Ticket Sales</h6>
+                </div>
+                <div class="card-body p-4">
+                  <div class="chart-bar" style="height: 350px;">
+                    <canvas id="barChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+             <!-- Big Area Chart: Monthly Revenue -->
+          <div class="col-xl-6 col-lg-6 mb-4">
+            <div class="card shadow mb-4">
+              <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-success">Monthly Revenue</h6>
+              </div>
+              <div class="card-body p-4">
+                <div class="chart-area" style="height: 350px;">
+                  <canvas id="areaChartRevenue"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>       
+          </div>
+        </div>
+      </div>
+
+      <%- include('../../layout/adminlayout/admin_footer.ejs') %>
+    </div>
+  </div>
+
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Scripts -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/chart.js/Chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+<script>
+  const signupLabels = <%- JSON.stringify(signupLabels) %>; // e.g., ['Jan', 'Feb', 'Mar', ...]
+  const signupData = <%- JSON.stringify(signupData) %>;     // e.g., [10, 25, 15, ...]
+
+  const signupChartConfig = {
+    type: 'line',
+    data: {
+      labels: signupLabels,
+      datasets: [{
+        label: 'Booking',
+        data: signupData,
+        fill: true,
+        backgroundColor: 'rgba(78, 115, 223, 0.2)',
+        borderColor: 'rgba(78, 115, 223, 1)',
+        tension: 0.4,
+        borderWidth: 3,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(234, 236, 244, 0.5)',
+            borderDash: [2],
+          }
+        },
+        x: {
+          grid: {
+            display: false,
+          }
+        }
+      },
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      interaction: { mode: 'nearest', intersect: false },
+    }
+  };
+
+  const signupCtx = document.getElementById('areaChartSignups').getContext('2d');
+  new Chart(signupCtx, signupChartConfig);
+</script>
+<script>
+  const revenueLabels = <%- JSON.stringify(revenueLabels) %>;  // ['Jan', 'Feb', 'Mar', ...]
+  const revenueData = <%- JSON.stringify(revenueData) %>;      // [12000, 15000, 10000, ...]
+
+  const revenueChartConfig = {
+    type: 'line',
+    data: {
+      labels: revenueLabels,
+      datasets: [{
+        label: 'Revenue ($)',
+        data: revenueData,
+        fill: true,
+        backgroundColor: 'rgba(28, 200, 138, 0.2)',
+        borderColor: 'rgba(28, 200, 138, 1)',
+        borderWidth: 3,
+        tension: 0.4,
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(234, 236, 244, 0.5)',
+            borderDash: [2],
+          },
+          ticks: {
+            callback: function(value) {
+              return '$' + value.toLocaleString();
+            }
+          }
+        },
+        x: {
+          grid: {
+            display: false,
+          }
+        }
+      },
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return 'Revenue: $' + context.formattedValue;
+            }
+          }
+        }
+      },
+      interaction: { mode: 'index', intersect: false },
+    }
+  };
+
+  const revenueCtx = document.getElementById('areaChartRevenue').getContext('2d');
+  new Chart(revenueCtx, revenueChartConfig);
+</script>
+
+<script>
+  const ctx = document.getElementById('areaChartCategory').getContext('2d');
+
+  // Passed from backend
+  const labels = <%- JSON.stringify(labels) %>;
+  const categoryData = <%- JSON.stringify(categoryData) %>;
+
+  // Colors to cycle through for different categories
+  const colors = [
+    'rgba(78, 115, 223, 0.6)',
+    'rgba(28, 200, 138, 0.6)',
+    'rgba(246, 194, 62, 0.6)',
+    'rgba(231, 74, 59, 0.6)',
+    'rgba(123, 31, 162, 0.6)',
+    'rgba(255, 159, 64, 0.6)',
+    'rgba(54, 162, 235, 0.6)',
+    'rgba(255, 99, 132, 0.6)'
+  ];
+
+  const borderColors = colors.map(c => c.replace('0.6', '1'));
+
+  // Prepare datasets dynamically
+  const datasets = [];
+  let colorIndex = 0;
+
+  // Sort categories so 'Movie' appears last (for clarity)
+  const sortedCategories = Object.keys(categoryData).sort((a, b) => {
+    if (a === 'Movie') return 1;
+    if (b === 'Movie') return -1;
+    return a.localeCompare(b);
+  });
+
+  sortedCategories.forEach((category) => {
+    datasets.push({
+      label: category,
+      data: categoryData[category],
+      fill: true,
+      backgroundColor: colors[colorIndex % colors.length].replace('0.6', '0.2'),
+      borderColor: borderColors[colorIndex % colors.length],
+      tension: 0.4,
+      borderWidth: category === 'Movie' ? 3 : 2, // Highlight movie line
+      pointRadius: category === 'Movie' ? 5 : 3,
+      pointHoverRadius: category === 'Movie' ? 7 : 5,
+    });
+    colorIndex++;
+  });
+
+  const areaChartCategoryConfig = {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: datasets,
+    },
+    options: {
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(234, 236, 244, 0.5)',
+            borderDash: [2],
+          }
+        },
+        x: {
+          grid: {
+            display: false,
+          }
+        }
+      },
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: { mode: 'index', intersect: false }
+      },
+      interaction: { mode: 'nearest', intersect: false },
+    }
+  };
+
+  new Chart(ctx, areaChartCategoryConfig);
+</script>
+
+  <script>
+    // Original Large Area Chart
+    const areaLargeCtx = document.getElementById("areaChartLarge").getContext('2d');
+    new Chart(areaLargeCtx, <%- JSON.stringify(largeAreaChartConfig) %>);
+    
+
+
+    // Pie Chart
+    const pieCtx = document.getElementById("pieChart").getContext('2d');
+    new Chart(pieCtx, <%- JSON.stringify(pieChartConfig) %>);
+
+    // Bar Chart
+    const barCtx = document.getElementById("barChart").getContext('2d');
+    new Chart(barCtx, <%- JSON.stringify(barChartConfig) %>);
+
+    
+  </script>
+</body>
+
+</html>

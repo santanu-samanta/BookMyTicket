@@ -1,0 +1,38 @@
+ <!-- Top navbar -->
+    <div class="top-navbar">
+        
+      <div class="user-menu" id="userMenuToggle" tabindex="0" aria-haspopup="true" aria-expanded="false">
+        <img src="<%= user.profilePic || '/default-avatar.png' %>" alt="User profile picture" />
+        <i class="fa-solid fa-caret-down"></i>
+
+        <!-- Dropdown menu -->
+        <div class="dropdown-menu" id="userDropdownMenu" role="menu" aria-label="User menu">
+          <a href="/user/dashboard-display" style="text-decoration: none; "><i class="fa-solid fa-house"></i> Dashboard</a>
+          <a href="/user/logout" style="text-decoration: none; "><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </div>
+      </div>
+    </div>
+   <%if(success_mssg[0]){%>
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: "<%= success_mssg %>"
+        });
+    </script>
+  <!-- <h5 class="alert alert-info" style="color: rgb(83, 184, 153); background-color: rgb(51, 103, 87);">
+                <%=success_mssg%>
+            </h5> -->
+    <%}%>
+        <%if(error_mssg[0]){%>
+            <script>
+                Swal.fire({
+                     icon: 'error',
+                     title: 'Error',
+                    text: "<%=error_mssg%>"
+                });
+            </script>
+            <!-- <h5 class="alert alert-danger" style="color: black; ">
+                        <%=error_mssg%>
+                    </h5> -->
+            <%}%>

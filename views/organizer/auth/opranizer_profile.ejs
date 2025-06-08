@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="Company Dashboard" />
+  <title><%= title %></title>
+
+  <!-- FontAwesome -->
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet" />
+  <!-- Bootstrap CSS -->
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet" />
+
+  <style>
+    body {
+      background-color: #f4f7fa;
+      font-family: "Nunito", sans-serif;
+    }
+
+    .dashboard-header {
+      padding: 1rem 0;
+      border-bottom: 1px solid #e3e6f0;
+      margin-bottom: 2rem;
+    }
+
+    .profile-logo {
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      border-radius: 12px;
+      border: 3px solid #4a9679;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      background-color: white;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .profile-logo-placeholder {
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      background-color: #e2e8f0;
+      border: 3px solid #4a9679;
+      color: #6c757d;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto;
+      font-size: 3.5rem;
+    }
+
+    .card-status {
+      border-left: 5px solid;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 1rem 1.5rem;
+      color: #fff;
+      border-radius: 0.35rem;
+      box-shadow: 0 0.15rem 1.75rem 0 rgba(22, 115, 86, 0.15);
+    }
+
+    .status-pending {
+      border-color: #f6c23e;
+      background-color: #f6c23e;
+    }
+
+    .status-approved {
+      border-color: #1cc88a;
+      background-color: #1cc88a;
+    }
+
+    .status-rejected {
+      border-color: #e74a3b;
+      background-color: #e74a3b;
+    }
+
+    .label {
+      font-weight: 600;
+      color: #333;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    .value {
+      font-size: 1.1rem;
+      color: #555;
+      margin-bottom: 1rem;
+      word-wrap: break-word;
+    }
+
+    .btn-group-custom {
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+
+    .btn-custom {
+      min-width: 120px;
+      margin: 0 0.5rem;
+    }
+
+    .reject-reason-box {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+      padding: 1rem 1.5rem;
+      border-radius: 0.35rem;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+  </style>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body id="page-top">
+
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <%- include('../../layout/corporatelayout/corporate_sidebar.ejs') %>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <%- include('../../layout/corporatelayout/corporate_navbar.ejs') %>
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+          <!-- Company Profile Card -->
+          <div class="card shadow mb-5 rounded" style="background-color: #dce6e2;">
+            <div class="card-header  text-white text-center py-3 rounded-top" style="background-color: #416759;">
+              <h4 class="mb-0">Company Profile</h4>
+            </div>
+
+            <div class="card-body">
+              <div class="row align-items-center mb-4">
+
+                <div class="col-md-3 text-center">
+                  <% if (company.logo && company.logo !== 'null') { %>
+                    <img src="/<%= company.logo.replace(/^uploads[\\/]/, '').replace(/\\/g, '/')  %>" alt="Company Logo" class="profile-logo" />
+                  <% } else { %>
+                    <div class="profile-logo-placeholder">
+                      <i class="fas fa-building"></i>
+                    </div>
+                  <% } %>
+                </div>
+
+                <div class="col-md-9">
+                  <div class="row gx-3">
+                    <div class="col-sm-6">
+                      <span class="label"><i class="fas fa-building"></i> Company Name</span>
+                      <p class="value"><%= company.company_name %></p>
+                    </div>
+
+                    <div class="col-sm-6">
+                      <span class="label"><i class="fas fa-phone"></i> Phone</span>
+                      <p class="value"><%= company.phone %></p>
+                    </div>
+
+                    <div class="col-sm-6">
+                      <span class="label"><i class="fas fa-envelope"></i> Email</span>
+                      <p class="value"><%= company.email %></p>
+                    </div>
+
+                    <div class="col-sm-6">
+                      <span class="label"><i class="fas fa-industry"></i> Company Type</span>
+                      <p class="value"><%= company.company_type %></p>
+                    </div>
+
+                    <div class="col-sm-6">
+                      <span class="label"><i class="fas fa-map-marker-alt"></i> Address</span>
+                      <p class="value">
+                        <%= company.address.city %>, <%= company.address.state %><br />
+                        PIN: <%= company.address.pin %><br />
+                        Landmark: <%= company.address.landmark %>
+                      </p>
+                    </div>
+
+                    <!-- <div class="col-sm-6">
+                      <span class="label"><i class="fas fa-film"></i> Movie Quality</span>
+                      <p class="value"><%= company.facilities || 'N/A' %></p>
+                    </div> -->
+
+                    <!-- <div class="col-sm-6">
+                      <span class="label"><i class="fas fa-th-large"></i> Screens</span>
+                      <p class="value"><%= company.screens %></p>
+                    </div> -->
+
+                    <div class="col-sm-6">
+                      <span class="label"><i class="fas fa-check-circle"></i> Additional Facilities</span>
+                      <p class="value"><%= company.facilities_avl || 'N/A' %></p>
+                    </div>
+
+                    <div class="col-sm-6">
+                      <span class="label"><i class="fas fa-info-circle"></i> Status</span>
+                      <% 
+                        const statusMap = {
+                          Pending: 'status-pending',
+                          Approved: 'status-approved',
+                          Reject: 'status-rejected'
+                        };
+                        const statusClass = statusMap[company.status] || '';
+                      %>
+                      <span class="badge <%= statusClass %> text-white px-3 py-2"><%= company.status %></span>
+                    </div>
+
+                    <div class="col-sm-6">
+                      <span class="label"><i class="fas fa-user-check"></i> Verified</span>
+                      <% if (company.isverify) { %>
+                        <span class="text-success fw-bold">Yes <i class="fas fa-check-circle"></i></span>
+                      <% } else { %>
+                        <span class="text-danger fw-bold">No <i class="fas fa-times-circle"></i></span>
+                      <% } %>
+                    </div>
+
+                    <% if (company.status === 'Reject' && company.reject_reason) { %>
+                      <div class="col-12">
+                        <div class="reject-reason-box">
+                          <i class="fas fa-exclamation-triangle"></i> <strong>Reject Reason:</strong> <%= company.reject_reason %>
+                        </div>
+                      </div>
+                    <% } %>
+                  </div>
+
+                  <div class="btn-group-custom">
+                    <a href="/organizer/profile-update" class="btn btn-primary btn-custom">
+                      <i class="fas fa-edit"></i> Edit
+                    </a>
+                    <button onclick="window.history.back()" class="btn btn-secondary btn-custom">
+                      <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End of Main Content -->
+
+      <!-- Footer -->
+      <%- include('../../layout/corporatelayout/corporate_footer.ejs') %>
+
+    </div>
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Bootstrap core JavaScript and dependencies -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script src="/js/sb-admin-2.min.js"></script>
+
+</body>
+
+</html>

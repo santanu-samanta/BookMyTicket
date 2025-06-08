@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Movie Ticket - <%= ticketData.showname %></title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f4f4f9;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .ticket {
+      background: white;
+      width: 420px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+    }
+    .ticket-header {
+      background: #1e2a78;
+      padding: 15px 20px;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .ticket-header img.logo {
+      height: 50px;
+      object-fit: contain;
+    }
+    .ticket-header h1 {
+      font-size: 1.4rem;
+      margin: 0;
+      font-weight: 700;
+      flex-grow: 1;
+    }
+    .ticket-poster img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .ticket-details {
+      padding: 20px;
+      color: #333;
+    }
+    .ticket-details h2 {
+      margin: 0 0 10px 0;
+      font-weight: 700;
+      color: #1e2a78;
+      font-size: 1.3rem;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin: 6px 0;
+      font-size: 0.95rem;
+    }
+    .detail-label {
+      font-weight: 600;
+      color: #555;
+    }
+    .qr-code {
+      background: #eee;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .qr-code img {
+      width: 140px;
+      height: 140px;
+      object-fit: contain;
+    }
+    .footer {
+      font-size: 0.8rem;
+      color: #777;
+      text-align: center;
+      padding: 10px 15px;
+      background: #f1f1f1;
+    }
+
+    /* Download button styles */
+    #downloadBtn {
+      padding: 12px 25px;
+      font-size: 1rem;
+      cursor: pointer;
+      background-color: #1e2a78;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(30,42,120,0.5);
+      transition: background-color 0.3s ease;
+    }
+    #downloadBtn:hover {
+      background-color: #3943b7;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body>
+<button id="backBtn" style="
+  margin-left: auto;
+  padding: 6px 14px;
+  background-color: white;
+  color: #1e2a78;
+  border: 2px solid #1e2a78;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+">
+  ⬅ Back
+</button>
+
+
+  <div class="ticket" id="ticketToDownload" >
+    
+    <div class="ticket-header">
+      <img class="logo" src="<%= companyLogoUrl %>" alt="Company Logo" />
+<h1><%= ticketData.ismovie ? 'Movie Ticket' : 'Event Ticket' %></h1>
+    </div>
+
+    <div class="ticket-poster">
+      <img src="/images/<%= ticketData.eventPosterUrl %>" alt="<%= ticketData.showname %> Poster" />
+    </div>
+
+    <div class="ticket-details">
+      <h2><%= ticketData.showname %></h2>
+      <div class="detail-row">
+        <div class="detail-label">Date:</div>
+        <div><%= new Date(ticketData.showDate).toDateString() %></div>
+      </div>
+      <div class="detail-row">
+        <div class="detail-label">Time:</div>
+        <div><%= ticketData.showTime %></div>
+      </div>
+      <div class="detail-row">
+        <div class="detail-label">Venue:</div>
+        <div><%= ticketData.venue %></div>
+      </div>
+      <div class="detail-row">
+        <div class="detail-label">Seats:</div>
+        <div>
+        <span><%= ticketData.seats[0] ? 'P' + ticketData.seats[0] : '' %></span>
+        <span><%= ticketData.seats[1] ? 'G' + ticketData.seats[1] : '' %></span>
+        <span><%= ticketData.seats[2] ? 'C' + ticketData.seats[2] : '' %></span>
+        </div>
+      </div>
+      <div class="detail-row">
+        <div class="detail-label">Ticket ID:</div>
+        <div>BMT<%= ticketData.ticketId %></div>
+      </div>
+    </div>
+
+    <div class="qr-code">
+      <img src="<%= qrCodeDataUrl %>" alt="Ticket QR Code" />
+    </div>
+
+    <div class="footer">
+      Please present this ticket at entry. Valid ID required. Enjoy your movie!
+    </div>
+  </div>
+
+  <!-- Download Button -->
+  <button id="downloadBtn">Download Ticket</button>
+<script>
+  document.getElementById('backBtn').addEventListener('click', () => {
+    Swal.fire({
+      title: 'Go Back?',
+      text: 'You will be redirected to your dashboard.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, go!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = '/user/dashboard-display'; // Change this to your desired path
+      }
+    });
+  });
+</script>
+
+  <!-- html2canvas library -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const ticketElement = document.getElementById('ticketToDownload');
+
+      html2canvas(ticketElement).then(canvas => {
+        const link = document.createElement('a');
+        link.download = '<%= ticketData.showname %>-ticket.png'; // filename
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }).catch(err => {
+        alert('Failed to download ticket. Please try again.');
+        console.error(err);
+      });
+    });
+  </script>
+
+</body>
+</html>

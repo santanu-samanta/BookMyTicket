@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Update Movie - Admin Panel</title>
+
+  <!-- Fonts & Styles -->
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,700" rel="stylesheet" />
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet" />
+<!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    #poster-preview img {
+      height: 150px;
+      width: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+
+    .form-section {
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      background-color: #f9f9f9;
+    }
+
+    .form-section h5 {
+      margin-bottom: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .required:after {
+      content: "*";
+      color: red;
+      margin-left: 4px;
+    }
+
+    select[multiple] {
+      height: auto;
+      min-height: 120px;
+    }
+
+    .person-row {
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #ccc;
+    }
+  </style>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+
+<body id="page-top">
+
+  <div id="wrapper">
+    <%- include('../../layout/adminlayout/admin_sidebar.ejs') %>
+
+      <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+          <%- include('../../layout/adminlayout/admin_navbar.ejs') %>
+
+            <div class="container-fluid">
+              <div class="container mt-5 mb-5">
+                <h2 class="mb-4 text-center">Update Movie</h2>
+
+                <form action="/admin/movie-edit-data/<%=movie._id%>" method="POST" enctype="multipart/form-data">
+                  <!-- Basic Info -->
+                  <div class="form-section">
+                    <h5>Basic Information</h5>
+
+                    <div class="row mb-3">
+                      <div class="col-md-4">
+                        <label class="form-label required">Poster Images</label>
+                        <input type="file" name="posters" id="poster" class="form-control" accept="image/*" multiple
+                          />                         
+                        <div id="poster-preview" class="d-flex flex-wrap">
+                          <% movie.posters.forEach(function(poster) { %>                               
+                        <img src="/images/<%= poster %>" alt="Poster" />
+                      <% }); %>                      
+                    </div>
+                      </div>
+
+                      <div class="col-md-8">
+                        <label class="form-label required">Movie Title</label>
+                        <input type="text" name="name" class="form-control" placeholder="Enter movie name"
+                          value="<%=movie.name%>" required />
+                      </div>
+                    </div>
+
+                    <div class="row mb-3">
+                      <div class="col-md-4">
+                        <label class="form-label required">Language(s)</label>
+                        <select class="form-control" name="languages" multiple required>
+                          <% const allLanguages=['English', 'Hindi' , 'Bengali' , 'Telugu' , 'Tamil' , 'Malayalam'
+                            , 'Kannada' ]; %>
+                            <% allLanguages.forEach(lang=> { %>
+                              <option value="<%= lang %>" <%=movie.languages.includes(lang) ? 'selected' : '' %>><%=
+                                  lang %>
+                              </option>
+                              <% }); %>
+                        </select>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label required">Genres</label>
+                        <select class="form-control" name="genre" multiple required>
+                          <% const allGenres=['Action', 'Drama' , 'Comedy' , 'Horror' , 'Thriller' , 'Romance'
+                            , 'Adventure' , 'Fantasy' , 'Sci-Fi' , 'Biography' ]; %>
+                            <% allGenres.forEach(gnr=> { %>
+                              <option value="<%= gnr %>" <%=movie.genre.includes(gnr) ? 'selected' : '' %>><%= gnr %>
+                              </option>
+                              <% }); %>
+                        </select>
+                      </div>
+                      <div class="col-md-4">
+                        <label for="movieCertificate">Movie Certificate</label>
+                        <select class="form-control" id="movieCertificate" name="movieCertificate" required>
+                          <% const certificates=["U","UA","S","A","UA7+","UA13+","UA16+"]; %>
+                            <option value="">-- Select Certificate --</option>
+                            <% certificates.forEach(cert=> { %>
+                              <option value="<%= cert %>" <%=movie.movieCertificate===cert ? 'selected' : '' %>><%= cert
+                                  %>
+                              </option>
+                              <% }); %>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+
+                  <div class="form-section">
+                    <h5>Cast Members</h5>
+                    <div id="cast-section">
+                      <% movie.cast.forEach(function(castMember, index) { %>
+                        <div class="row align-items-end person-row">
+                          <!-- <input type="hidden" name="cast_id[]" value="<%= castMember.cast_id %>" /> -->
+
+                          <div class="col-md-4 mb-2">
+                            <label class="form-label">Artist</label>
+                            <select name="cast_id[]" class="form-control" readonly >
+                              <% artists.forEach(function(art) { %>
+                                <option value="<%= art._id %>" <%=art._id.toString()===castMember.cast_id.toString()
+                                  ? "selected" : "" %>>
+                                  <%= art.artist_name %>
+                                </option>
+                                <% }) %>
+                            </select>
+                          </div>
+
+                          <div class="col-md-3 mb-2">
+                            <label class="form-label">Role</label>
+                            <input type="text" name="cast_role[]" class="form-control" placeholder="e.g. Lead"
+                              value="<%= castMember.cast_role %>" required />
+                          </div>
+
+                          <div class="col-md-3 mb-2">
+                            <label class="form-label">Nickname</label>
+                            <input type="text" name="cast_nickname[]" class="form-control" placeholder="Optional"
+                              value="<%= castMember.cast_nickname %>" />
+                          </div>
+
+                          <div class="col-md-2 mb-2">
+                            <button type="button" class="btn btn-danger btn-sm mt-4"
+                              onclick="removeRow(this)">−</button>
+                          </div>
+                        </div>
+                        <% }) %>
+                    </div>
+
+                <button type="button" class="btn btn-success btn-sm mt-2" onclick="addCast()">+ Add Cast Member</button>
+
+                  </div>
+
+                  <!-- Crew Section -->
+                  <div class="form-section">
+                    <h5>Crew Members</h5>
+                    <div id="crew-section">
+                      <% movie.crew.forEach(function(crewMember, index) { %>
+                        <div class="row align-items-end person-row">
+                          <!-- <input type="hidden" name="crew_id[]" value="<%= crewMember.crew_id %>" /> -->
+                          <div class="col-md-4 mb-2">
+                            <label class="form-label">Artist</label>
+                            <select name="crew_id[]" class="form-control" readonly >
+                              <% artists.forEach(function(art) { %>
+                                <option value="<%= art._id %>" <%=art._id.toString()===crewMember.crew_id.toString()
+                                  ? "selected" : "" %>>
+                                  <%= art.artist_name %>
+                                </option>
+                                <% }) %>
+                            </select>
+                          </div>
+                          <div class="col-md-3 mb-2">
+                            <label class="form-label">Role</label>
+                            <input type="text" name="crew_role[]" class="form-control" placeholder="e.g. Director"
+                              value="<%= crewMember.crew_role %>" required />
+                          </div>
+                          <div class="col-md-3 mb-2">
+                            <label class="form-label">Nickname</label>
+                            <input type="text" name="crew_nickname[]" class="form-control" placeholder="Optional"
+                              value="<%= crewMember.crew_nickname %>" />
+                          </div>
+                          <div class="col-md-2 mb-2">
+                        <button type="button" class="btn btn-danger btn-sm mt-4" onclick="removeRow(this)">−</button>
+                          </div>
+                        </div>
+                        <% }) %>
+                    </div>
+                    <button type="button" class="btn btn-success btn-sm mt-2" onclick="addCrew()">+ Add Crew
+                      Member</button>
+                  </div>
+
+                  <!-- Movie Description -->
+                  <div class="form-section">
+                    <h5>Movie Details</h5>
+                    <div class="row">
+                      <div class="col-6">
+                        <div class="mb-3">
+                          <label class="form-label required">Duration (in minutes)</label>
+                          <input type="number" name="duration" class="form-control" placeholder="e.g. 120" min="1"
+                            value="<%= movie.duration %>" required />
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="mb-3">
+                          <label class="form-label required">Release Date</label>
+                          <input type="date" name="releaseDate" class="form-control"
+                            value="<%= movie.releaseDate.toISOString().slice(0,10) %>" required />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label required">Movie Description</label>
+                      <textarea name="description" rows="4" class="form-control"
+                        placeholder="Write a short description..." required><%= movie.description %></textarea>
+                    </div>
+                  </div>
+
+                  <!-- Trailer Upload Section -->
+                  <div class="form-section">
+                    <h5>Trailer Uploads</h5>
+                    <div id="trailer-section">
+                      <% movie.trailers.forEach(function(trailer, index) { %>
+                        <div class="row align-items-end person-row">
+                          <div class="col-md-4 mb-2">
+                            <label class="form-label">Trailer Language</label>
+                            <select name="trailerLanguages[]" class="form-control" required>
+                              <% allLanguages.forEach(lang=> { %>
+                                <option value="<%= lang %>" <%=trailer.language===lang ? 'selected' : '' %>><%= lang %>
+                                </option>
+                                <% }); %>
+                            </select>
+                          </div>
+                          <div class="col-md-5 mb-2">
+                            <label class="form-label">Current Trailer File</label>
+                            <input type="text" class="form-control" name="trailers" value="<%= trailer.filename %>" accept="video/*" readonly />
+                          </div>
+                          <!-- <div class="col-md-3 mb-2">
+                            <label class="form-label">Upload New Trailer</label>
+                            <input type="file" name="trailers" accept="video/*" class="form-control" />
+                          </div> -->
+                          <div class="col-md-12 mt-1">
+                            <button type="button" class="btn btn-danger btn-sm" onclick="removeRow(this)">− Removie This
+                              Trailer</button>
+                          </div>
+                        </div>
+                        <% }) %>
+                    </div>
+                    <button type="button" class="btn btn-success btn-sm mt-2" onclick="addTrailer()">+ Add
+                      Trailer</button>
+                  </div>
+
+                  <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Submit Movie</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+        </div>
+
+        <%- include('../../layout/adminlayout/admin_footer.ejs') %>
+      </div>
+  </div>
+
+  <!-- JS Scripts -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+  const artists = <%- JSON.stringify(artists) %>;
+
+  const createPersonRow = (type) => {
+    const options = artists.map(a => `<option value="${a._id}">${a.artist_name}</option>`).join('');
+    return `
+      <div class="row align-items-end person-row">
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Artist</label>
+          <select name="${type}_id[]" class="form-control" required>${options}</select>
+        </div>
+        <div class="col-md-3 mb-2">
+          <label class="form-label">Role</label>
+          <input type="text" name="${type}_role[]" class="form-control" placeholder="e.g. Director" required />
+        </div>
+        <div class="col-md-3 mb-2">
+          <label class="form-label">Nickname</label>
+          <input type="text" name="${type}_nickname[]" class="form-control" placeholder="Optional" />
+        </div>
+        <div class="col-md-2 mb-2">
+          <button type="button" class="btn btn-danger btn-sm mt-4" onclick="removeRow(this)">−</button>
+        </div>
+      </div>
+    `;
+  };
+
+  function addCast() {
+    $('#cast-section').append(createPersonRow('cast'));
+  }
+
+  function addCrew() {
+    $('#crew-section').append(createPersonRow('crew'));
+  }
+
+  function addTrailer() {
+    const trailerRow = `
+      <div class="row align-items-end person-row">
+        <div class="col-md-4 mb-2">
+          <label class="form-label">Trailer Language</label>
+          <select name="trailerLanguages[]" class="form-control" required>
+            <% allLanguages.forEach(lang => { %>
+              <option value="<%= lang %>"><%= lang %></option>
+            <% }); %>
+          </select>
+        </div>
+        <div class="col-md-5 mb-2">
+          <label class="form-label">Upload New Trailer</label>
+          <input type="file" name="trailers" accept="video/*" class="form-control" required />
+        </div>
+        <div class="col-md-3 mb-2">
+          <button type="button" class="btn btn-danger btn-sm mt-4" onclick="removeRow(this)">−</button>
+        </div>
+      </div>
+    `;
+    $('#trailer-section').append(trailerRow);
+  }
+
+  function removeRow(button) {
+    $(button).closest('.person-row').remove();
+  }
+
+  // Preview poster images
+  document.getElementById('poster').addEventListener('change', function (e) {
+    const preview = document.getElementById('poster-preview');
+    preview.innerHTML = '';
+    Array.from(e.target.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const img = document.createElement('img');
+        img.src = event.target.result;
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+</script>
+
+</body>
+
+</html>

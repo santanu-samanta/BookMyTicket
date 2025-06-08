@@ -1,0 +1,162 @@
+<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+
+    <!-- Sidebar - Brand -->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/admin/dashboard">
+        <div class="sidebar-brand-icon rotate-n-15">
+            <i class="fas fa-tools"></i>
+        </div>
+        <div class="sidebar-brand-text mx-3">Admin Panel</div>
+    </a>
+
+    <hr class="sidebar-divider my-0">
+
+    <!-- Dashboard -->
+    <li class="nav-item active">
+        <a class="nav-link" href="/admin/dashboard">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+
+    <hr class="sidebar-divider">
+
+    <!-- Section Heading -->
+    <div class="sidebar-heading">Management</div>
+
+    <!-- Companies -->
+    <li class="nav-item">
+        <a class="nav-link" href="/admin/companies">
+            <i class="fas fa-fw fa-building"></i>
+            <span>Companies</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/admin/booking-histroy">
+            <i class="fas fa-fw fa-building"></i>
+            <span>Theater Screening History</span>
+        </a>
+    </li>
+
+    <!-- Artists -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseArtist"
+            aria-expanded="false" aria-controls="collapseArtist">
+            <i class="fas fa-fw fa-user"></i>
+            <span>Artists</span>
+        </a>
+        <div id="collapseArtist" class="collapse" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="/admin/artists-list">Artist List</a>
+                <a class="collapse-item" href="/admin/delete_artists-list">Delete Artist List</a>
+                <a class="collapse-item" href="/admin/artists-add">Add Artist</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Movies -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMovies"
+            aria-expanded="false" aria-controls="collapseMovies">
+            <i class="fas fa-fw fa-film"></i>
+            <span>Movies</span>
+        </a>
+        <div id="collapseMovies" class="collapse" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="/admin/movie-list">Movie List</a>
+                <a class="collapse-item" href="/admin/delete-movie-list">Delete Movie List</a>
+                <a class="collapse-item" href="/admin/movie-add">Add Movie</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Events -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEvents"
+            aria-expanded="false" aria-controls="collapseEvents">
+            <i class="fas fa-fw fa-calendar-alt"></i>
+            <span>Events</span>
+        </a>
+        <div id="collapseEvents" class="collapse" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="/admin/event/list">Events List</a>
+                <a class="collapse-item" href="/admin/delete/event/list">delete Events List</a>
+            </div>
+        </div>
+    </li>
+
+
+
+
+    <!-- Users -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUsers" aria-expanded="false"
+            aria-controls="collapseUsers">
+            <i class="fas fa-fw fa-users"></i>
+            <span>Users</span>
+        </a>
+        <div id="collapseUsers" class="collapse" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="/admin/user/list">User List</a>
+                <a class="collapse-item" href="/admin/delete/user/list">Delete User List</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Reviews -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReviews"
+            aria-expanded="false" aria-controls="collapseReviews">
+            <i class="fas fa-fw fa-star"></i>
+            <span>Reviews</span>
+        </a>
+        <div id="collapseReviews" class="collapse" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="/admin/review/list">Review List</a>
+                <a class="collapse-item" href="/admin/delreview/list">Delete Review List</a>
+            </div>
+        </div>
+    </li>
+
+    <!-- Logout -->
+    <li class="nav-item">
+        <a class="nav-link" href="/admin/logout" >
+            <i class="fas fa-fw fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </li>
+
+
+    <hr class="sidebar-divider d-none d-md-block">
+
+    <!-- Sidebar Toggler -->
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+
+</ul>
+<script>
+    document.getElementById('logoutBtn').addEventListener('click', function () {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "You will be logged out!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, logout'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Show success alert and then redirect
+                Swal.fire({
+                    title: 'Logged Out!',
+                    text: 'You have been successfully logged out.',
+                    icon: 'success',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = '/admin/logout';
+                });
+            }
+        });
+    });
+</script>

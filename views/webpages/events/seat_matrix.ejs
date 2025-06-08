@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Seat Booking</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    body { background: #bae1e1; }
+    .navbar { background-color: #4f8a7d; }
+    .navbar-brand { color: #fff !important; font-weight: bold; }
+    .seat-category {
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      background: white;
+    }
+    .seat-title { font-size: 20px; font-weight: bold; }
+    .btn-circle {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      padding: 0;
+      font-size: 18px;
+    }
+    #total-display { font-size: 22px; font-weight: bold; }
+    #continue-btn { width: 100%; font-size: 18px; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="container-fluid">
+      <span class="navbar-brand">🎫 Ticket Booking For <%= event_data.event_name %></span>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <div class="row g-4">
+      <% Object.keys(seatData).forEach(type => { %>
+        <div class="col-md-4">
+          <div class="seat-category text-center">
+            <div class="seat-title text-capitalize"><%= type %> Seat</div>
+            <div class="my-3">    
+              <% const isFull = seatData[type].selected >= seatData[type].max; %>
+              <% if (!isFull) { %>
+                <button class="btn btn-danger btn-circle" onclick="updateSeat('<%= type %>', -1)">−</button>
+                <span id="<%= type %>-count" class="mx-3"><%= seatData[type].selected %></span>
+                <button class="btn btn-success btn-circle" onclick="updateSeat('<%= type %>', 1)" id="<%= type %>-plus">+</button>
+              <% } else { %>
+                <span class="text-danger fw-bold d-block mt-2">Seat Full</span>
+              <% } %>
+            </div>
+            <div>Price: ₹<%= seatData[type].price %> (Max: <%= seatData[type].max %>)</div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-md-6 offset-md-3 text-center">
+        <div id="total-display">Total: ₹0</div>
+        <button class="btn btn-primary mt-3" id="continue-btn">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const seatData = <%- JSON.stringify(seatData) %>;
+    const isLoggedIn = <%= isLoggedIn ? 'true' : 'false' %>;
+
+    function updateSeat(type, delta) {
+      const seat = seatData[type];
+      const newCount = seat.selected + delta;
+      if (newCount >= 0 && newCount <= seat.max) {
+        seat.selected = newCount;
+        document.getElementById(`${type}-count`).innerText = newCount;
+
+        const plusBtn = document.getElementById(`${type}-plus`);
+        if (plusBtn && seat.selected >= seat.max) {
+          plusBtn.remove();
+          const parent = document.querySelector(`#${type}-count`).parentElement;
+          const fullLabel = document.createElement("span");
+          fullLabel.className = "text-danger fw-bold d-block mt-2";
+          fullLabel.innerText = "Seat Full";
+          parent.appendChild(fullLabel);
+        }
+
+        updateTotal();
+      }
+    }
+
+    function updateTotal() {
+      let total = 0;
+      for (let type in seatData) {
+        total += seatData[type].selected * seatData[type].price;
+      }
+      document.getElementById('total-display').innerText = `Total: ₹${total}`;
+    }
+
+    $('#continue-btn').on('click', function () {
+      if (!isLoggedIn) {
+        Swal.fire({
+          icon: "warning",
+          title: "Login Required",
+          text: "Please login to continue booking.",
+          confirmButtonText: "Login Now"
+        }).then(() => {
+          window.location.href = "/user/loginpage-display";
+        });
+        return;
+      }
+
+      let total = 0;
+      const selectedSeats = {};
+      for (let type in seatData) {
+        const seat = seatData[type];
+        if (seat.selected > 0) {
+          selectedSeats[type] = seat.selected;
+          total += seat.selected * seat.price;
+        }
+      }
+
+      if (total === 0) {
+        Swal.fire('No seats selected', 'Please select at least one seat.', 'info');
+        return;
+      }
+
+      const bookingData = {
+    selectedSeats,
+    total,
+    eventId: "<%= event_data._id %>",
+    sheduleId: "<%= seatDa.sheduleId %>",
+    showTime: "<%= seatDa.showTime %> - <%= seatDa.showTimeend %>",
+    showDate: "<%= seatDa.showDate %>",
+    showTitle: "<%= seatDa.showname %>",
+    userId: "<%= userId || '' %>",
+    image:"<%=seatDa.image%>"
+  };
+      $.ajax({
+        url: '/ticket/create-order',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ amount: total * 100 }), // in paise
+        success: function (order) {
+          const options = {
+            key: '<%= apikey %>',
+            amount: order.amount,
+            currency: "INR",
+            name: "BookMyTicket",
+            description: "Event Ticket Booking",
+            order_id: order.id,
+            handler: function (response) {
+              // Submit final ticket data to backend
+              $.ajax({
+                url: '/ticket/create/event',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                  paymentDetails: response,
+                  bookingData
+                }),
+                success: function (res) {
+                  Swal.fire('Success!', 'Your booking was confirmed.', 'success').then(() => {
+                    window.location.href = `/ticket/${res.id}`;
+                  });
+                },
+                error: function () {
+                  Swal.fire('Error', 'Payment verified but booking failed.', 'error');
+                }
+              });
+            },
+            prefill: {
+              name: 'Your Name',
+              email: 'you@example.com'
+            },
+            theme: {
+              color: '#4f8a7d'
+            }
+          };
+          const rzp = new Razorpay(options);
+          rzp.open();
+        },
+        error: function () {
+          Swal.fire('Error', 'Unable to create payment order.', 'error');
+        }
+      });
+    });
+
+    updateTotal(); // Initial call
+  </script>
+
+</body>
+</html>

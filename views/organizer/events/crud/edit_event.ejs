@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Edit Event - Corporate Admin</title>
+
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,700" rel="stylesheet" />
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+ <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #f8f9fc;
+    }
+    .form-header { font-size: 2rem; font-weight: 700; color: #4e73df; margin-bottom: 30px; }
+    .section-card { border: none; border-radius: 12px; padding: 25px; background: #ffffff; margin-bottom: 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: box-shadow 0.3s ease; }
+    .section-card:hover { box-shadow: 0 8px 25px rgba(0,0,0,0.08); }
+    .section-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .section-title h5 { font-size: 1.2rem; font-weight: 600; color: #343a40; }
+    .add-btn, .remove-btn { font-size: 0.9rem; font-weight: 500; transition: all 0.2s ease; }
+    .add-btn i, .remove-btn i { margin-right: 4px; }
+    .add-btn:hover { background-color: #4e73df; color: #fff; }
+    .remove-btn:hover { color: #bd2130; }
+    label { font-weight: 500; color: #495057; margin-bottom: 5px; }
+    .form-control { border-radius: 8px; }
+    .form-check-label { font-weight: 500; color: #495057; }
+    .btn-success { padding: 12px 32px; font-size: 1.1rem; font-weight: 600; border-radius: 8px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1); }
+    .btn-success:hover { background-color: #218838; }
+    .gap-2 > * { margin-right: 10px; }
+    .gap-2 > *:last-child { margin-right: 0; }
+    .text-end .btn-link { font-size: 1.25rem; }
+    .preview-img { max-height: 80px; margin: 5px; border-radius: 5px; }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body id="page-top">
+  <div id="wrapper">
+    <%- include('../../../layout/corporatelayout/corporate_sidebar.ejs') %>
+    <div id="content-wrapper" class="d-flex flex-column">
+      <div id="content" style="background-color: rgb(222, 236, 232);">
+        <%- include('../../../layout/corporatelayout/corporate_navbar.ejs') %>
+        <main class="container form-container py-4" style="background-color: rgb(185, 228, 228); box-shadow: 0 15px 20px 10px rgb(168, 198, 198); border-radius: 20px; margin-bottom: 50px;">
+          <h1 class="form-header">Edit Event</h1>
+
+          <form action="/organizer/event/edit/data/<%=event._id %>" method="POST" enctype="multipart/form-data">
+
+            <!-- Event Name, Category, Description -->
+            <div class="section-card">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label>Event Name</label>
+                  <input type="text" class="form-control" name="event_name" value="<%= event.event_name %>" required>
+                </div>
+                <div class="col-md-6">
+                  <label>Event Category</label>
+                  <input type="text" class="form-control" name="category" value="<%= event.category %>" readonly>
+                </div>
+                <div class="col-md-12">
+                  <label>Event Description</label>
+                  <textarea class="form-control" name="description" rows="4" required><%= event.description %></textarea>
+                </div>
+              </div>
+              <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" name="validAge" value="true" <%= event.validAge ? "checked" : "" %>>
+                <label class="form-check-label">Age Restriction (18+)</label>
+              </div>
+            </div>
+
+            <!-- Media Upload -->
+            <div class="section-card">
+              <div class="row">
+                <div class="col-md-6">
+                  <label>Existing Images</label>
+                  <div id="existingImages" class="d-flex flex-wrap mb-2">
+                    <% event.images.forEach(function(img) { %>
+                      <img src="/images/<%= img %>" alt="Image" class="preview-img" />
+                    <% }) %>
+                  </div>
+                  <label>Upload New Images</label>
+                  <input type="file" class="form-control" name="images" id="imageUpload" multiple>
+                  <div id="imagePreview" class="mt-2 d-flex flex-wrap"></div>
+                </div>
+                <div class="col-md-6">
+                  <label>Existing Videos</label>
+                  <div id="existingVideos" class="d-flex flex-wrap mb-2">
+                    <% event.videos.forEach(function(video) { %>
+                      <video width="120" controls>
+                        <source src="/videos/<%= video %>" type="video/mp4">
+                        Your browser does not support the video tag.
+                      </video>
+                    <% }) %>
+                  </div>
+                  <label>Upload New Videos</label>
+                  <input type="file" class="form-control" name="videos" multiple>
+                </div>
+              </div>
+            </div>
+
+            <!-- Artists -->
+            <div class="section-card">
+              <div class="section-title">
+                <h5>Artists</h5>
+                <button type="button" class="btn btn-outline-primary btn-sm add-btn" onclick="addArtist()">
+                  <i class="fas fa-plus"></i> Add Artist
+                </button>
+              </div>
+              <div id="artistContainer">
+                <% event.artist.forEach(function(art, i) { %>
+                  <div class="section-card mb-3" data-index="<%= i %>">
+                    <div class="row align-items-end">
+                      <!-- <input type="hidden" name="artist_id[]" value="<%= art._id %>"> -->
+                      <div class="col-md-4">
+                        <label>Artist Name</label>
+                        <input type="text"  class="form-control" value="<%= art.artistname %>" readonly>
+                      </div>
+                      <div class="col-md-3">
+                        <label>Artist Role</label>
+                        <input type="text"  class="form-control" value="<%= art.artistrole %>" readonly>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Artist Image</label>
+                        <!-- <input type="file" name="artistimage_<%= i %>" class="form-control" onchange="previewArtistImage(event, 'artistPreview<%= i %>')" readonly> -->
+                        <div id="artistPreview<%= i %>" class="mt-2">
+                          <img src="/images/<%= art.artistimage %>" alt="Artist Image" class="preview-img" >
+                        </div>
+                      </div>
+                      <!-- <div class="col-md-1 text-end">
+                        <button type="button" class="btn btn-link text-danger" onclick="this.closest('.section-card').remove()" title="Remove">
+                          <i class="fas fa-minus-circle fa-lg"></i>
+                        </button>
+                      </div> -->
+                    </div>
+                  </div>
+                <% }); %>
+              </div>
+            </div>
+
+            <!-- Schedules -->
+            <div class="section-card">
+              <div class="section-title">
+                <h5>Schedules</h5>
+                <button type="button" class="btn btn-outline-primary btn-sm add-btn" onclick="addSchedule()">
+                  <i class="fas fa-plus"></i> Add Schedule
+                </button>
+              </div>
+              <div id="scheduleContainer">
+                <% event.schedules.forEach(function(schedule, idx) { %>
+                  <div class="section-card mb-3 schedule-block" data-index="<%= idx %>">
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>Venue</label>
+                        <input type="text" name="venue[]" class="form-control" value="<%= schedule.location.venue %>" readonly>
+                        </div>
+                        <div class="col-md-4">
+                        <label>City</label>
+                        <input type="text" name="city[]" class="form-control"value="<%= schedule.location.city %>" readonly>
+                        </div>
+                        <div class="col-md-4">
+                        <label>Date</label>
+                        <input type="date" name="date[]"  value="<%= schedule.date.toISOString().substring(0,10) %>"  class="form-control"  readonly>
+                        </div>
+                        </div>
+                        <div class="row mt-2">            
+                        <div class="col-md-3">
+                        <label>Start Time</label>
+                        <input type="time" name="start_time[]" class="form-control" value="<%= schedule.start_time %>" required>
+                        </div>
+                        <div class="col-md-3">
+                        <label>End Time</label>
+                        <input type="time" name="end_time[]" class="form-control" value="<%= schedule.end_time %>" required>
+                        </div>
+
+                        <div class="col-md-3">
+                        <label>Screen</label>
+                        <input type="text" name="screen[]" class="form-control" value="<%= schedule.screen %>" required>
+                        </div>
+                        <div class="col-md-3">
+                        <label>Language</label>
+                        <input type="text" name="language[]" class="form-control" value="<%= schedule.language %>" required readonly>
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                        <label>Format </label>
+                        <select name="format[]" class="form-control">
+                        <option value="Offline" <%= schedule.format.includes('Offline') ? 'selected' : '' %>>Offline</option>
+                        </select>
+
+                        </div>
+                        <div class="col-md-6">
+                        <label>Ticket Prices</label>
+                        <div class="d-flex gap-2">
+                            <input type="number" name="prime_ticket_price[]" placeholder="Prime" class="form-control" value="<%= schedule.prime_ticket_price %>"required>
+                            <input type="number" name="golden_ticket_price[]" placeholder="Golden" class="form-control" value="<%= schedule.golden_ticket_price %>" required>
+                            <input type="number" name="clasic_ticket_price[]" placeholder="Classic" class="form-control" value="<%= schedule.clasic_ticket_price %>" required>
+                        </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-2">
+                        <div class="col-md-11">
+                        <label>Total Seats</label>
+                        <div class="d-flex gap-2">
+                            <input type="number" name="prime_seats[]" placeholder="Prime" class="form-control" value="<%= schedule.prime_seats %>" required>
+                            <input type="number" name="golden_seats[]" placeholder="Golden" class="form-control" value="<%= schedule.golden_seats %>" required>
+                            <input type="number" name="clasic_seats[]" placeholder="Classic" class="form-control" value="<%= schedule.clasic_seats %>" required>
+                        </div>
+                        </div>
+                        <!-- <div class="col-md-1 text-end">
+                        <button type="button" class="btn btn-link text-danger" onclick="this.closest('.section-card').remove()" title="Remove">
+                            <i class="fas fa-minus-circle fa-lg"></i>
+                        </button>
+                        </div> -->
+                    </div>                   
+                  </div>
+                <% }) %>
+              </div>
+            </div>
+
+            <div class="text-center mb-4">
+              <button type="submit" class="btn btn-success">Update Event</button>
+            </div>
+          </form>
+        </main>
+        <%- include('../../../layout/corporatelayout/corporate_footer.ejs') %>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Preview image for artist upload
+    function previewArtistImage(event, previewId) {
+      const previewDiv = document.getElementById(previewId);
+      previewDiv.innerHTML = "";
+      const file = event.target.files[0];
+      if (!file) return;
+      const img = document.createElement("img");
+      img.className = "preview-img";
+      img.src = URL.createObjectURL(file);
+      previewDiv.appendChild(img);
+    }
+
+    // Preview multiple image upload
+    document.getElementById("imageUpload").addEventListener("change", function(e) {
+      const preview = document.getElementById("imagePreview");
+      preview.innerHTML = "";
+      Array.from(e.target.files).forEach(file => {
+        const img = document.createElement("img");
+        img.className = "preview-img";
+        img.src = URL.createObjectURL(file);
+        preview.appendChild(img);
+      });
+    });
+
+    // Add new Artist form block
+    function addArtist() {
+      const container = document.getElementById("artistContainer");
+      const index = container.children.length;
+
+      const div = document.createElement("div");
+      div.className = "section-card mb-3";
+      div.setAttribute("data-index", index);
+
+      div.innerHTML = `
+        <div class="row align-items-end">
+         
+          <div class="col-md-4">
+            <label>Artist Name</label>
+            <input type="text" name="artistname[]" class="form-control" required>
+          </div>
+          <div class="col-md-3">
+            <label>Artist Role</label>
+            <input type="text" name="artistrole[]" class="form-control" required>
+          </div>
+          <div class="col-md-4">
+            <label>Artist Image</label>
+            <input type="file" name="artistimage" class="form-control" onchange="previewArtistImage(event, 'artistPreview${index}')">
+            <div id="artistPreview${index}" class="mt-2"></div>
+          </div>
+          <div class="col-md-1 text-end">
+            <button type="button" class="btn btn-link text-danger" onclick="this.closest('.section-card').remove()" title="Remove">
+              <i class="fas fa-minus-circle fa-lg"></i>
+            </button>
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+    }
+
+    // Add new Schedule form block
+    function addSchedule() {
+      const container = document.getElementById("scheduleContainer");
+      const index = container.children.length;
+
+      const div = document.createElement("div");
+      div.className = "section-card mb-3 schedule-block";
+      div.setAttribute("data-index", index);
+const uniqueId = Date.now(); // for unique input ids
+
+    div.innerHTML = `
+      <div class="row">
+        <div class="col-md-4">
+          <label>Venue</label>
+          <input type="text" name="venue[]" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+          <label>City</label>
+          <input type="text" name="city[]" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+          <label>Date</label>
+          <input type="date" name="date[]" class="form-control" required>
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-md-3">
+          <label>Start Time</label>
+          <input type="time" id="start_${uniqueId}" name="start_time[]" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+          <label>End Time</label>
+          <input type="time" id="end_${uniqueId}" name="end_time[]" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+          <label>Screen</label>
+          <input type="text" name="screen[]" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select" name="language[]">
+          <option value="">Select Language</option>
+          <option value="English">English</option>
+          <option value="Hindi">Hindi</option>
+          <option value="Bengali">Bengali</option>
+          <option value="Telugu">Telugu</option>
+          <option value="Tamil">Tamil</option>
+          <option value="Kannada">Kannada</option>
+          <option value="Malayalam">Malayalam</option>
+          <option value="Marathi">Marathi</option>
+          <option value="Gujarati">Gujarati</option>
+          <option value="Punjabi">Punjabi</option>
+          <option value="Urdu">Urdu</option>
+        </select>
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-md-6">
+          <label>Format </label>
+          <select name="format[]" class="form-control" >
+            <option value="Offline">Offline</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label>Ticket Prices</label>
+          <div class="d-flex gap-2">
+            <input type="number" name="prime_ticket_price[]" placeholder="Prime" class="form-control" required>
+            <input type="number" name="golden_ticket_price[]" placeholder="Golden" class="form-control" required>
+            <input type="number" name="clasic_ticket_price[]" placeholder="Classic" class="form-control" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-md-11">
+          <label>Total Seats</label>
+          <div class="d-flex gap-2">
+            <input type="number" name="prime_seats[]" placeholder="Prime" class="form-control" required>
+            <input type="number" name="golden_seats[]" placeholder="Golden" class="form-control" required>
+            <input type="number" name="clasic_seats[]" placeholder="Classic" class="form-control" required>
+          </div>
+        </div>
+        <div class="col-md-1 text-end">
+          <button type="button" class="btn btn-link text-danger" onclick="this.closest('.section-card').remove()" title="Remove">
+            <i class="fas fa-minus-circle fa-lg"></i>
+          </button>
+        </div>
+      </div>
+    `;
+      container.appendChild(div);
+    }
+  </script>
+  
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script src="/js/sb-admin-2.min.js"></script>
+</body>
+</html>

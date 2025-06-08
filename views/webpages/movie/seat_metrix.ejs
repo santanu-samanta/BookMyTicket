@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Book Seats | Screen <%= schedule.screen %> - <%= schedule.language %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/seat_selection/css/jquery.seat-charts.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #8b9c9b;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .top-right-selection {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #c4d2ca;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .top-right-selection button {
+      background: none;
+      border: none;
+      color: #007bff;
+      cursor: pointer;
+      margin-left: 10px;
+      font-size: 14px;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .screen {
+      background: #2c3e50;
+      color: #fff;
+      padding: 8px;
+      text-align: center;
+      font-size: 14px;
+      width: 40%;
+      margin: 0 auto 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .seat-section {
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .section-label {
+      font-weight: bold;
+      text-transform: uppercase;
+      margin: 10px 0;
+      color: #444;
+      font-size: 14px;
+    }
+
+    .seat-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 100px;
+      margin-top: 10px;
+      position: relative;
+    }
+
+    .half-section {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .seat {
+      width: 36px;
+      height: 36px;
+      text-align: center;
+      line-height: 36px;
+      border-radius: 5px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 8px;
+    }
+
+    .seat.classic { background-color: #6cbb3c; color: #fff; }
+    .seat.golden { background-color: gold; color: #000; }
+    .seat.prime  { background-color: crimson; color: #fff; }
+
+    .seat.selected { background-color: #007bff !important; color: #fff; }
+    .seat.sold { background-color: #bbb !important; cursor: not-allowed; }
+
+    .fore-gap { margin-top: 12px; }
+
+    .booking-details {
+      margin-top: 30px;
+      border-top: 1px dashed #ccc;
+      padding-top: 20px;
+    }
+
+    .booking-details ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 10px;
+    }
+
+    .book-left, .book-right {
+      float: left;
+      width: 48%;
+    }
+
+    .book-left li, .book-right li {
+      margin-bottom: 10px;
+      font-size: 15px;
+    }
+
+    #selected-seats {
+      border: 1px solid #ccc;
+      padding: 10px;
+      background: #fefefe;
+      margin-top: 15px;
+      max-height: 100px;
+      overflow-y: auto;
+    }
+
+    #continue {
+      width: 100%;
+      padding: 12px;
+      background: #28a745;
+      color: #fff;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 768px) {
+      .seat {
+        width: 28px;
+        height: 28px;
+        font-size: 10px;
+        line-height: 28px;
+      }
+
+      .seat-row { gap: 15px; }
+      .container { margin: 10px; padding: 15px; }
+      .book-left, .book-right { width: 100%; float: none; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="  navbar-dark bg-dark shadow-sm py-2 px-4" style=" width: 100%;display: flex; justify-content: space-between; position:fixed; z-index: 1; height: 10vh; background-color: #60a49e; margin: 0px; top: 0px;">
+  <div class="container-fluid" style="margin-left: 100px; margin-top: 10px;"> 
+   
+      <div class="fw-bold" style="font-size: 1.5rem; font-weight:bold;"><%=mdata.company_name%></div>
+      <div class="text-muted" style="font-size: 0.85rem; padding: 5px 0px;"><span><%=mdata.address.city%></span>, <span><%=mdata.address.state%></span>, <span><%=mdata.address.pin%></span>, <span><%=mdata.address.landmark%></span></div>
+   
+  </div>
+     <div class="top-right-selection" id="seatLimitInfo" style="margin-right: 100px;">
+      Seats allowed: <span id="allowedSeats">0</span>
+      <button id="editSeats">Edit</button>
+    </div>
+</nav>
+
+  <div class="container" style="margin-top: 100px;">
+ 
+
+    <h2>Select Your Seat - Screen <%= schedule.screen %></h2>
+    <div class="screen">SCREEN</div>
+
+    <div class="seat-section">
+      <% const seatTypes = ['prime', 'golden', 'classic']; %>
+      <% seatTypes.forEach(type => {
+          const total = schedule[type + '_seats'];
+          const sold = schedule[type + '_seats_sold'] || [];
+          const price = schedule[type + '_ticket_price'];
+          const rows = Math.ceil(total / 10);
+      %>
+        <div>
+          <div class="section-label">
+            <%= type.charAt(0).toUpperCase() + type.slice(1) %> (1 - <%= total %>) — ₹<%= price %>
+          </div>
+
+          <% for (let i = 0; i < rows; i++) { %>
+            <div class="seat-row <%= i === 0 ? 'fore-gap' : '' %>">
+              <div class="half-section">
+                <% for (let j = 0; j < 5; j++) {
+                    const index = i * 10 + j;
+                    if (index >= total) continue;
+                    const id = type + '-' + index;
+                    const isSold = sold.includes(index);
+                %>
+                  <div class="seat <%= type %> <%= isSold ? 'sold' : '' %>" 
+                       data-id="<%= id %>" 
+                       data-price="<%= price %>">
+                    <%= index + 1 %>
+                  </div>
+                <% } %>
+              </div>
+              <div class="half-section">
+                <% for (let j = 5; j < 10; j++) {
+                    const index = i * 10 + j;
+                    if (index >= total) continue;
+                    const id = type + '-' + index;
+                    const isSold = sold.includes(index);
+                %>
+                  <div class="seat <%= type %> <%= isSold ? 'sold' : '' %>" 
+                       data-id="<%= id %>" 
+                       data-price="<%= price %>">
+                    <%= index + 1 %>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          <% } %>
+        </div>
+      <% }); %>
+    </div>
+
+    <div class="booking-details">
+      <ul class="book-left">
+        <li>Language</li>
+        <li>Screen</li>
+        <li>Time</li>
+        <li>Tickets</li>
+        <li>Total</li>
+      </ul>
+      <ul class="book-right">
+        <li>: <%= schedule.language %></li>
+        <li>: <%= schedule.screen %></li>
+        <li>: <%= new Date(schedule.date).toDateString() %>, <%= schedule.start_time %> - <%= schedule.end_time %></li>
+        <li>: <span id="counter">0</span></li>
+        <li>: ₹<span id="total">0</span></li>
+      </ul>
+      <div style="clear: both;"></div>
+      <ul id="selected-seats"></ul>
+      <button id="continue" disabled>Continue</button>
+    </div>
+  </div>
+
+  <script src="/seat_selection/js/jquery-1.11.0.min.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      let total = 0;
+      let count = 0;
+      let seatLimit = 0;
+      const selected = { prime: [], golden: [], classic: [] };
+
+      function updateUI() {
+        $('#counter').text(count);
+        $('#total').text(total);
+        const allSeats = [...selected.prime, ...selected.golden, ...selected.classic];
+        $('#selected-seats').html(allSeats.map(s => `<li>${s}</li>`).join(''));
+        $('#continue').prop('disabled', count === 0);
+        $('#allowedSeats').text(seatLimit);
+      }
+
+      function promptSeatLimit() {
+        Swal.fire({
+          title: '🎟️ Select Seats to Book',
+            html: `
+              <img src="https://cdn-icons-png.flaticon.com/512/1170/1170627.png" alt="ticket" style="width:80px;margin-bottom:10px;">
+              <p><strong>Ticket Prices:</strong></p>
+              <ul style="list-style:none;padding:0;margin:0;text-align:left;font-size:14px;">
+                <li>🔴 Prime: ₹<%= schedule.prime_ticket_price %></li>
+                <li>🟡 Golden: ₹<%= schedule.golden_ticket_price %></li>
+                <li>🟢 Classic: ₹<%= schedule.classic_ticket_price %></li>
+              </ul>
+            `,
+          input: 'number',
+          inputAttributes: {
+            min: 1,
+            max: 20,
+            step: 1
+          },
+          inputValue: 1,
+          showCancelButton: false,
+          confirmButtonText: 'OK',
+          allowOutsideClick: false,
+          inputValidator: value => {
+            if (!value || value < 1) return 'Please enter a valid number.';
+             if (value > 10) return 'You can book a maximum of 10 seats.';
+          }
+        }).then(result => {
+          seatLimit = parseInt(result.value);
+          updateUI();
+        });
+      }
+
+      promptSeatLimit();
+
+      $('#editSeats').on('click', () => {
+        promptSeatLimit();
+        $('.seat.selected').removeClass('selected');
+        count = 0;
+        total = 0;
+        selected.prime = [];
+        selected.golden = [];
+        selected.classic = [];
+        updateUI();
+      });
+
+      $('.seat').not('.sold').on('click', function () {
+        const price = parseInt($(this).data('price'));
+        const id = $(this).data('id');
+        const type = id.split('-')[0];
+
+        if ($(this).hasClass('selected')) {
+          $(this).removeClass('selected');
+          selected[type] = selected[type].filter(s => s !== id);
+          total -= price;
+          count--;
+        } else {
+          if (count >= seatLimit) {
+            Swal.fire('Limit Reached', `You can only book ${seatLimit} seats.`, 'info');
+            return;
+          }
+          $(this).addClass('selected');
+          selected[type].push(id);
+          total += price;
+          count++;
+        }
+
+        updateUI();
+      });
+
+   $('#continue').on('click', function () {
+  if (count === 0) {
+    Swal.fire('No seats selected', 'Please select at least one seat.', 'info');
+    return;
+  }
+
+  // Prepare booking data
+  const bookingData = {
+    selectedSeats: selected,
+    totalAmount: total,
+    ticketCount: count,
+    language: "<%= schedule.language %>",
+    screen: "<%= schedule.screen %>",
+    time: "<%= schedule.start_time %> - <%= schedule.end_time %>",
+    id: "<%= schedule.id %>",
+    title: "<%= schedule.title %>",
+    date: "<%= schedule.date %>",
+    event_id: "<%= schedule.enentid %>",
+    image:"<%= schedule.image %>"
+  };
+console.log(total)
+  // Create an order in backend first to get order_id for Razorpay
+  $.ajax({
+    url: '/ticket/create-order',
+    method: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify({ amount: total * 100 }), 
+    // amount in paise
+    success: function (order) {
+      // Open Razorpay checkout
+      var options = {
+        key: '<%=apikey%>', // Replace with your Razorpay test key_id
+        amount: order.amount, // in paise
+        currency: "INR",
+        name: "BookMyTicket",
+        description: "Movie Ticket Booking",
+        order_id: order.id, // from backend
+        handler: function (response) {
+          // response contains razorpay_payment_id, razorpay_order_id, razorpay_signature
+          
+          // Now verify payment & create ticket on backend
+          $.ajax({
+            url: '/ticket/create',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+              paymentDetails: response,
+              bookingData: bookingData
+            }),
+            success: function (res) {
+                  Swal.fire('Success!', 'Your booking was confirmed.', 'success').then(() => {
+                    window.location.href = `/ticket/${res.id}`;
+                  });
+                },
+                error: function () {
+                  Swal.fire('Error', 'Payment verified but booking failed.', 'error');
+                }
+          });
+        },
+        prefill: {
+          name: '<%= user?.name %>', // optionally add user name/email here
+          email: '<%= user?.email %>'
+        },
+        theme: {
+          color: '#28a745'
+        }
+      };
+      var rzp = new Razorpay(options);
+      rzp.open();
+    },
+    error: function () {
+      Swal.fire('Error', 'Unable to create order for payment.', 'error');
+    }
+  });
+});
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!-- footer-66 -->
+<footer class="bg-dark text-white pt-5">
+  <div class="container">
+
+    <!-- Top Movie Banner Row -->
+    <div class="row text-center mb-5">
+      <div class="col-6 col-md-3 mb-3">
+        <a href="/movies" aria-label="Banner 1 - Movies">
+          <img src="/assets/images/banner1.jpg" class="img-fluid rounded shadow-sm" alt="Banner 1">
+        </a>
+      </div>
+      <div class="col-6 col-md-3 mb-3">
+        <a href="/movies" aria-label="Banner 2 - Movies">
+          <img src="/assets/images/banner2.jpg" class="img-fluid rounded shadow-sm" alt="Banner 2">
+        </a>
+      </div>
+      <div class="col-6 col-md-3 mb-3">
+        <a href="/movies" aria-label="Banner 3 - Movies">
+          <img src="/assets/images/banner3.jpg" class="img-fluid rounded shadow-sm" alt="Banner 3">
+        </a>
+      </div>
+      <div class="col-6 col-md-3 mb-3">
+        <a href="/movies" aria-label="Banner 4 - Movies">
+          <img src="/assets/images/banner4.jpg" class="img-fluid rounded shadow-sm" alt="Banner 4">
+        </a>
+      </div>
+    </div>
+
+    <!-- Footer Links -->
+    <div class="row gy-4">
+
+      <div class="col-md-3 col-sm-6">
+        <h5 class="text-uppercase fw-bold mb-3">Movies</h5>
+        <ul class="list-unstyled">
+          <li><a href="#" class="text-white-50 text-decoration-none hover-effect">Movies</a></li>
+          <li><a href="#" class="text-white-50 text-decoration-none hover-effect">Videos</a></li>
+          <li><a href="#" class="text-white-50 text-decoration-none hover-effect">English Movies</a></li>
+          <li><a href="#" class="text-white-50 text-decoration-none hover-effect">Trailer</a></li>
+          <li><a href="#" class="text-white-50 text-decoration-none hover-effect">Upcoming Movies</a></li>
+          <li><a href="/contact" class="text-white-50 text-decoration-none hover-effect">Contact Us</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <h5 class="text-uppercase fw-bold mb-3">Information</h5>
+        <ul class="list-unstyled">
+          <li><a href="/" class="text-white-50 text-decoration-none hover-effect">Home</a></li>
+          <li><a href="/about" class="text-white-50 text-decoration-none hover-effect">About</a></li>
+          <li><a href="#" class="text-white-50 text-decoration-none hover-effect">TV Series</a></li>
+          <li><a href="#" class="text-white-50 text-decoration-none hover-effect">Blogs</a></li>
+          <li><a href="/sign-in" class="text-white-50 text-decoration-none hover-effect">Login</a></li>
+          <li><a href="/contact" class="text-white-50 text-decoration-none hover-effect">Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <h5 class="text-uppercase fw-bold mb-3">Locations</h5>
+        <ul class="list-unstyled">
+          <li><a href="/movies" class="text-white-50 text-decoration-none hover-effect">Asia</a></li>
+          <li><a href="/movies" class="text-white-50 text-decoration-none hover-effect">France</a></li>
+          <li><a href="/movies" class="text-white-50 text-decoration-none hover-effect">Taiwan</a></li>
+          <li><a href="/movies" class="text-white-50 text-decoration-none hover-effect">United States</a></li>
+          <li><a href="/movies" class="text-white-50 text-decoration-none hover-effect">Korea</a></li>
+          <li><a href="/movies" class="text-white-50 text-decoration-none hover-effect">United Kingdom</a></li>
+        </ul>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <h5 class="text-uppercase fw-bold mb-3">Newsletter</h5>
+        <form action="#" method="post" class="d-flex mb-3" role="search" aria-label="Newsletter subscription form">
+          <input type="email" class="form-control me-2" placeholder="Your Email" aria-label="Email address" required>
+          <button class="btn btn-primary" type="submit" aria-label="Subscribe to newsletter">
+            <i class="fa fa-envelope"></i>
+          </button>
+        </form>
+        <p class="text-white-50 small mb-0">
+          Enter your email and receive the latest news, updates and special offers.
+        </p>
+      </div>
+    </div>
+
+    <!-- Bottom Footer -->
+    <div class="border-top border-secondary mt-5 pt-4 d-flex flex-column flex-md-row justify-content-between align-items-center">
+      <p class="mb-2 mb-md-0 small">&copy; <%= new Date().getFullYear() %> MyShowz. All rights reserved.</p>
+      <div>
+        <a href="#" class="text-white me-3" aria-label="Facebook"><i class="fab fa-facebook-f fa-lg"></i></a>
+        <a href="#" class="text-white me-3" aria-label="Twitter"><i class="fab fa-twitter fa-lg"></i></a>
+        <a href="#" class="text-white me-3" aria-label="LinkedIn"><i class="fab fa-linkedin-in fa-lg"></i></a>
+        <a href="#" class="text-white" aria-label="Google Plus"><i class="fab fa-google-plus-g fa-lg"></i></a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Back to top button -->
+  <button 
+    onclick="topFunction()" 
+    id="movetop" 
+    class="btn btn-primary position-fixed bottom-0 end-0 m-4 shadow-lg rounded-circle" 
+    title="Go to top" 
+    aria-label="Scroll to top"
+    style="display:none; width:48px; height:48px; z-index: 1050;">
+    <i class="fa fa-arrow-up"></i>
+  </button>
+
+  <script>
+    // Show button on scroll
+    window.onscroll = function () {
+      const btn = document.getElementById("movetop");
+      btn.style.display = (document.documentElement.scrollTop > 100) ? "block" : "none";
+    };
+
+    // Smooth scroll to top
+    function topFunction() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+
+  <style>
+    /* Hover effect for footer links */
+    .hover-effect:hover {
+      color: #0d6efd !important;
+      text-decoration: underline;
+    }
+  </style>
+</footer>

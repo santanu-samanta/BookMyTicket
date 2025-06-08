@@ -1,0 +1,143 @@
+<ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: rgb(65, 128, 107);">
+
+    <!-- Sidebar - Brand -->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/organizer/dashboard">
+        <div class="sidebar-brand-icon">
+            <img src="/images-removebg-preview.png" alt="Logo" height="50px" width="160px">
+        </div>
+    </a>
+
+    <hr class="sidebar-divider my-0">
+
+    <!-- Dashboard -->
+    <li class="nav-item active">
+        <a class="nav-link" href="/organizer/dashboard">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+
+    <hr class="sidebar-divider">
+    <div class="sidebar-heading">Manage Content</div>
+<%if(user.company_type=='Production House' || user.company_type == 'Theatre Company' ){%>
+     <!-- Movies -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseMovies" aria-expanded="false" aria-controls="collapseMovies">
+            <i class="fas fa-fw fa-film"></i>
+            <span>Movies</span>
+        </a>
+        <div id="collapseMovies" class="collapse" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="/organizer/add_event">Add Movie</a>
+                <a class="collapse-item" href="/organizer/events">Movies Table</a>
+                <a class="collapse-item" href="/organizer/reject-events">Reject Movies Table</a>
+            </div>
+        </div>
+    </li>
+    <%}else{%>
+        <!-- Events -->
+    <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseEvents" aria-expanded="false" aria-controls="collapseEvents">
+            <i class="fas fa-fw fa-calendar-alt"></i>
+            <span>Events</span>
+        </a>
+        <div id="collapseEvents" class="collapse" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="/organizer/event/create">Add Event</a>
+                <a class="collapse-item" href="/organizer/events-table">Events Table</a>
+                <a class="collapse-item" href="/organizer/reject-events-table">Reject Events Table</a>
+            </div>
+        </div>
+    </li>
+    <%}%>
+   
+
+    
+
+    <!-- Plays -->
+    <!-- <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePlays" aria-expanded="false" aria-controls="collapsePlays">
+            <i class="fas fa-fw fa-theater-masks"></i>
+            <span>Plays</span>
+        </a>
+        <div id="collapsePlays" class="collapse" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="/admin/plays-add">Add Play</a>
+                <a class="collapse-item" href="/admin/plays-list">Plays List</a>
+            </div>
+        </div>
+    </li> -->
+
+    <!-- Sports -->
+    <!-- <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseSports" aria-expanded="false" aria-controls="collapseSports">
+            <i class="fas fa-fw fa-futbol"></i>
+            <span>Sports</span>
+        </a>
+        <div id="collapseSports" class="collapse" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="/admin/sports-add">Add Sport</a>
+                <a class="collapse-item" href="/admin/sports-list">Sports List</a>
+            </div>
+        </div>
+    </li> -->
+
+    <!-- Activities -->
+    <!-- <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseActivities" aria-expanded="false" aria-controls="collapseActivities">
+            <i class="fas fa-fw fa-bolt"></i>
+            <span>Activities</span>
+        </a>
+        <div id="collapseActivities" class="collapse" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+                <a class="collapse-item" href="/admin/activities-add">Add Activity</a>
+                <a class="collapse-item" href="/admin/activities-list">Activities List</a>
+            </div>
+        </div>
+    </li> -->
+
+    <hr class="sidebar-divider">
+    <div class="sidebar-heading">Settings</div>
+
+    <!-- Profile -->
+    <li class="nav-item">
+        <a class="nav-link" href="/organizer/profile">
+            <i class="fas fa-fw fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/organizer/profile-update">
+            <i class="fas fa-fw fa-user-edit"></i>
+            <span>Update Profile</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/organizer/change-password">
+            <i class="fas fa-fw fa-key"></i>
+            <span>Change Password</span>
+        </a>
+    </li>
+    <li class="nav-item">
+    <a class="nav-link text-danger" href="/organizer/delete-account">
+      <i class="fas fa-fw fa-trash"></i>
+      <span>Delete Account</span>
+    </a>
+  </li>
+
+    <!-- Logout -->
+    <li class="nav-item">
+        <a class="nav-link" href="/organizer/logout">
+            <i class="fas fa-fw fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+    </li>
+
+    <hr class="sidebar-divider d-none d-md-block">
+
+    <!-- Sidebar Toggler -->
+    <div class="text-center d-none d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    </div>
+
+</ul>

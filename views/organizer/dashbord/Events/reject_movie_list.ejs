@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Company Bookings Dashboard</title>
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700" rel="stylesheet">
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet">
+  <link href="/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+  <style>
+    .table td, .table th {
+      vertical-align: middle;
+    }
+    .card-header {
+      background: linear-gradient(45deg, #1abc9c, #16a085);
+    }
+    .badge-info {
+      background-color: #17a2b8;
+    }
+    .btn-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+    }
+  </style>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body id="page-top">
+
+<div id="wrapper">
+  <%- include('../../../layout/corporatelayout/corporate_sidebar.ejs') %>
+
+  <div id="content-wrapper" class="d-flex flex-column">
+    <div id="content" style="background-color: rgb(222, 236, 232);">
+      <%- include('../../../layout/corporatelayout/corporate_navbar.ejs') %>
+
+      <div class="container-fluid">
+        <h1 class="h3 mb-4 text-gray-800 text-center">Company Movie Bookings Reject List</h1>
+         <div class="d-flex justify-content-end mb-3">
+                    <a href="/admin/artists-add" class="btn btn-success btn-sm">
+                        <i class="fas fa-plus"></i> Add Artist
+                    </a>
+                    </div>
+
+        <div class="card shadow mb-4">
+          <div class="card-header text-white">
+            <h5 class="m-0 font-weight-bold">Your Movie Bookings</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover text-center" id="dataTable" width="100%" cellspacing="0">
+                <thead class="thead-dark">
+                  <tr>
+                    <th>#</th>
+                    <th>Movie</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Tickets</th>
+                    <th>Tickets Sold</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                 
+                  <% companyda.forEach((booking, index) => { %>
+                    <tr>
+                      <td><%= index + 1 %></td>
+                      <td class="text-left font-weight-bold"><a href="/organizer/events/details_single/<%=booking.event_id%>" style="text-decoration: none;color: black;" ><%= booking.Event %></a></td>
+                      <td>  <% booking.Date_time.forEach((boo, index) => { %><span  ><%= new Date(boo.Date).toDateString() %></span> <br>  <% }) %>  </td>
+                      <td><% booking.Date_time.forEach((boo, index) => { %><span  ><%= boo.Time %></span> <br> <% }) %>  </td>
+                      <td><% booking.Date_time.forEach((boo, index) => { %><span  ><%= boo.Tickets %></span> <br> <% }) %>  </td>
+                      <td><% booking.Date_time.forEach((boo, index) => { %><span  ><%= boo.Tickets_Sold %></span> <br> <% }) %>  </td>
+                      <td style="color: red;"><%= booking.status %> <br> (<span  ><%= booking.adminreject_msg %></span>)  </td>
+                      <td>
+                        <a href="/organizer/event-edit/<%= booking.event_id %>" class="btn btn-primary btn-sm">
+                          <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <button class="btn btn-danger btn-sm" onclick="confirmDelete('<%= booking.event_id %>')">
+                        <i class="fas fa-trash"></i> Delete
+                      </button>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <%- include('../../../layout/corporatelayout/corporate_footer.ejs') %>
+    </div>
+  </div>
+</div>
+
+<a class="scroll-to-top rounded" href="#page-top">
+  <i class="fas fa-angle-up"></i>
+</a>
+<script>
+  function confirmDelete(id) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Redirect to a delete route (GET or POST with server-side delete logic)
+        window.location.href = `/organizer/movies/delete/${id}?success=true`;
+      }
+    });
+  }
+</script>
+
+
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+<script src="/js/sb-admin-2.min.js"></script>
+<script src="/vendor/datatables/jquery.dataTables.min.js"></script>
+<script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+<script src="/js/demo/datatables-demo.js"></script>
+
+</body>
+</html>

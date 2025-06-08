@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= data[0].movie_details.name %> - Booking Details</title>
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700" rel="stylesheet">
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet">
+  <link href="/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+  <style>
+    .card-header {
+      background: linear-gradient(45deg, #1abc9c, #16a085);
+      color: white;
+      font-weight: 600;
+    }
+    .schedule-card {
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      transition: all 0.3s;
+      background-color: white;
+    }
+    .schedule-card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+    .seat-type {
+      font-weight: 600;
+    }
+    .text-prime { color: #28a745; }    /* Green */
+    .text-golden { color: #ffc107; }   /* Amber */
+    .text-classic { color: #007bff; }  /* Blue */
+    .company-logo {
+      max-height: 100px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .btn-sm {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.875rem;
+  border-radius: 0.3rem;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-sm:hover {
+  transform: scale(1.05);
+}
+
+.gap-2 > * {
+  margin-right: 0.5rem;
+}
+
+  </style>
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body id="page-top">
+
+<div id="wrapper">
+  <%- include('../../../layout/corporatelayout/corporate_sidebar.ejs') %>
+
+  <div id="content-wrapper" class="d-flex flex-column" >
+    <div id="content" style="background-color: rgb(222, 236, 232); ">
+      <%- include('../../../layout/corporatelayout/corporate_navbar.ejs') %>
+        <div style="padding: 0px 30px;">
+            <div class="container-fluid">
+        <% let company = data[0].company_details; %>
+        <% let movie = data[0].movie_details; %>
+        <% let schedules = data[0].schedules; %>
+        
+        <div style="display: flex; justify-content: space-between;">
+             
+             <div class="mb-4 d-flex justify-content-end gap-2"></div>
+         <a href="/organizer/events" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+      </div>
+      <h1 class="h3 mb-4 text-gray-800 text-center"><%= company.company_name %> - Movie Booking Details</h1>
+        </div>
+       
+          
+        <!-- Company Info -->
+        <div class="row mb-4 align-items-center">
+          <div class="col-md-3 text-center">
+            <%console.log(company.logo) %>
+            <img src="<%= '/' + company.logo.replace('uploads\\', '').replace(/\\/g, '/') %>" alt="Company Logo" class="company-logo img-fluid">
+          </div>
+          <div class="col-md-9">
+            <h4 class="text-dark"><%= company.company_name %> <small class="text-muted"> - <%= company.company_type %></small></h4>
+            <p><strong>Email:</strong> <%= company.email %> | <strong>Phone:</strong> <%= company.phone %></p>
+            <p><strong>Address:</strong> <%= company.address.city %>, <%= company.address.state %>, <%= company.address.pin %></p>
+            <p><strong>Facilities:</strong> <%= company.facilities %></p>
+          </div>
+        </div>
+
+        <!-- Movie Info Card -->
+        <div class="card mb-5 shadow-sm">
+          <div class="row no-gutters">
+            <div class="col-md-3">
+              <img src="/images/<%= movie.posters[0] %>" class="img-fluid rounded-left" alt="Movie Poster" style="height: 100%; object-fit: cover;">
+            </div>
+            <div class="col-md-9">
+              <div class="card-body">
+                <h5 class="card-title font-weight-bold"><%= movie.name %></h5>
+                <p><strong>Genre:</strong> <%= movie.genre.join(', ') %></p>
+                <p><strong>Languages:</strong> <%= movie.languages.join(', ') %></p>
+                <p><strong>Certificate:</strong> <%= movie.movieCertificate %></p>
+                <p><%= movie.description %></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trailer Section -->
+        <h5 class="mb-3 text-primary font-weight-bold">Trailers</h5>
+        <div class="row mb-5">
+          <% movie.trailers.forEach(t => { %>
+            <div class="col-md-3 mb-3">
+              <div class="card shadow-sm">
+                <video controls class="w-100 rounded-top">
+                  <source src="/videos/<%= t.filename %>" type="video/mp4">
+                  Your browser does not support the video tag.
+                </video>
+                <div class="card-body py-2 text-center">
+                  <p class="mb-0 font-weight-bold"><%= t.language %> Trailer</p>
+                </div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+
+        <!-- Schedule Section -->
+        <h5 class="mb-3 text-primary font-weight-bold">Available Show Schedules</h5>
+        <% schedules.forEach(sch => {
+          let showDate = new Date(sch.date).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+          let primeLeft = sch.prime_seats - sch.prime_seats_book.length;
+          let goldenLeft = sch.golden_seats - sch.golden_seats_book.length;
+          let classicLeft = sch.clasic_seats - sch.classic_seats_book.length;
+        %>
+          <div class="schedule-card">
+            <h6 class="mb-2"><%= showDate %> | <strong>Start:</strong> <%= sch.start_time %> - <strong>End:</strong> <%= sch.end_time %></h6>
+            <p class="mb-1"><strong>Screen:</strong> <%= sch.screen %> | <strong>Language:</strong> <%= sch.language %> | <strong>Format:</strong> <%= sch.format.join(', ') %></p>
+            
+            <div class="row">
+              <div class="col-md-4">
+                <p class="seat-type text-prime">Prime: ₹<%= sch.prime_ticket_price %> | Available: <%= primeLeft %> / <%= sch.prime_seats %></p>
+              </div>
+              <div class="col-md-4">
+                <p class="seat-type text-golden">Golden: ₹<%= sch.golden_ticket_price %> | Available: <%= goldenLeft %> / <%= sch.golden_seats %></p>
+              </div>
+              <div class="col-md-4">
+                <p class="seat-type text-classic">Classic: ₹<%= sch.clasic_ticket_price %> | Available: <%= classicLeft %> / <%= sch.clasic_seats %></p>
+              </div>
+            </div>
+          </div>
+           
+        <% }) %>
+          <!-- Action Buttons -->
+            <div class="mb-4 d-flex justify-content-end gap-2">
+            <a href="/organizer/event-edit/<%= data[0]._id %>" class="btn btn-warning btn-sm mr-2">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <button class="btn btn-danger btn-sm mr-2" onclick="confirmDelete('<%= data[0]._id %>')">
+                <i class="fas fa-trash-alt"></i> Delete
+            </button>
+          </div>
+      </div>
+        </div>
+      
+
+      <%- include('../../../layout/corporatelayout/corporate_footer.ejs') %>
+    </div>
+  </div>
+</div>
+
+<a class="scroll-to-top rounded" href="#page-top">
+  <i class="fas fa-angle-up"></i>
+</a>
+<script>
+  function confirmDelete(movieId) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "This movie and all its schedules will be permanently deleted!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e74c3c',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, delete it!',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Send DELETE request or redirect to delete route
+        window.location.href = `/organizer/movies/delete/${movieId}`;
+      }
+    });
+  }
+</script>
+
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+<script src="/js/sb-admin-2.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= artist.artist_name || 'Unknown Artist' %> - Profile</title>
+
+  <!-- Styles -->
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,700" rel="stylesheet" />
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet" />
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    .profile-card {
+      box-shadow: 0 5px 30px rgba(0, 0, 0, 0.1);
+      border-radius: 15px;
+      position: relative;
+    }
+
+    .profile-img {
+      border-radius: 15px;
+      max-height: 300px;
+      object-fit: cover;
+    }
+
+    .badge {
+      margin-right: 5px;
+    }
+
+    .section-title {
+      font-weight: 600;
+      font-size: 1.2rem;
+      border-bottom: 2px solid #e3e6f0;
+      padding-bottom: 5px;
+      margin-bottom: 15px;
+    }
+
+    .btn-link {
+      font-weight: 500;
+      color: #4e73df;
+    }
+
+    .action-buttons {
+      position: absolute;
+      bottom: 15px;
+      left: 20px;
+    }
+
+    .action-buttons .btn {
+      margin-right: 10px;
+    }
+  </style>
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <!-- Sidebar -->
+    <%- include('../../layout/adminlayout/admin_sidebar.ejs') %>
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+      <div id="content">
+        <!-- Navbar -->
+        <%- include('../../layout/adminlayout/admin_navbar.ejs') %>
+
+        <!-- Main Content -->
+        <div class="container-fluid mt-5">
+          <div class="row justify-content-center">
+            <div class="col-md-10 bg-white profile-card p-4">
+              <div class="row">
+                <!-- Left: Image & Basic Info -->
+                <div class="col-md-4 text-center">
+                  <img src="<%= artist.image ? artist.image.replace('uploads\\', '/') : '/images/default-profile.png' %>" alt="Artist Photo" class="profile-img img-fluid mb-3" style="width: 100%; height: 65%;" >
+                  <h3 class="mb-2"><%= artist.artist_name || 'Unknown Artist' %></h3>
+                  <% if (artist.occupation?.length) { %>
+                    <% artist.occupation.forEach(job => { %>
+                      <span class="badge badge-primary"><%= job %></span>
+                    <% }) %>
+                  <% } else { %>
+                    <span class="text-muted">Occupation not specified</span>
+                  <% } %>                  
+                </div>                
+                <!-- Right: Details -->
+                <div class="col-md-8 position-relative">
+                  <div class="section-title">About</div>
+                  <p id="aboutText">
+                    <%= artist.about.length > 200 ? artist.about.slice(0, 200) + '...' : artist.about %>
+                  </p>
+                  <% if (artist.about.length > 200) { %>
+                    <button id="toggleBtn" class="btn btn-link p-0" onclick="toggleAbout()">Show more</button>
+                  <% } %>
+
+                  <div class="row mt-4">
+                    <div class="col-sm-6 mb-2">
+                      <p><strong>Born:</strong> <%= artist.Born ? new Date(artist.Born).toLocaleDateString() : 'N/A' %></p>
+                      <p><strong>Birthplace:</strong> <%= artist.Birthplace || 'N/A' %></p>
+                    </div>
+                    <div class="col-sm-6 mb-2">
+                      <p><strong>Other Info:</strong> <%= artist.other || 'N/A' %></p>
+                    </div>
+                  </div>
+
+                  <% if (artist.family?.length > 0) { %>
+                    <div class="section-title mt-4">Family Members</div>
+                    <ul class="list-group">
+                      <% artist.family.forEach(member => { %>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                          <%= member.relasanship || 'Relationship Unknown' %>
+                          <span class="badge badge-info"><%= member.f_id?.artist_name || 'Unknown' %></span>
+                        </li>
+                      <% }) %>
+                    </ul>
+                  <% } else { %>
+                    <p class="text-muted mt-4">No family member information available.</p>
+                  <% } %>
+                    
+                </div>   
+                <!-- Action Buttons -->
+                <div class="action-buttons mt-4">
+                    <button class="btn btn-warning btn-sm" onclick="editArtist('<%= artist._id %>')">
+                      <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <%if(artist.isdelete){%>
+                      <button class="btn btn-danger btn-sm" onclick="confirmUndo('<%= artist._id %>')">
+                     <i class="fas fa-undo"></i> Undo
+                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="confirmCancels()">
+                      <i class="fas fa-arrow-left"></i> Cancel
+                    </button>
+                      <%}else{%>
+                      <button class="btn btn-danger btn-sm" onclick="confirmDelete('<%= artist._id %>')">
+                      <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="confirmCancel()">
+                      <i class="fas fa-arrow-left"></i> Cancel
+                    </button>
+                      <%}%>
+
+                    
+                    
+                  </div>             
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+              <!-- Footer -->
+        <%- include('../../layout/adminlayout/admin_footer.ejs') %>
+    </div>
+  </div>
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top"><i class="fas fa-angle-up"></i></a>
+
+  <!-- JavaScript -->
+  <script>
+    const fullAbout = `<%- artist.about.replace(/\n/g, "\\n").replace(/'/g, "\\'") %>`;
+    const shortAbout = fullAbout.slice(0, 200) + "...";
+    let isExpanded = false;
+
+    function toggleAbout() {
+      const aboutText = document.getElementById("aboutText");
+      const toggleBtn = document.getElementById("toggleBtn");
+
+      if (isExpanded) {
+        aboutText.textContent = shortAbout;
+        toggleBtn.textContent = "Show more";
+      } else {
+        aboutText.textContent = fullAbout;
+        toggleBtn.textContent = "Show less";
+      }
+
+      isExpanded = !isExpanded;
+    }
+
+    function editArtist(id) {
+      window.location.href = `/admin/artists/profile_update/${id}`;
+    }
+
+    function confirmDelete(id) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "This will permanently delete the artist profile.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, delete it!',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = `/admin/artists/profile/delete/${id}`;
+        }
+      });
+    }
+    function confirmUndo(id) {
+      Swal.fire({
+                title: 'Are you sure?',
+                text: "This artist will be restored!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, undo it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = `/admin/artists/profile/undo/${id}`;
+        }
+      });
+    }
+
+    function confirmCancels() {
+      Swal.fire({
+        title: 'Cancel changes?',
+        text: "You will be redirected back to the artist list.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, go back',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = '/admin/delete_artists-list';
+        }
+      });
+    }
+    function confirmCancel() {
+      Swal.fire({
+        title: 'Cancel changes?',
+        text: "You will be redirected back to the artist list.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, go back',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = '/admin/artists-list';
+        }
+      });
+    }
+  </script>
+
+  <!-- Scripts -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script src="/js/sb-admin-2.min.js"></script>
+</body>
+</html>

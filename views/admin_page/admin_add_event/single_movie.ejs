@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>
+    <%= movie.name || 'Unknown Movie' %> - Movie Profile
+  </title>
+
+  <!-- Styles -->
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,700" rel="stylesheet" />
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+   <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      background-color: #f8f9fc;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    .profile-card {
+      box-shadow: 0 5px 30px rgba(0, 0, 0, 0.08);
+      border-radius: 15px;
+    }
+
+    .poster-img {
+      border-radius: 10px;
+      height: 450px;
+      
+    }
+
+
+    .section-title {
+      font-weight: 700;
+      font-size: 1.4rem;
+      border-left: 5px solid #4e73df;
+      padding-left: 10px;
+      margin-top: 25px;
+      margin-bottom: 15px;
+    }
+
+    .artist-img {
+      height: 60px;
+      width: 60px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-right: 15px;
+    }
+
+    .artist-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .video-wrapper {
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+      width: 100%;
+    }
+
+    .btn-group-custom {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 40px;
+    }
+
+    .badge {
+      margin-right: 5px;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <%- include('../../layout/adminlayout/admin_sidebar.ejs') %>
+      <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+          <%- include('../../layout/adminlayout/admin_navbar.ejs') %>
+
+            <div class="container-fluid mt-5">
+              <div class="row justify-content-center">
+                <div class="col-lg-10 bg-white profile-card p-4">
+
+                  <!-- Movie Title -->
+                  <h2 class="mb-3 text-center text-primary fw-bold">
+                    <%= movie.name || 'Unknown Movie' %>
+                  </h2>
+
+                  <!-- Carousel Posters -->
+                  <div class="section-title">Posters</div>
+                  <div id="posterCarousel" class="carousel slide mb-4 " data-bs-ride="carousel" style="width: 80%;margin-left: 10%; ">
+                    <div class="carousel-inner">
+                      <% movie.posters.forEach((poster, index)=> { %>
+                        <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+                          <img src="/images/<%= poster %>" class="d-block w-100 poster-img" height="50px"
+                            alt="Poster <%= index + 1 %>">
+                        </div>
+                        <% }) %>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#posterCarousel"
+                      data-bs-slide="prev">
+                      <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#posterCarousel"
+                      data-bs-slide="next">
+                      <span class="carousel-control-next-icon"></span>
+                    </button>
+                  </div>
+
+                  <!-- Movie Info -->
+                  <div class="section-title">Movie Details</div>
+                  <p><strong>Release Date:</strong>
+                    <%= new Date(movie.releaseDate).toLocaleDateString() %>
+                  </p>
+                  <p><strong>Genres:</strong>
+                    <% movie.genre.forEach(g=> { %>
+                      <span class="badge bg-primary">
+                        <%= g %>
+                      </span>
+                      <% }) %>
+                  </p>
+                  <p><strong>Languages:</strong>
+                    <% movie.languages.forEach(l=> { %>
+                      <span class="badge bg-info text-dark">
+                        <%= l %>
+                      </span>
+                      <% }) %>
+                  </p>
+                  <p><strong>Certificate:</strong>
+                    <%= movie.movieCertificate %>
+                  </p>
+                  <p><strong>Duration:</strong>
+                    <%= Math.floor(movie.duration / 60) %> min
+                  </p>
+                  <p><strong>Description:</strong>
+                    <%= movie.description || 'No description available.' %>
+                  </p>
+
+                  <!-- Trailers -->
+                  <div class="section-title">Trailers</div>
+                  <div class="row">
+                    <% movie.trailers.forEach(trailer=> { %>
+                      <div class="col-md-6 mb-4">
+                        <video class="video-wrapper" controls>
+                          <source src="/videos/<%= trailer.filename %>" type="video/mp4">
+                          Your browser does not support the video tag.
+                        </video>
+                        <p class="mt-2 text-center"><strong>
+                            <%= trailer.language %>
+                          </strong></p>
+                      </div>
+                      <% }) %>
+                  </div>
+
+                  <!-- Cast -->
+                  <div class="section-title">Cast</div>
+                  <% movie.cast.forEach(c=> { %>
+                    <div class="artist-item">
+                      <img src="/<%= c.cast_id.image.replace('uploads\\', '') %>" class="artist-img" alt="">
+                      <div>
+                        <div><strong>
+                            <%= c.cast_id.artist_name %>
+                          </strong> (<%= c.cast_role %>)</div>
+                        <div class="text-muted">
+                          <%= c.cast_nickname %>
+                        </div>
+                      </div>
+                    </div>
+                    <% }) %>
+
+                      <!-- Crew -->
+                      <div class="section-title">Crew</div>
+                      <% movie.crew.forEach(c=> { %>
+                        <div class="artist-item">
+                          <img src="/<%= c.crew_id.image.replace('uploads\\', '') %>" class="artist-img" alt="">
+                          <div>
+                            <div><strong>
+                                <%= c.crew_id.artist_name %>
+                              </strong> (<%= c.crew_role %>)</div>
+                            <div class="text-muted">
+                              <%= c.crew_nickname %>
+                            </div>
+                          </div>
+                        </div>
+                        <% }) %>
+                         <!-- Buttons -->
+                      <div class="btn-group-custom">
+                          <button class="btn btn-success" onclick="window.location.href='/admin/movie-edit/<%= movie._id %>'"><i class="fas fa-edit"></i> Edit</button>
+                        <%if(movie.isdelete){%> 
+                      <button class="btn btn-warning confirm-action" data-url="/admin/movie-undo/<%= movie._id %>">
+                        <i class="fas fa-undo"></i> Undo
+                      </button>
+                          <button class="btn btn-secondary confirm-back" data-url="/admin/delete-movie-list"><i class="fas fa-arrow-left"></i> Back</button>
+                        <%}else{%>
+                          <button class="btn btn-danger confirm-action-del" data-url="/admin/movie/delete/<%= movie._id %>">
+  <i class="fas fa-trash-alt"></i> Delete
+</button>
+
+                          <button class="btn btn-secondary confirm-back" data-url="/admin/movie-list"><i class="fas fa-arrow-left"></i> Back</button>
+                        <%}%>
+                      </div>
+                </div>
+              </div>
+            </div>
+
+        </div>
+      </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".confirm-action-del").forEach(button => {
+      button.addEventListener("click", function (e) {
+        e.preventDefault();
+        const url = this.getAttribute("data-url");
+
+        Swal.fire({
+          title: 'Are you sure?',
+          text: "This movie will be deleted!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#d33',
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            // Use GET method to redirect and trigger delete
+            window.location.href = url;
+          }
+        });
+      });
+    });
+  });
+</script>
+
+
+
+<script>
+  // For delete/undo actions
+ 
+
+  // For back button
+  document.querySelectorAll('.confirm-back').forEach(button => {
+    button.addEventListener('click', function () {
+      const url = this.getAttribute('data-url');
+      Swal.fire({
+        title: 'Go back?',
+        text: "Unsaved changes may be lost.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, go back!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = url;
+        }
+      });
+    });
+  });
+   // For delete/undo actions
+document.querySelectorAll('.confirm-action').forEach(button => {
+  button.addEventListener('click', function () {
+    const url = this.getAttribute('data-url');
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "This action cannot be undone.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Yes, proceed!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // 🔁 Send AJAX request instead of redirecting immediately
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            Swal.fire({
+              title: 'Success!',
+              text: 'Undo completed successfully.',
+              icon: 'success',
+              confirmButtonText: 'OK'
+            }).then(() => {
+              // 🔁 Redirect after user clicks OK
+              window.location.href = '/admin/movie-list';
+            });
+          } else {
+            Swal.fire('Error', data.message || 'Something went wrong.', 'error');
+          }
+        })
+        .catch(() => {
+          Swal.fire('Error', 'Failed to perform undo action.', 'error');
+        });
+      }
+    });
+  });
+});
+
+</script>
+
+</html>

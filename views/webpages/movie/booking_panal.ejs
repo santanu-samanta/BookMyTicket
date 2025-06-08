@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Movie Booking</title>
+
+  <link rel="stylesheet" href="/assets/css/style-starter.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" />
+
+<style>
+    body {
+      background-color: rgb(168, 205, 188);
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .date-btns button {
+      margin: 4px 6px 4px 0;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 8px;
+      background-color: #e2e4e7;
+      color: rgb(9, 1, 1);
+      cursor: pointer;
+      width: 65px;
+    }
+
+    .date-btns button.active {
+      background-color: #14a48a;
+    }
+
+    .date-btns button:disabled {
+      background-color: #ccc !important;
+      cursor: not-allowed;
+      color: rgb(181, 177, 177);
+    }
+
+    .ticket-slot {
+      padding: 10px 14px;
+      background-color: #f0f8ff;
+      border: 1.5px solid #0d6efd;
+      border-radius: 20px;
+      color: #0d6efd;
+      font-weight: 500;
+      font-size: 0.95rem;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .ticket-slot:hover {
+      background-color: #0d6efd;
+      color: #ffffff;
+      box-shadow: 0 5px 15px rgba(13, 110, 253, 0.3);
+    }
+
+    .ticket-slot .format {
+      background-color: #d1f0ff;
+      color: #0d6efd;
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 12px;
+      transition: 0.3s;
+    }
+
+    .ticket-slot:hover .format {
+      background-color: #ffffff;
+      color: #0d6efd;
+    }
+
+    .theater-card {
+      border: none;
+      padding: 20px;
+      margin-bottom: 25px;
+      border-radius: 12px;
+      background: linear-gradient(to right, #566965, #999d90);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s ease-in-out;
+    }
+
+    .theater-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 15px;
+    }
+
+    .filter-row > .date-btns {
+      flex-shrink: 0;
+      max-width: 50%;
+    }
+
+    .filter-row > form {
+      flex-grow: 1;
+    }
+
+    @media (max-width: 768px) {
+      .filter-row {
+        flex-direction: column;
+      }
+      .filter-row > .date-btns,
+      .filter-row > form {
+        width: 100%;
+        max-width: 100%;
+      }
+    }
+  </style>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+<header id="site-header" class="w3l-header fixed-top">
+  <%- include("../../layout/user_layout/navbar.ejs") %>
+</header>
+
+<section style="margin-top: 80px;">
+  <div class="container my-5 pt-4">
+    <h2 class="mb-4 text-center">
+      🎬 Book Tickets for
+      <a href="/single-event/<%= uniqueMovies?.[0]?.movie_id || '#' %>" style="text-decoration: none; color: black;">
+        <span class="text-primary"><%= uniqueMovies?.[0]?.moviename || '' %></span>
+      </a>
+    </h2>
+
+    <div class="card shadow-sm border-0 mb-4" style="background-color: rgb(74, 128, 116); padding: 20px;">
+      <div class="filter-row">
+        <div class="date-btns" id="dateButtons"></div>
+
+        <form id="filterForm" class="row row-cols-2 row-cols-sm-2 row-cols-md-4 g-3" onsubmit="return false;">
+          <div class="col">
+            <label for="language" class="form-label">Language</label>
+            <select id="language" class="form-select" style="background-color: #cbbebe;">
+              <option value="">Select</option>
+              <option>English</option>
+              <option>Hindi</option>
+              <option>Bengali</option>
+              <option>Telugu</option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="format" class="form-label">Format</label>
+            <select id="format" class="form-select" style="background-color: #cbbebe;">
+              <option value="">Select</option>
+              <option>2D</option>
+              <option>3D</option>
+              <option>IMAX</option>
+              <option>Online</option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="price" class="form-label">Price</label>
+            <select id="price" class="form-select" style="background-color: #cbbebe;">
+              <option value="">Select</option>
+              <option value="below200">Below ₹200</option>
+              <option value="200to400">₹200–₹400</option>
+              <option value="above400">Above ₹400</option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="showtime" class="form-label">Showtime</label>
+            <select id="showtime" class="form-select" style="background-color: #cbbebe;">
+              <option value="">Select</option>
+              <option value="morning">Morning (5am–12pm)</option>
+              <option value="afternoon">Afternoon (12pm–5pm)</option>
+              <option value="evening">Evening (5pm–9pm)</option>
+              <option value="night">Night (9pm–12am)</option>
+            </select>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="theaterList"></div>
+  </div>
+</section>
+
+<%- include("../../layout/user_layout/footer.ejs") %>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  const moviedata = <%- JSON.stringify(theaterData) %>;
+
+  // Get URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const preLanguage = urlParams.get('language');
+  const preFormat = urlParams.get('format');
+  const prePrice = urlParams.get('price');
+  const preShowtime = urlParams.get('showtime');
+
+  const today = new Date();
+  let selectedDate = null;
+
+  function getFormattedDate(date) {
+    return date.toISOString().split('T')[0];
+  }
+
+  function getDDMon(date) {
+    const day = date.toLocaleString('en-US', { weekday: 'short' });
+    const dateNum = date.getDate().toString().padStart(2, '0');
+    const month = date.toLocaleString('en-US', { month: 'short' });
+    return `${day} ${dateNum} ${month}`;
+  }
+
+  function displayDateButtons() {
+    const container = $('#dateButtons');
+    container.empty();
+    let firstAvailableDate = null;
+
+    for (let i = 0; i < 7; i++) {
+      const date = new Date();
+      date.setDate(today.getDate() + i);
+      const formatted = getFormattedDate(date);
+
+      const available = moviedata.some(t =>
+        t.show_shedule.some(s => getFormattedDate(new Date(s.date)) === formatted)
+      );
+
+      const btnLabel = getDDMon(date);
+      const btn = $(`<button ${!available ? 'disabled' : ''}>${btnLabel}</button>`);
+      btn.data('date', formatted);
+
+      btn.on('click', function () {
+        $('#dateButtons button').removeClass('active');
+        $(this).addClass('active');
+        selectedDate = $(this).data('date');
+        updateFilteredList();
+      });
+
+      if (available && !firstAvailableDate) {
+        firstAvailableDate = { formatted, btn };
+      }
+
+      container.append(btn);
+    }
+
+    if (firstAvailableDate) {
+      selectedDate = firstAvailableDate.formatted;
+      firstAvailableDate.btn.addClass('active');
+      updateFilteredList();
+    } else {
+      $('#theaterList').html(`<div class="alert alert-danger text-center">🎬 No theaters are currently showing this movie.</div>`);
+    }
+  }
+
+  function getMinutesFromTime(t) {
+    const [h, m] = t.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  function isInShowtimeRange(minutes, range) {
+    if (!range) return true;
+    return (
+      (range === "morning" && minutes >= 300 && minutes < 720) ||
+      (range === "afternoon" && minutes >= 720 && minutes < 1020) ||
+      (range === "evening" && minutes >= 1020 && minutes < 1260) ||
+      (range === "night" && minutes >= 1260)
+    );
+  }
+
+  function filterSchedules(schedules, filters) {
+    return schedules.filter(s => {
+      if (filters.date && getFormattedDate(new Date(s.date)) !== filters.date) return false;
+      if (filters.language && s.language !== filters.language) return false;
+      if (filters.format && !s.format.includes(filters.format)) return false;
+
+      const price = s.prime_ticket_price ?? s.ticket_price ?? s.golden_ticket_price ?? 0;
+      if (filters.price) {
+        if (filters.price === 'below200' && price >= 200) return false;
+        if (filters.price === '200to400' && (price < 200 || price > 400)) return false;
+        if (filters.price === 'above400' && price <= 400) return false;
+      }
+
+      const minutes = getMinutesFromTime(s.start_time);
+      return isInShowtimeRange(minutes, filters.showtime);
+    });
+  }
+
+  function renderTheaters(data) {
+    const container = $('#theaterList');
+    container.empty();
+
+    if (data.length === 0) {
+      container.html('<div class="alert alert-warning text-center">🎟️ No shows available for this selection.</div>');
+      return;
+    }
+
+    data.forEach(theater => {
+      const card = $(`
+        <div class="theater-card">
+          <h5 class="fw-bold mb-3">${theater.company_name}</h5>
+          <div class="row"></div>
+        </div>
+      `);
+      const row = card.find('.row');
+
+      theater.filteredSchedules.forEach(s => {
+        const col = $(`
+          <div class="col-md-3 mb-3" style="width: 160px;">
+            <a href="/seat-layout/${s._id}" class="ticket-slot d-flex justify-content-between align-items-center">
+              <div class="time d-flex align-items-center">
+                <i class="bi bi-clock-fill me-1"></i> ${s.start_time}
+              </div>
+              <div class="format badge">${s.format.join(', ')}</div>
+            </a>
+          </div>
+        `);
+        row.append(col);
+      });
+
+      container.append(card);
+    });
+  }
+
+  function updateFilteredList() {
+    const filters = {
+      date: selectedDate,
+      language: $('#language').val(),
+      format: $('#format').val(),
+      price: $('#price').val(),
+      showtime: $('#showtime').val()
+    };
+
+    const filtered = moviedata.map(theater => {
+      const filteredSchedules = filterSchedules(theater.show_shedule, filters);
+      return filteredSchedules.length > 0 ? { ...theater, filteredSchedules } : null;
+    }).filter(Boolean);
+
+    renderTheaters(filtered);
+  }
+
+  $(document).ready(function () {
+    // Set filters from URL
+    if (preLanguage) $('#language').val(preLanguage);
+    if (preFormat) $('#format').val(preFormat);
+    if (prePrice) $('#price').val(prePrice);
+    if (preShowtime) $('#showtime').val(preShowtime);
+
+    displayDateButtons();
+    $('#language, #format, #price, #showtime').on('change', updateFilteredList);
+  });
+</script>
+</body>
+</html>

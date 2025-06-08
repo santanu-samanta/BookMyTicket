@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Deleted User List - BookMyTicket</title>
+
+    <!-- Fonts and styles -->
+    <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+    <link href="/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <%- include('../../layout/adminlayout/admin_sidebar.ejs') %>
+
+            <div id="content-wrapper" class="d-flex flex-column">
+                <div id="content">
+                    <%- include('../../layout/adminlayout/admin_navbar.ejs') %>
+
+                        <div class="container-fluid">
+                            <h1 class="h3 mb-4 text-gray-800">Deleted User Table</h1>
+
+                            <!-- Bulk Undo Button -->
+                            <div class="mb-3 d-flex justify-content-end">
+                               <button class="btn btn-success btn-sm" id="bulkUndoBtn" disabled>
+                                    <i class="fas fa-undo"></i> Bulk Undo
+                                </button>
+                            </div>
+
+                            <div class="card shadow mb-4">
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                            <thead>
+                                                <tr>
+                                                    <th><input type="checkbox" id="selectAll"></th>
+                                                    <th>Sl. No</th>
+                                            <th>User Name</th>
+                                            <th>User email</th>
+                                            <th>User phone</th>
+                                            <th>User gender</th>
+                                            <th>User DOB</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% userdata.forEach((data, ind)=> { %>
+                                                    <tr>
+                                                        <td>
+                                                            <input type="checkbox" class="artistCheckbox"
+                                                                value="<%= data._id %>">
+                                                        </td>
+                                                        <td>
+                                                            <%= ind + 1 %>
+                                                        </td>
+                                                         <td>
+                                                  <span><%=data.first_name%></span> <span><%=data.last_name%></span>
+                                                </td>
+                                                <td><%=data.email%></td>
+                                                <td><%=data.phone%></td>
+                                                <td><%=data.gender%></td>
+                                                <td><%= new Date(data.date_of_birth).toDateString()%></td>
+                                                    <td>
+                                                    <% if (data.isadmindelete) { %>
+                                                        Admin delete <br>
+                                                        <span class="short-msg"><%= data.admindelete_msg.slice(0, 20) %>...</span>
+                                                        <span class="full-msg d-none"><%= data.admindelete_msg %></span>
+                                                        <br>
+                                                        <button type="button" class="btn btn-link btn-sm p-0 toggle-msg">Show more</button>
+                                                    <% } %>
+                                                    </td>
+                                                        <td>
+
+                                                            <form action="/admin/account/undo/<%= data._id %>"
+                                                                 class="d-inline single-undo-form">
+                                                                <button type="button"
+                                                                    class="btn btn-warning btn-sm btn-undo">
+                                                                    <i class="fas fa-undo"></i> Undo
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                    <% }) %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+                <%- include('../../layout/adminlayout/admin_footer.ejs') %>
+            </div>
+    </div>
+
+    <!-- Scroll to Top -->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="/js/sb-admin-2.min.js"></script>
+    <script src="/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="/js/demo/datatables-demo.js"></script>
+            <script>
+                $(document).ready(function () {
+                    $('.toggle-msg').click(function () {
+                    const btn = $(this);
+                    const cell = btn.closest('td');
+                    const shortMsg = cell.find('.short-msg');
+                    const fullMsg = cell.find('.full-msg');
+
+                    if (fullMsg.hasClass('d-none')) {
+                        shortMsg.addClass('d-none');
+                        fullMsg.removeClass('d-none');
+                        btn.text('Show less');
+                    } else {
+                        shortMsg.removeClass('d-none');
+                        fullMsg.addClass('d-none');
+                        btn.text('Show more');
+                    }
+                    });
+                });
+        </script>
+
+    <script>
+        // Select/Deselect All
+        $('#selectAll').click(function () {
+            $('.artistCheckbox').prop('checked', this.checked);
+        });
+
+        // Single Undo
+        $('.btn-undo').click(function (e) {
+            e.preventDefault();
+            const form = $(this).closest('form');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This artist will be restored!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, undo it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+
+        // Bulk Undo
+        $('#bulkUndoBtn').click(function () {
+            const selectedIds = $('.artistCheckbox:checked').map(function () {
+                return $(this).val();
+            }).get();
+
+            if (selectedIds.length === 0) {
+                Swal.fire('No artists selected', 'Please select at least one artist.', 'info');
+                return;
+            }
+
+            Swal.fire({
+                title: `Undo ${selectedIds.length} artist(s)?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, undo them!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Create and submit a dynamic form
+                    const form = $('<form>', {
+                        method: 'POST',
+                        action: '/admin/account/bulck/undo'
+                    });
+
+                    selectedIds.forEach(id => {
+                        form.append($('<input>', {
+                            type: 'hidden',
+                            name: 'artistIds[]',
+                            value: id
+                        }));
+                    });
+
+                    $('body').append(form);
+                    form.submit();
+                }
+            });
+        });
+        function toggleBulkUndoButton() {
+            const anyChecked = $('.artistCheckbox:checked').length > 0;
+            $('#bulkUndoBtn').prop('disabled', !anyChecked);
+        }
+
+        // Run on page load
+        $(document).ready(function () {
+            toggleBulkUndoButton();
+        });
+
+        // On individual checkbox change
+        $('.artistCheckbox').on('change', toggleBulkUndoButton);
+
+        // On "select all" checkbox change
+        $('#selectAll').on('change', function () {
+            $('.artistCheckbox').prop('checked', this.checked);
+            toggleBulkUndoButton();
+        });
+    </script>
+</body>
+
+</html>

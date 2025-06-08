@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Review Details - Admin Panel</title>
+
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    .profile-img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    .media-img {
+      max-width: 100%;
+      height: auto;
+    }
+    .section-title {
+      border-bottom: 2px solid #ccc;
+      margin-bottom: 15px;
+      padding-bottom: 5px;
+    }
+  </style>
+</head>
+
+<body id="page-top" class="bg-light">
+  <div id="wrapper">
+    <%- include('../../layout/adminlayout/admin_sidebar.ejs') %>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+      <div id="content">
+        <%- include('../../layout/adminlayout/admin_navbar.ejs') %>
+
+        <div class="container-fluid">
+          <h1 class="h3 mb-4 text-gray-800">Review Details</h1>
+
+          <!-- User Info -->
+          <div class="card mb-4">
+            <div class="card-header section-title">User Information</div>
+            <div class="card-body d-flex align-items-center">
+              <!-- <img src="/images/<%= eventdata.userid.image %>" class="profile-img me-3" alt="User Image" /> -->
+              <div>
+                <p><strong>Name:</strong> <%= eventdata.userid.first_name %> <%= eventdata.userid.last_name %></p>
+                <p><strong>Email:</strong> <%= eventdata.userid.email %></p>
+                <p><strong>Phone:</strong> <%= eventdata.userid.phone %></p>
+              </div>
+            </div>
+          </div>
+
+          
+
+          <!-- Review Info -->
+          <div class="card mb-4">
+            <div class="card-header section-title">Review</div>
+            <div class="card-body">
+              <p><strong>Rating:</strong> <%= eventdata.rating %> ⭐</p>
+              <p><strong>Review:</strong> <%= eventdata.review %></p>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="d-flex justify-content-end gap-2">
+            <button class="btn btn-danger" onclick="handleAction('reject')">Delete Comment</button>
+            <button class="btn btn-success" onclick="handleAction('undo')">Undo Reject</button>
+            <button class="btn btn-secondary" onclick="window.history.back()">Back</button>
+            <button class="btn btn-warning" onclick="handleAction('userdelete')">Delete User</button>
+          </div>
+        </div>
+      </div>
+      <%- include('../../layout/adminlayout/admin_footer.ejs') %>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script src="/js/sb-admin-2.min.js"></script>
+
+  <script>
+   function handleAction(type) {
+  const titles = {
+    reject: 'Delete this review?',
+    undo: 'Undo Account?',
+    userdelete: 'Delete this user?'
+  };
+  const confirms = {
+    reject: 'Yes, Delete',
+    undo: 'Yes, Undo',
+    userdelete: 'Yes, Delete User'
+  };
+  const urls = {
+    reject: '/admin/review/reject/<%= eventdata._id %>',
+    undo: '/admin/account/undo/<%= eventdata.userid._id %>',
+    userdelete: '/admin/account/delete/<%= eventdata.userid._id %>'
+  };
+
+  const options = {
+    title: titles[type],
+    showCancelButton: true,
+    confirmButtonText: confirms[type],
+    confirmButtonColor: type === 'undo' ? '#28a745' : (type === 'userdelete' ? '#ffc107' : '#dc3545'),
+    cancelButtonColor: '#6c757d',
+  };
+
+  // Only add input field for reject or userdelete
+  if (type !== 'undo') {
+    options.input = 'text';
+    options.inputLabel = 'Reason';
+    options.inputPlaceholder = 'Enter reason here...';
+    options.inputValidator = (value) => {
+      if (!value.trim()) {
+        return 'Please enter a reason!';
+      }
+    };
+  }
+
+  Swal.fire(options).then((result) => {
+    if (result.isConfirmed) {
+      const reason = type === 'undo' ? '' : encodeURIComponent(result.value);
+      const redirectURL = `${urls[type]}?msg=${reason}`;
+      window.location.href = redirectURL;
+    }
+  });
+}
+
+  </script>
+</body>
+
+</html>

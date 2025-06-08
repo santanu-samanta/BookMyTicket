@@ -1,0 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+:root{
+    --white: #ffff;
+    --redOrange:#FF5555;
+}
+a{
+    display: inline-block;
+    text-decoration: none;
+}
+ul{
+    list-style: none;
+}
+
+h3{
+    font-family: "Poppins", sans-serif;
+}
+p{
+    font-family: "Inter", sans-serif;
+}
+
+/* login form */
+
+.icon{
+    background-color: #A7BF00;
+}
+
+.btnColor{
+    background-color: #A7BF00;
+    color: var(--white);
+}
+.btnColor:hover{
+    border-color: #A7BF00;
+}
+.fromBg{
+   background-color: #F9FFD1;
+}
+
+/* forgot and otp */
+.sFont{
+    font-size: 15px !important;
+}
+.otp-input input{
+    width: 15%;
+    height: 60px;
+    text-align: center; 
+}
+/* ticket from */
+.cardT{
+    max-width: 500px;
+    width: 100%;
+    background-color: #FAFFDA;
+}
+.pic img{
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+}
+.btn:hover{
+    border-color: #A7BF00;
+}
+
+.formBg{
+    padding-top: 220px;
+    width: 756px;
+    height: 1140px;
+    background-image: url('../images/ticket\ background\ 1.png');
+    background-size: cover;
+    
+}
+.card {
+    max-width: 600px;
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    margin-left: 90px;
+  }
+.ariPic img{
+    width: 150px;
+    height: 150px;
+    border-radius: 15%;
+}
+.inCri{
+    max-width: 150px;
+    width: 100%;
+}
+.bookBtn{
+    background-color: #A7BF00;
+    border-color: #A7BF00;
+}
+.captcha {
+    background: white;
+    max-width: 440px;
+    width: 100%;
+    border-radius: 10px;
+    padding: 15px;
+}
+/* admin login */
+.amdin {
+    background-color: #F4FAFF;
+    padding: 2rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+  }
+  
+  .login-card {
+    background-color: #F4FAFF;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    width: 95%;
+    margin: 1rem auto;
+  }
+  
+  .login-img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .form-control {
+    border-radius: 0.5rem;
+  }
+  
+  .input-group input {
+    background: transparent;
+  }
+  
+  .btn-login {
+    background-color: #74c7b8;
+    color: white;
+    width: 100%;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+  
+  .btn-login:hover {
+    background-color: #5bb0a3;
+    border: none;
+  }
+  
+  /* responsive */
+  @media (max-width: 767.98px) {
+    .login-card {
+      padding: 1.5rem;
+    }
+    
+    .login-img {
+      max-height: 200px;
+      margin-bottom: 1.5rem;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .login-card {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    
+    .col-md-6 {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+  }

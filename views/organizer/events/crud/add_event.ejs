@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Add Event - Corporate Admin</title>
+
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,700" rel="stylesheet" />
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+
+ <style>
+  body {
+    font-family: 'Nunito', sans-serif;
+    background-color: #f8f9fc;
+  }
+
+  .form-header {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #4e73df;
+    margin-bottom: 30px;
+  }
+
+  .section-card {
+    border: none;
+    border-radius: 12px;
+    padding: 25px;
+    background: #ffffff;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .section-card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  }
+
+  .section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .section-title h5 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #343a40;
+  }
+
+  .add-btn, .remove-btn {
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .add-btn i, .remove-btn i {
+    margin-right: 4px;
+  }
+
+  .add-btn:hover {
+    background-color: #4e73df;
+    color: #fff;
+  }
+
+  .remove-btn:hover {
+    color: #bd2130;
+  }
+
+  label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 5px;
+  }
+
+  .form-control {
+    border-radius: 8px;
+  }
+
+  .form-check-label {
+    font-weight: 500;
+    color: #495057;
+  }
+
+  .btn-success {
+    padding: 12px 32px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  }
+
+  .btn-success:hover {
+    background-color: #218838;
+  }
+
+  .gap-2 > * {
+    margin-right: 10px;
+  }
+
+  .gap-2 > *:last-child {
+    margin-right: 0;
+  }
+
+  .text-end .btn-link {
+    font-size: 1.25rem;
+  }
+</style>
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <%- include('../../../layout/corporatelayout/corporate_sidebar.ejs') %>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+      <div id="content" style="background-color: rgb(222, 236, 232); ">
+        <%- include('../../../layout/corporatelayout/corporate_navbar.ejs') %>
+
+        <main class="container form-container py-4" style="background-color: rgb(185, 228, 228); box-shadow: 0 15px 20px 10px rgb(168, 198, 198); border-radius: 20px; margin-bottom: 50px;">
+          <h1 class="form-header">Add New Event</h1>
+
+          <form action="/organizer/event/create/data_store" method="POST" enctype="multipart/form-data">
+
+    <!-- Description & Category -->
+    <div class="section-card" >
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label">Event Name</label>
+          <input type="text" class="form-control" name="event_name" placeholder="e.g. Music, Tech, Theatre">
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+          <label for="eventCategory" >Event Category</label>
+          <select class="form-control" id="eventCategory" name="category" required>
+            <option value="" selected disabled>Select a category</option>
+            <option value="music">Music & Concerts</option>
+            <option value="workshops">Workshops & Seminars</option>
+            <option value="sports">Sports & Fitness</option>
+            <option value="festivals">Festivals & Cultural</option>
+            <option value="corporate">Corporate & Networking</option>
+            <option value="kids">Kids & Family</option>
+            <option value="nightlife">Nightlife & Parties</option>
+            <option value="exhibitions">Exhibitions & Expos</option>
+            <option value="charity">Charity & Fundraisers</option>
+          </select>
+        </div>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label">Event Description</label>
+          <textarea class="form-control" name="description" rows="4" required></textarea>
+        </div>
+        
+      </div>
+      <div class="form-check mt-2">
+        <input type="checkbox" class="form-check-input" name="validAge" value="true" >
+        <label class="form-check-label">Age Restriction (18+)</label>
+      </div>
+    </div>
+
+    <!-- Media Upload -->
+    <div class="section-card">
+      <div class="row">
+        <div class="col-md-6">
+          <label class="form-label">Upload Images</label>
+          <input type="file" class="form-control" name="images" multiple>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Upload Videos</label>
+          <input type="file" class="form-control" name="videos" multiple>
+        </div>
+      </div>
+    </div>
+
+    <!-- Artists -->
+    <div class="section-card">
+      <div class="section-title">
+        <h5>Artists</h5>
+        <button type="button" class="btn btn-outline-primary btn-sm add-btn" onclick="addArtist()">
+          <i class="fas fa-plus"></i> Add Artist
+        </button>
+      </div>
+      <div id="artistContainer"></div>
+    </div>
+
+    <!-- Schedules -->
+    <div class="section-card">
+      <div class="section-title">
+        <h5>Schedules</h5>
+        <button type="button" class="btn btn-outline-primary btn-sm add-btn" onclick="addSchedule()">
+          <i class="fas fa-plus"></i> Add Schedule
+        </button>
+      </div>
+      <div id="scheduleContainer"></div>
+    </div>
+
+    <!-- Submit -->
+    <div class="text-center">
+      <button type="submit" class="btn btn-success btn-lg">Create Event</button>
+    </div>
+
+  </form>
+        </main>
+      </div>
+
+      <%- include('../../../layout/corporatelayout/corporate_footer.ejs') %>
+    </div>
+  </div>
+
+  <a class="scroll-to-top rounded" href="#page-top"><i class="fas fa-angle-up"></i></a>
+
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script src="/js/sb-admin-2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Scripts -->
+<!-- SweetAlert2 Validation and Dynamic Field Logic -->
+<script>
+  function showError(message) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Invalid Time',
+      text: message,
+      confirmButtonColor: '#dc3545'
+    });
+  }
+
+  function addArtist() {
+    const container = document.getElementById('artistContainer');
+    const div = document.createElement('div');
+    div.classList.add('section-card');
+    div.innerHTML = `
+      <div class="row align-items-end">
+        <div class="col-md-4">
+          <label>Artist Name</label>
+          <input type="text" name="artistname[]" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+          <label>Artist Role</label>
+          <input type="text" name="artistrole[]" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+          <label>Artist Image</label>
+          <input type="file" name="artistimage" class="form-control" required>
+        </div>
+        <div class="col-md-1 text-end">
+          <button type="button" class="btn btn-link text-danger" onclick="this.closest('.section-card').remove()" title="Remove">
+            <i class="fas fa-minus-circle fa-lg"></i>
+          </button>
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+  }
+
+  function addSchedule() {
+    const container = document.getElementById('scheduleContainer');
+    const div = document.createElement('div');
+    div.classList.add('section-card');
+
+    const uniqueId = Date.now(); // for unique input ids
+
+    div.innerHTML = `
+      <div class="row">
+        <div class="col-md-4">
+          <label>Venue</label>
+          <input type="text" name="venue[]" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+          <label>City</label>
+          <input type="text" name="city[]" class="form-control" required>
+        </div>
+        <div class="col-md-4">
+          <label>Date</label>
+          <input type="date" name="date[]" class="form-control" required>
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-md-3">
+          <label>Start Time</label>
+          <input type="time" id="start_${uniqueId}" name="start_time[]" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+          <label>End Time</label>
+          <input type="time" id="end_${uniqueId}" name="end_time[]" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+          <label>Screen</label>
+          <input type="text" name="screen[]" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+          <label>Language</label>
+          <select class="form-control" name="language[]"  required>
+          <option value="">Select Language</option>
+          <option value="English">English</option>
+          <option value="Hindi">Hindi</option>
+          <option value="Bengali">Bengali</option>
+          <option value="Telugu">Telugu</option>
+          <option value="Tamil">Tamil</option>
+          <option value="Kannada">Kannada</option>
+          <option value="Malayalam">Malayalam</option>
+          <option value="Marathi">Marathi</option>
+          <option value="Gujarati">Gujarati</option>
+          <option value="Punjabi">Punjabi</option>
+          <option value="Urdu">Urdu</option>
+        </select>
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-md-6">
+          <label>Format </label>
+          <select name="format[]" class="form-control" required>
+            <option value="Offline" selected>Offline</option>
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label>Ticket Prices</label>
+          <div class="d-flex gap-2">
+            <input type="number" name="prime_ticket_price[]" placeholder="Prime" class="form-control" required>
+            <input type="number" name="golden_ticket_price[]" placeholder="Golden" class="form-control" required>
+            <input type="number" name="clasic_ticket_price[]" placeholder="Classic" class="form-control" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-md-11">
+          <label>Total Seats</label>
+          <div class="d-flex gap-2">
+            <input type="number" name="prime_seats[]" placeholder="Prime" class="form-control" required>
+            <input type="number" name="golden_seats[]" placeholder="Golden" class="form-control" required>
+            <input type="number" name="clasic_seats[]" placeholder="Classic" class="form-control" required>
+          </div>
+        </div>
+        <div class="col-md-1 text-end">
+          <button type="button" class="btn btn-link text-danger" onclick="this.closest('.section-card').remove()" title="Remove">
+            <i class="fas fa-minus-circle fa-lg"></i>
+          </button>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(div);
+
+    // Add validation for start_time < end_time
+    const startTimeInput = div.querySelector(`#start_${uniqueId}`);
+    const endTimeInput = div.querySelector(`#end_${uniqueId}`);
+
+    const validateTimes = () => {
+      const start = startTimeInput.value;
+      const end = endTimeInput.value;
+      if (start && end && start >= end) {
+        showError('Start time must be earlier than end time.');
+        endTimeInput.value = '';
+      }
+    };
+
+    startTimeInput.addEventListener('change', validateTimes);
+    endTimeInput.addEventListener('change', validateTimes);
+  }
+</script>
+
+</body>
+</html>

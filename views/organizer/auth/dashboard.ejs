@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="Corporate Dashboard for Ticket Booking" />
+  <meta name="author" content="Your Company" />
+
+  <title><%= title || 'Dashboard' %></title>
+
+  <!-- Custom fonts -->
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900"
+    rel="stylesheet"
+  />
+
+  <!-- Custom styles -->
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet" />
+
+  <style>
+    /* Card Hover Effect */
+    .card {
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+      border-radius: 0.75rem;
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .card-header {
+      background-color: #ffffff;
+      border-bottom: 3px solid #4e73df; /* primary color */
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #4e73df;
+      letter-spacing: 0.03em;
+      padding: 1rem 1.5rem;
+    }
+
+    .small-text-muted {
+      font-size: 0.8rem;
+      color: #6c757d;
+    }
+
+    /* Consistent card padding */
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Chart container height */
+    .chart-container {
+      position: relative;
+      height: 350px;
+      width: 100%;
+    }
+
+    /* Summary Card Styles */
+    .summary-card .text-primary {
+      font-weight: 700;
+    }
+
+    .progress {
+      height: 10px;
+      border-radius: 10px;
+    }
+
+    /* Scrollbar fix for chart container */
+    .chart-area canvas {
+      max-width: 100% !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .chart-container {
+        height: 280px;
+      }
+    }
+  </style>
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body id="page-top">
+
+  <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <%- include('../../layout/corporatelayout/corporate_sidebar.ejs') %>
+    <!-- End Sidebar -->
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content" style="background-color: #f8f9fc;">
+
+        <!-- Topbar -->
+        <%- include('../../layout/corporatelayout/corporate_navbar.ejs') %>
+        <!-- End Topbar -->
+
+        <!-- Begin Page Content -->
+        <div class="container-fluid py-4">
+
+          <!-- Page Heading -->
+          <div
+            class="d-sm-flex align-items-center justify-content-between mb-4"
+          >
+            <h1 class="h3 mb-0 fw-bold text-primary">🎯 Organizer Dashboard</h1>
+            <%if(user.company_type=='Production House' || user.company_type=='Theatre Company' ){%>
+               <a href="/organizer/add_event" class="btn btn-primary shadow-sm">
+              <i class="fas fa-plus fa-sm text-white-50 me-2"></i> Create New Movie
+            </a>
+        <%}else{%>
+           <a href="/organizer/event/create" class="btn btn-primary shadow-sm">
+              <i class="fas fa-plus fa-sm text-white-50 me-2"></i> Create New Event
+            </a>
+        <%}%>
+           
+          </div>
+
+          <!-- Summary Cards -->
+          <div class="row mb-4">
+            <% stats.forEach(stat => { %>
+            <div class="col-xl-3 col-md-6 mb-4">
+              <div
+                class="card shadow summary-card border-left-<%= stat.color %> h-100 py-2"
+              >
+                <div class="card-body">
+                  <div class="row align-items-center">
+                    <div class="col me-2">
+                      <div
+                        class="text-xs text-<%= stat.color %> text-uppercase mb-1"
+                        style="letter-spacing: 0.05em; font-weight: 700"
+                      >
+                        <%= stat.title %>
+                      </div>
+                      <div
+                        class="h5 mb-0 fw-bold text-gray-800"
+                        style="font-size: 1.6rem"
+                      >
+                        <%= stat.value %>
+                      </div>
+                    </div>
+                    <div class="col-auto">
+                      <i
+                        class="fas fa-<%= stat.icon %> fa-3x text-gray-300"
+                      ></i>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% }) %>
+          </div>
+
+          <!-- Main Charts Row -->
+          <div class="row g-4">
+            <!-- Engagement Chart -->
+            <div class="col-xl-8 col-lg-7">
+              <div class="card shadow border-0 rounded-3">
+                <div
+                  class="card-header d-flex justify-content-between align-items-center bg-white"
+                >
+                  <h5 class="m-0 text-primary fw-semibold">
+                    📈 Monthly Revenue
+                  </h5>
+                  <span class="small-text-muted">
+                    Last updated: <%= new Date(lastUpdated).toDateString()  || 'Just now' %>
+                  </span>
+                </div>
+                <div class="card-body bg-white">
+                  <div class="chart-container">
+                    <canvas id="engagementAreaChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Top Rated Events -->
+            <div class="col-xl-4 col-lg-5">
+              <div class="card shadow rounded-3">
+                <div
+                  class="card-header bg-white border-bottom border-success py-3"
+                >
+                  <h5 class="m-0 text-success fw-semibold">
+                    🌟 Top Rated Events
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <% if (topEvents.length === 0) { %>
+                    <p class="text-muted text-center">No top rated events found.</p>
+                  <% } else { %>
+                    <% topEvents.forEach(event => { %>
+                    <div class="mb-4">
+                      <strong class="d-block text-dark fs-6"><%= event.name %></strong>
+                      <small class="text-muted"><%= event.date %></small>
+                      <div class="progress mt-2" style="height: 12px;">
+                        <div
+                          class="progress-bar bg-success"
+                          role="progressbar"
+                          style="width: <%= event.rating %>%"
+                          aria-valuenow="<%= event.rating %>"
+                          aria-valuemin="0"
+                          aria-valuemax="100"
+                        >
+                          <%= event.rating %>%
+                        </div>
+                      </div>
+                    </div>
+                    <% }) %>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tickets Sold & Upcoming Events -->
+          <div class="row g-4 mt-3">
+            <!-- Monthly Tickets Sold -->
+            <div class="col-lg-6">
+              <div
+                class="card shadow border-0 rounded-3 border-start border-info"
+              >
+                <div
+                  class="card-header d-flex justify-content-between align-items-center bg-white border-bottom border-info py-3"
+                >
+                  <h5 class="m-0 text-info fw-semibold">
+                    <i class="fas fa-ticket-alt me-2"></i> Monthly Tickets Sold
+                  </h5>
+                  <span class="small-text-muted">
+                    Last updated: <%= new Date(lastUpdated).toDateString() || 'Just now' %>
+                  </span>
+                </div>
+                <div
+                  class="card-body"
+                  style="background: linear-gradient(135deg, #f8fcff, #eaf3f0); border-radius: 0 0 0.75rem 0.75rem;"
+                >
+                  <div class="chart-container">
+                    <canvas id="ticketsBarChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Upcoming Events -->
+            <div class="col-lg-6">
+              <div class="card shadow rounded-3">
+                <div
+                  class="card-header bg-white border-bottom border-success py-3"
+                >
+                  <h5 class="m-0 text-success fw-semibold">🌟 Upcoming Events</h5>
+                </div>
+                <div class="card-body">
+                  <% if (upcomingEvents.length === 0) { %>
+                    <p class="text-muted text-center">No upcoming events available.</p>
+                  <% } else { %>
+                    <% upcomingEvents.forEach(event => { %>
+                    <div class="mb-4">
+                      <strong class="d-block text-dark fs-6"><%= event.name %></strong>
+                      <small class="text-muted"><%= event.date %></small>
+                      <div class="progress mt-2" style="height: 12px;">
+                        <div
+                          class="progress-bar bg-success"
+                          role="progressbar"
+                          style="width: <%= event.rating %>%"
+                          aria-valuenow="<%= event.rating %>"
+                          aria-valuemin="0"
+                          aria-valuemax="100"
+                        >
+                          <%= event.rating %>%
+                        </div>
+                      </div>
+                    </div>
+                    <% }) %>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Additional Insights (Optional) -->
+          <!-- <div class="row mt-5">
+            <div class="col-lg-12">
+              <div class="card shadow rounded-3">
+                <div
+                  class="card-header bg-white border-bottom border-secondary py-3"
+                >
+                  <h5 class="m-0 text-secondary fw-semibold">📊 Monthly Revenue Overview</h5>
+                </div>
+                <div class="card-body">
+                  <p class="text-muted mb-3">
+                    Detailed revenue reports and analytics to help optimize your event
+                    strategies.
+                  </p>
+                 
+                  <div class="text-center text-muted py-5" style="font-style: italic;">
+                    Revenue charts coming soon...
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div> -->
+
+        </div>
+        <!-- /.container-fluid -->
+
+      </div>
+      <!-- End Main Content -->
+
+      <!-- Footer -->
+      <%- include('../../layout/corporatelayout/corporate_footer.ejs') %>
+      <!-- End Footer -->
+    </div>
+    <!-- End Content Wrapper -->
+  </div>
+  <!-- End Page Wrapper -->
+
+  <!-- Scroll to Top Button-->
+  <a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+  </a>
+
+  <!-- Bootstrap core JS -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Core plugin JavaScript -->
+  <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+  <!-- Custom scripts for all pages-->
+  <script src="/js/sb-admin-2.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    // Chart Data from backend, passed as JSON-encoded variables
+    const engagementLabels = <%- JSON.stringify(engagementChart.labels) %>;
+    const engagementData = <%- JSON.stringify(engagementChart.data) %>;
+
+    const ticketsLabels = <%- JSON.stringify(ticketsChart.labels) %>;
+    const ticketsData = <%- JSON.stringify(ticketsChart.data) %>;
+
+    // Engagement Area Chart
+    const ctxEngagement = document
+      .getElementById('engagementAreaChart')
+      .getContext('2d');
+
+    const engagementAreaChart = new Chart(ctxEngagement, {
+      type: 'line',
+      data: {
+        labels: engagementLabels,
+        datasets: [
+          {
+            label: 'This Month Total Revenue',
+            data: engagementData,
+            backgroundColor: 'rgba(78, 115, 223, 0.2)',
+            borderColor: 'rgba(78, 115, 223, 1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 3,
+            pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+            pointHoverRadius: 5,
+          },
+        ],
+      },
+      options: {
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: { display: false },
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: '#e3e6f0' },
+          },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { mode: 'index', intersect: false },
+        },
+      },
+    });
+
+    // Monthly Tickets Sold Bar Chart
+    const ctxTickets = document
+      .getElementById('ticketsBarChart')
+      .getContext('2d');
+
+    const ticketsBarChart = new Chart(ctxTickets, {
+      type: 'bar',
+      data: {
+        labels: ticketsLabels,
+        datasets: [
+          {
+            label: 'Tickets Sold',
+            data: ticketsData,
+            backgroundColor: '#36b9cc',
+            borderRadius: 6,
+          },
+        ],
+      },
+      options: {
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: { display: false },
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: '#e3e6f0' },
+          },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { mode: 'index', intersect: false },
+        },
+      },
+    });
+  </script>
+</body>
+
+</html>

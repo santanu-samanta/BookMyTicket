@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Add Event - Corporate Admin</title>
+
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,700" rel="stylesheet" />
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet" />
+
+  <style>
+    .form-header {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: #4e73df;
+    }
+  </style>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body id="page-top">
+  <div id="wrapper">
+    <%- include('../../../layout/corporatelayout/corporate_sidebar.ejs') %>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+      <div id="content" style="background-color: rgb(222, 236, 232);">
+        <%- include('../../../layout/corporatelayout/corporate_navbar.ejs') %>
+
+        <main class="container form-container py-4">
+          <h1 class="form-header">Add New Movie</h1>
+
+          <form id="eventForm" action="/organizer/add_event_data" method="POST" >
+            <div class="row g-4 mb-4">
+              <div class="col-md-6">
+                <label for="movie_id">Related Movie</label>
+                <select id="movie_id" name="movie_id" class="form-control" required>
+                  <option value="" selected disabled>Select Movie</option>
+                  <% 
+                    const demoMovies = [
+                      { _id: '1', name: 'Avengers: Endgame', languages: ['English', 'Hindi'] },
+                      { _id: '2', name: 'Inception', languages: ['English'] },
+                      { _id: '3', name: 'RRR', languages: ['Telugu', 'Hindi'] }
+                    ];
+                    const moviesToUse = movies && movies.length ? movies : demoMovies;
+                  %>
+                  <% moviesToUse.forEach(movie => { %>
+                    <option value="<%= movie._id %>" data-languages='<%= JSON.stringify(movie.languages) %>'>
+                      <%= movie.name %>
+                    </option>
+                  <% }) %>
+                </select>
+              </div>
+
+              <div class="col-md-12">
+                <label for="msg">Message (Optional)</label>
+                <textarea id="msg" name="msg" rows="4" class="form-control" placeholder="Additional notes or message"></textarea>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label>Schedule & Language Details <span class="text-danger">*</span></label>
+              <div id="scheduleContainer"></div>
+              <button type="button" id="addScheduleBtn" class="btn btn-primary mt-3" disabled>
+                + Add Schedule
+              </button>
+            </div>
+
+            <div class="col-md-12 pt-3">
+              <button type="submit" class="btn btn-success">Add Event</button>
+            </div>
+          </form>
+        </main>
+      </div>
+
+      <%- include('../../../layout/corporatelayout/corporate_footer.ejs') %>
+    </div>
+  </div>
+
+  <a class="scroll-to-top rounded" href="#page-top"><i class="fas fa-angle-up"></i></a>
+
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+  <script src="/js/sb-admin-2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const movieSelect = document.getElementById('movie_id');
+      const scheduleContainer = document.getElementById('scheduleContainer');
+      const addScheduleBtn = document.getElementById('addScheduleBtn');
+      const eventForm = document.getElementById('eventForm');
+      let currentLanguages = [];
+
+      movieSelect.addEventListener('change', function () {
+        const selected = this.options[this.selectedIndex];
+        const value = this.value;
+
+        if (value) {
+          currentLanguages = JSON.parse(selected.getAttribute('data-languages') || '[]');
+          addScheduleBtn.disabled = false;
+        } else {
+          currentLanguages = [];
+          addScheduleBtn.disabled = true;
+        }
+
+        scheduleContainer.innerHTML = '';
+      });
+
+      function reindexSchedules() {
+        const scheduleGroups = scheduleContainer.querySelectorAll('.schedule-group');
+        scheduleGroups.forEach((group, idx) => {
+          group.querySelectorAll('input, select').forEach(el => {
+            el.name = el.name.replace(/schedules\[\d+\]/, `schedules[${idx}]`);
+          });
+        });
+      }
+
+      function validateTimeInputs(group, index) {
+        const startInput = group.querySelector(`input[name="schedules[${index}][start_time]"]`);
+        const endInput = group.querySelector(`input[name="schedules[${index}][end_time]"]`);
+
+        function checkTimes() {
+          if (!startInput.value || !endInput.value) return;
+
+          const [sh, sm] = startInput.value.split(':').map(Number);
+          const [eh, em] = endInput.value.split(':').map(Number);
+          const startMinutes = sh * 60 + sm;
+          const endMinutes = eh * 60 + em;
+
+          if (startMinutes >= endMinutes) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Invalid Time',
+              text: 'Start time must be before End time.',
+            });
+            endInput.value = '';
+          }
+        }
+
+        startInput.addEventListener('change', checkTimes);
+        endInput.addEventListener('change', checkTimes);
+      }
+
+      addScheduleBtn.addEventListener('click', () => {
+        const index = scheduleContainer.children.length;
+        const row = document.createElement('div');
+        row.className = 'row g-3 align-items-end schedule-group mb-4';
+
+        row.innerHTML = `
+          <div class="col-md-2"><label>Date *</label>
+            <input type="date" name="schedules[${index}][date]" class="form-control" required>
+          </div>
+          <div class="col-md-2"><label>Start Time *</label>
+            <input type="time" name="schedules[${index}][start_time]" class="form-control" required>
+          </div>
+          <div class="col-md-2"><label>End Time *</label>
+            <input type="time" name="schedules[${index}][end_time]" class="form-control" required>
+          </div>
+          <div class="col-md-2"><label>Screen *</label>
+            <input type="text" name="schedules[${index}][screen]" class="form-control" required>
+          </div>
+          <div class="col-md-2"><label>Language *</label>
+            <select name="schedules[${index}][language]" class="form-control" required>
+              <option value="" disabled selected>Select</option>
+              ${currentLanguages.map(lang => `<option value="${lang}">${lang}</option>`).join('')}
+            </select>
+          </div>
+          <div class="col-md-2"><label>Format *</label>
+            <select name="schedules[${index}][format][]" class="form-control" required>
+              <option value="2D">2D</option>
+              <option value="3D">3D</option>
+              <option value="IMAX 2D">IMAX 2D</option>
+              <option value="IMAX 3D">IMAX 3D</option>
+              <option value="4DX">4DX</option>
+              <option value="Dolby Atmos">Dolby Atmos</option>
+              <option value="Dolby Cinema">Dolby Cinema</option>
+              <option value="ScreenX">ScreenX</option>
+              <option value="MX4D">MX4D</option>
+              <option value="D-BOX">D-BOX</option>
+              <option value="Subtitled">Subtitled</option>
+            </select>
+          </div>
+          <div class="col-md-2"><label>Prime Price *</label>
+            <input type="number" name="schedules[${index}][prime_ticket_price]" class="form-control" required>
+          </div>
+          <div class="col-md-2"><label>Golden Price *</label>
+            <input type="number" name="schedules[${index}][golden_ticket_price]" class="form-control" required>
+          </div>
+          <div class="col-md-2"><label>Classic Price *</label>
+            <input type="number" name="schedules[${index}][clasic_ticket_price]" class="form-control" required>
+          </div>
+          <div class="col-md-2"><label>Prime Seats *</label>
+            <input type="number" name="schedules[${index}][prime_seats]" class="form-control" required>
+          </div>
+          <div class="col-md-2"><label>Golden Seats *</label>
+            <input type="number" name="schedules[${index}][golden_seats]" class="form-control" required>
+          </div>
+          <div class="col-md-2"><label>Classic Seats *</label>
+            <input type="number" name="schedules[${index}][clasic_seats]" class="form-control" required>
+          </div>
+          <div class="col-md-2">
+            <button type="button" class="btn btn-danger mt-2 btn-remove">Remove</button>
+          </div>
+        `;
+
+        scheduleContainer.appendChild(row);
+        row.querySelector('.btn-remove').addEventListener('click', () => {
+          row.remove();
+          reindexSchedules();
+        });
+
+        validateTimeInputs(row, index);
+      });
+
+      eventForm.addEventListener('submit', function (e) {
+        const schedules = scheduleContainer.querySelectorAll('.schedule-group');
+        if (schedules.length === 0) {
+          e.preventDefault();
+          Swal.fire({
+            icon: 'warning',
+            title: 'No schedule added!',
+            text: 'Please add at least one schedule before submitting.',
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

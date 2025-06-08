@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= movieData.moviename %></title>
+
+  <link rel="stylesheet" href="/assets/css/style-starter.css" />
+  <link rel="shortcut icon" type="image/x-icon" href="/images-removebg-preview (2).png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    .lang-btns {
+      margin-top: 100px;
+    }
+
+    .selected-movie-name {
+      font-size: 28px;
+      font-weight: 700;
+      color: #0e0c0c;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .selected-movie-name a {
+      color: #dc3545;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .selected-movie-name a:hover {
+      text-decoration: underline;
+      color: #a71d2a;
+    }
+
+    .language-section {
+      padding: 80px 0 50px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    /* .language-title {
+      font-size: 32px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      text-align: center;
+    } */
+
+    .movie-video {
+      width: 100%;
+      height: 500px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .btn-filter {
+      margin: 0 10px;
+      min-width: 120px;
+    }
+
+    .btn-filter.active {
+      background-color: #dc3545;
+      color: #fff;
+    }
+  </style>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body style="background-color: rgb(173, 189, 189);">
+
+  <!-- Header -->
+  <header id="site-header" class="w3l-header fixed-top">
+    <%- include('../../layout/user_layout/navbar.ejs') %>
+  </header>
+  <section  style="margin-top: 150px; margin-bottom: 50px;">
+ <div class="container" style=" width: 50vw; box-shadow: 0 10px 15px 15px rgba(0, 0, 0, 0.15); border-radius: 10px; padding: 40px; background-color: rgb(164, 217, 209);">
+      <!-- Single Movie Name Display -->
+  <div class="container">
+    <div class="selected-movie-name">
+      <h2>Videos for <a href="/single-event/<%= movieData.movieid %>" id="movie-name-link"><%= movieData.moviename %></a></h2>
+    </div>
+  </div>
+<hr>
+<div>
+  <div class="container  text-center" >
+    <!-- <h2 class="mb-4">Choose Movie Language</h2> -->
+    <% movieData.language_video.forEach((lang, index) => { %>
+      <button
+        class="btn btn-outline-danger btn-filter <%= index === 0 ? 'active' : '' %>"
+        data-target="#<%= lang.id %>"
+        data-name="<%= movieData.moviename %>"
+        data-url="<%= lang.movieUrl %>">
+        <%= lang.lang %>
+      </button>
+    <% }) %>
+  </div>
+
+ <hr>
+</div>
+
+
+  <!-- Movie Video Sections -->
+  <div class="container " >
+    <% movieData.language_video.forEach(lang => { %>
+      <div id="<%= lang.id %>" class="language-section" style="padding: 0px; margin-bottom: 10px;">
+        <div style="width: 100%;display: flex; justify-content: center; align-items: center;">
+          <span class="language-title" style="padding: 10px 15px; border: 2px solid red; border-radius: 25px; background-color: transparent;  font-size: 15px;
+      font-weight: 600;"><%= lang.lang %></span>
+        </div>
+        
+        <video class="movie-video" controls poster="/videos/<%= lang.poster %>" style="margin: 30px 0px;">
+          <source src="/videos/<%= lang.videoSrc %>" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    <% }) %>
+  </div>
+
+  </div>
+  </section>
+ 
+
+ 
+  <!-- Footer -->
+  <%- include("../../layout/user_layout/footer.ejs") %>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script>
+    $('.btn-filter').on('click', function () {
+      $('.btn-filter').removeClass('active');
+      $(this).addClass('active');
+
+      const target = $(this).data('target');
+      const movieName = $(this).data('name');
+      const movieUrl = $(this).data('url');
+
+      // Update the single movie name and URL at the top
+      $('#movie-name-link').text(movieName).attr('href', movieUrl);
+
+      // Instant scroll without animation delay
+      const offset = $(target).offset().top - 80;
+      $(window).scrollTop(offset);
+    });
+  </script>
+
+</body>
+
+</html>

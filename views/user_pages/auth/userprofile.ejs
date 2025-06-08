@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+        <%= title || 'User Profile' %>
+    </title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- FontAwesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f5f2;
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #416866;
+            color: #ecf0f1;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            padding-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 3px 0 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .sidebar h2 {
+            font-weight: 700;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #4e73df;
+            letter-spacing: 2px;
+        }
+
+        .sidebar nav a {
+            color: #bdc3c7;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border-left: 4px solid transparent;
+            transition: background-color 0.3s, border-left-color 0.3s, color 0.3s;
+        }
+
+        .sidebar nav a i {
+            font-size: 1.2rem;
+        }
+
+        .sidebar nav a:hover,
+        .sidebar nav a.active {
+            background-color: #34495e;
+            border-left-color: #4e73df;
+            color: #4e73df;
+            text-decoration: none;
+        }
+
+        /* Main content */
+        main {
+            margin-left: 250px;
+            /* padding: 2rem 3rem; */
+            flex-grow: 1;
+            background: #9bc2c1;
+            min-height: 100vh;
+        }
+
+        /* Top navbar */
+        .top-navbar {
+            position: sticky;
+            top: 0;
+            background: rgb(122, 206, 206);
+            height: 56px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 2rem;
+            box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+            z-index: 900;
+            margin-bottom: 2rem;
+        }
+
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+        }
+
+        .user-menu img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #4e73df;
+            object-fit: cover;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .user-menu img:hover {
+            box-shadow: 0 0 10px #4e73dfaa;
+        }
+
+        .user-menu span {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 52px;
+            right: 0;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 6px 15px rgb(0 0 0 / 0.1);
+            width: 180px;
+            padding: 0.5rem 0;
+            display: none;
+            flex-direction: column;
+            z-index: 1500;
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        .dropdown-menu a {
+            padding: 0.75rem 1.2rem;
+            font-weight: 500;
+            color: #444;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s ease;
+        }
+
+        .dropdown-menu a:last-child {
+            border-bottom: none;
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .dropdown-menu a:hover {
+            background: #f0f0f0;
+            color: #4e73df;
+            text-decoration: none;
+        }
+
+        /* Cards */
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 10px 20px 10px rgba(0, 0, 0, 0);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: rgb(135, 213, 187);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 18px 36px rgb(0 0 0 / 0.1);
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .card h5 {
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: #2c3e50;
+        }
+
+        .card .text-muted {
+            font-size: 0.9rem;
+        }
+
+        /* Profile Card */
+        .profile-pic {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #4e73df;
+            margin-bottom: 1rem;
+        }
+
+        .profile-section {
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        .profile-section h4 {
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .profile-section p {
+            color: #666;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #4e73df, #224abe);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #3b59c4, #1b3d92);
+        }
+
+        /* Stats Cards */
+        .stats-card {
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 6px 20px rgb(0 0 0 / 0.1);
+            cursor: default;
+        }
+
+        .stats-card i {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.85;
+        }
+
+        .stats-tickets {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        }
+
+        .stats-events {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .stats-spent {
+            background: linear-gradient(135deg, #f7971e 0%, #ffd200 100%);
+            color: #444;
+        }
+
+        .stats-number {
+            font-size: 1.9rem;
+            margin-top: 0.2rem;
+        }
+
+        .stats-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-weight: 700;
+            font-size: 1.6rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+        .section-title::after {
+            content: "";
+            width: 70px;
+            height: 4px;
+            background: #4e73df;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            border-radius: 3px;
+        }
+
+        /* Events Grid */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .event-card {
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgb(232, 241, 238);
+            box-shadow: 0 10px 25px rgb(0 0 0 / 0.07);
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .event-card:hover {
+            box-shadow: 0 18px 40px rgb(0 0 0 / 0.12);
+        }
+
+        .event-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+        }
+
+        .event-content {
+            padding: 1rem 1.25rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .event-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+            color: #34495e;
+        }
+
+        .event-date {
+            font-size: 0.9rem;
+            color: #777;
+            margin-bottom: 1rem;
+        }
+
+        .event-desc {
+            flex-grow: 1;
+            font-size: 0.95rem;
+            color: #555;
+            margin-bottom: 1rem;
+        }
+
+        .btn-event {
+            align-self: flex-start;
+            font-weight: 600;
+            color: #4e73df;
+            background: transparent;
+            border: none;
+            padding: 0;
+        }
+
+        .btn-event:hover {
+            text-decoration: underline;
+            color: #224abe;
+        }
+
+        /* Past Events List */
+        .past-events-list {
+            list-style: none;
+            padding-left: 0;
+            margin-top: 0.5rem;
+        }
+
+        .past-events-list li {
+            background: rgb(230, 237, 234);
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.8rem;
+            border-radius: 10px;
+            box-shadow: 0 6px 18px rgb(0 0 0 / 0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+
+        .past-events-list li:hover {
+            background-color: #f0f2f5;
+        }
+
+        .past-event-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .past-event-date {
+            color: #999;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            main {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+
+            .sidebar {
+                width: 70px;
+                padding-top: 1rem;
+            }
+
+            .sidebar h2,
+            .sidebar nav a span {
+                display: none;
+            }
+
+            .sidebar nav a {
+                justify-content: center;
+                padding: 1rem 0;
+            }
+
+            .top-navbar {
+                padding: 0 1rem;
+            }
+        }
+
+        .dashboard-header {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .profile-header {
+            position: relative;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            padding: 40px 20px;
+            color: white;
+            border-radius: 0 0 1rem 1rem;
+        }
+
+        .profile-img {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border: 5px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-tabs .nav-link.active {
+            font-weight: bold;
+            border-bottom: 2px solid #2575fc;
+        }
+    </style>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+
+     <!-- Sidebar -->
+  <%- include('../../layout/user/sidebar.ejs') %>
+
+    <!-- Main content -->
+    <main>
+        <%- include('../../layout/user/navbar.ejs') %>
+            <div class="container" style="padding-bottom: 50px;">
+                <!-- Profile Card -->
+                <!-- Upcoming Events -->
+                <h1 class="text-center mb-5 fw-bold text-primary"><%=user.first_name%> Profile</h1>
+                <div class="container-fluid px-4">
+                    <div class="profile-header text-center mb-4">
+                        <img src="/default-avatar.png" alt="Profile" class="profile-img mb-2">
+                        <h3>
+                            <%= user.first_name %>  <%= user.last_name %>
+                        </h3>
+                        <p class="mb-0">
+                            <%= user.email %>
+                        </p>
+                    </div>
+
+                    <div class="card shadow rounded">
+                        <div class="card-body">
+                            <ul class="nav nav-tabs profile-tabs mb-3" id="profileTabs" role="tablist">
+                                <li class="nav-item">
+                                    <button class="nav-link active" id="profile-tab" data-bs-toggle="tab"
+                                        data-bs-target="#profile" type="button" role="tab">Profile</button>
+                                </li>
+                                
+                            </ul>
+
+                            <div class="tab-content" id="profileTabsContent">
+                                <!-- Profile Info -->
+                                <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Full Name</label>
+                                            <input type="text" class="form-control" value="<%= user.first_name %> <%= user.last_name %>" readonly>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" class="form-control" value="<%= user.email %>" readonly>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Phone</label>
+                                            <input type="text" class="form-control" value="<%= user.phone || '' %>"
+                                                readonly>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Date Of Birth</label>
+                                            <input type="text" class="form-control" value="<%= user.date_of_birth || '' %>"
+                                                readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                <footer class="bg-dark text-light mt-auto py-4 shadow-sm mt-3">
+                    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+                        <div class="mb-3 mb-md-0">
+                            <h6 class="mb-0 fw-semibold">© <%= new Date().getFullYear() %> Eventopia. All rights
+                                    reserved.</h6>
+                        </div>
+                        <ul class="list-inline mb-0">
+                            <li class="list-inline-item me-3">
+                                <a href="/privacy" class="text-light text-decoration-none">Privacy Policy</a>
+                            </li>
+                            <li class="list-inline-item me-3">
+                                <a href="/terms" class="text-light text-decoration-none">Terms of Service</a>
+                            </li>
+                            <li class="list-inline-item">
+                                <a href="/contact" class="text-light text-decoration-none">Contact Us</a>
+                            </li>
+                        </ul>
+                    </div>
+                </footer>
+    </main>
+
+    <script>
+        const triggerTab = (tabId) => {
+            new bootstrap.Tab(document.querySelector(`#${tabId}-tab`)).show();
+        };
+    </script>
+    
+  <script>
+    // User dropdown toggle logic
+    const userMenuToggle = document.getElementById('userMenuToggle');
+    const userDropdownMenu = document.getElementById('userDropdownMenu');
+
+    userMenuToggle.addEventListener('click', () => {
+      userDropdownMenu.classList.toggle('show');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (event) => {
+      if (!userMenuToggle.contains(event.target)) {
+        userDropdownMenu.classList.remove('show');
+      }
+    });
+  </script>
+</body>
+
+</html>

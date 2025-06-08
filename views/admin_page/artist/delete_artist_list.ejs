@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Admin - Deleted Artists</title>
+
+    <!-- Fonts and styles -->
+    <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+    <link href="/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body id="page-top">
+    <div id="wrapper">
+        <%- include('../../layout/adminlayout/admin_sidebar.ejs') %>
+
+            <div id="content-wrapper" class="d-flex flex-column">
+                <div id="content">
+                    <%- include('../../layout/adminlayout/admin_navbar.ejs') %>
+
+                        <div class="container-fluid">
+                            <h1 class="h3 mb-4 text-gray-800">Deleted Artists Table</h1>
+
+                            <!-- Bulk Undo Button -->
+                            <div class="mb-3 d-flex justify-content-end">
+                               <button class="btn btn-success btn-sm" id="bulkUndoBtn" disabled>
+                                    <i class="fas fa-undo"></i> Bulk Undo
+                                </button>
+                            </div>
+
+                            <div class="card shadow mb-4">
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                            <thead>
+                                                <tr>
+                                                    <th><input type="checkbox" id="selectAll"></th>
+                                                    <th>Sl. No</th>
+                                                    <th>Artist Image</th>
+                                                    <th>Artist Name</th>
+                                                    <th>Occupation</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% artistdata.forEach((data, ind)=> { %>
+                                                    <tr>
+                                                        <td>
+                                                            <input type="checkbox" class="artistCheckbox"
+                                                                value="<%= data._id %>">
+                                                        </td>
+                                                        <td>
+                                                            <%= ind + 1 %>
+                                                        </td>
+                                                        <td>
+                                                            <img src="<%= ('/' + data.image.replace('uploads\\', '')).replace(/\\/g, '/') %>"
+                                                                style="width: 50px; height: 50px; border-radius: 10px;">
+                                                        </td>
+                                                        <td>
+                                                            <a href="/admin/artists/profile/<%= data._id %>"
+                                                                style="text-decoration: none; color: black;">
+                                                                <%= data.artist_name %>
+                                                            </a>
+                                                        </td>
+                                                        <td>
+                                                            <% data.occupation.forEach((da)=> { %>
+                                                                <span>
+                                                                    <%= da %>
+                                                                </span><br>
+                                                                <% }) %>
+                                                        </td>
+                                                        <td>
+                                                            <a href="/admin/artists/profile_update/<%= data._id %>"
+                                                                class="btn btn-primary btn-sm mx-1">
+                                                                <i class="fas fa-edit"></i> Edit
+                                                            </a>
+                                                            <form action="/admin/artists/profile/undo/<%= data._id %>"
+                                                                 class="d-inline single-undo-form">
+                                                                <button type="button"
+                                                                    class="btn btn-warning btn-sm btn-undo">
+                                                                    <i class="fas fa-undo"></i> Undo
+                                                                </button>
+                                                            </form>
+                                                        </td>
+                                                    </tr>
+                                                    <% }) %>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+
+                <%- include('../../layout/adminlayout/admin_footer.ejs') %>
+            </div>
+    </div>
+
+    <!-- Scroll to Top -->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="/js/sb-admin-2.min.js"></script>
+    <script src="/vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    <script src="/js/demo/datatables-demo.js"></script>
+
+    <script>
+        // Select/Deselect All
+        $('#selectAll').click(function () {
+            $('.artistCheckbox').prop('checked', this.checked);
+        });
+
+        // Single Undo
+        $('.btn-undo').click(function (e) {
+            e.preventDefault();
+            const form = $(this).closest('form');
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This artist will be restored!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, undo it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+
+        // Bulk Undo
+        $('#bulkUndoBtn').click(function () {
+            const selectedIds = $('.artistCheckbox:checked').map(function () {
+                return $(this).val();
+            }).get();
+
+            if (selectedIds.length === 0) {
+                Swal.fire('No artists selected', 'Please select at least one artist.', 'info');
+                return;
+            }
+
+            Swal.fire({
+                title: `Undo ${selectedIds.length} artist(s)?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, undo them!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Create and submit a dynamic form
+                    const form = $('<form>', {
+                        method: 'POST',
+                        action: '/admin/artists/bulk-undo'
+                    });
+
+                    selectedIds.forEach(id => {
+                        form.append($('<input>', {
+                            type: 'hidden',
+                            name: 'artistIds[]',
+                            value: id
+                        }));
+                    });
+
+                    $('body').append(form);
+                    form.submit();
+                }
+            });
+        });
+        function toggleBulkUndoButton() {
+            const anyChecked = $('.artistCheckbox:checked').length > 0;
+            $('#bulkUndoBtn').prop('disabled', !anyChecked);
+        }
+
+        // Run on page load
+        $(document).ready(function () {
+            toggleBulkUndoButton();
+        });
+
+        // On individual checkbox change
+        $('.artistCheckbox').on('change', toggleBulkUndoButton);
+
+        // On "select all" checkbox change
+        $('#selectAll').on('change', function () {
+            $('.artistCheckbox').prop('checked', this.checked);
+            toggleBulkUndoButton();
+        });
+    </script>
+</body>
+
+</html>

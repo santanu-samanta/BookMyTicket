@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= eventdata.event_name %> - Event Details</title>
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .artist-card img {
+      height: 150px;
+      object-fit: cover;
+    }
+  </style>
+  <!-- Bootstrap CSS (Optional if already included globally) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body id="page-top">
+
+<div id="wrapper">
+  <%- include('../../../layout/corporatelayout/corporate_sidebar.ejs') %>
+
+  <div id="content-wrapper" class="d-flex flex-column">
+    <div id="content" class="container m-4">
+        <div class="container" style="padding-right: 50px;">
+             <div style="display: flex; justify-content: flex-end;">
+                <a href="/organizer/events-table" class="btn btn-secondary btn-sm mb-3">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+             </div>
+         
+
+
+             <div class="card shadow mb-4">
+        <div class="card-header">
+          <h3 class="text-primary m-0"><%= eventdata.event_name %> - Event Details</h3>
+        </div>
+        <div class="card-body row">
+          <div class="col-md-4">
+            <img src="/images/<%= eventdata.images[0] %>" class="img-fluid rounded shadow" alt="Event Poster">
+          </div>
+          <div class="col-md-8">
+            <p><strong>Description:</strong> <%= eventdata.description %></p>
+            <p><strong>Category:</strong> <%= eventdata.category %></p>
+            <p><strong>Type:</strong> <%= eventdata.type %></p>
+            <p><strong>Status:</strong> <%= eventdata.status %></p>
+            <p><strong>Age Restricted:</strong> <%= eventdata.validAge ? "Yes" : "No" %></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Company Info -->
+      <div class="card shadow mb-4">
+        <div class="card-header">
+          <h5 class="text-info m-0">Company Information</h5>
+        </div>
+        <div class="card-body row">
+          <div class="col-md-3">
+            <img src="<%= '/' + eventdata.company_id.logo.replace('uploads\\', '').replace(/\\/g, '/') %>" class="img-fluid rounded shadow" alt="Company Logo">
+          </div>
+          <div class="col-md-9">
+            <p><strong>Name:</strong> <%= eventdata.company_id.company_name %></p>
+            <p><strong>Email:</strong> <%= eventdata.company_id.email %></p>
+            <p><strong>Phone:</strong> <%= eventdata.company_id.phone %></p>
+            <p><strong>Type:</strong> <%= eventdata.company_id.company_type %></p>
+            <p><strong>Status:</strong> <%= eventdata.company_id.status %></p>
+            <p><strong>Facilities:</strong> <%= eventdata.company_id.facilities %> - <%= eventdata.company_id.facilities_avl %></p>
+            <p><strong>Address:</strong> 
+              <%= eventdata.company_id.address.city %>, 
+              <%= eventdata.company_id.address.state %>, 
+              PIN - <%= eventdata.company_id.address.pin %>,
+              Landmark: <%= eventdata.company_id.address.landmark %>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Artists -->
+      <div class="card shadow mb-4">
+        <div class="card-header">
+          <h5 class="text-success m-0">Artists</h5>
+        </div>
+        <div class="card-body d-flex gap-4 flex-wrap">
+          <% eventdata.artist.forEach(art => { %>
+            <div class="card artist-card shadow-sm" style="width: 200px;">
+              <img src="/images/<%= art.artistimage %>" class="card-img-top" alt="Artist">
+              <div class="card-body text-center">
+                <h6 class="card-title mb-1"><%= art.artistname %></h6>
+                <small class="text-muted"><%= art.artistrole %></small>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+
+      <!-- Video -->
+      <div class="card shadow mb-4">
+        <div class="card-header">
+          <h5 class="text-warning m-0">Video Preview</h5>
+        </div>
+        <div class="card-body">
+          <video width="100%" height="400" controls>
+            <source src="/videos/<%= eventdata.videos[0] %>" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </div>
+
+      <!-- Schedule Info -->
+      <div class="card shadow mb-4">
+        <div class="card-header">
+          <h5 class="text-dark m-0">Event Schedule</h5>
+        </div>
+        <div class="card-body table-responsive">
+          <table class="table table-bordered">
+            <thead class="table-light">
+              <tr>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Location</th>
+                <th>Language</th>
+                <th>Format</th>
+                <th>Seat Types</th>
+                <th>Ticket Prices</th>
+                <th>Available Seats</th>
+                 <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% eventdata.schedules.forEach(s => { %>
+                <tr>
+                  <td><%= new Date(s.date).toLocaleDateString() %></td>
+                  <td><%= s.start_time %> - <%= s.end_time %></td>
+                  <td><%= s.location.venue %> (<%= s.location.city %>)</td>
+                  <td><%= s.language %></td>
+                  <td><%= s.format.join(', ') %></td>
+                  <td>Prime: <%= s.prime_seats %>, Golden: <%= s.golden_seats %>, Classic: <%= s.clasic_seats %></td>
+                  <td>₹<%= s.prime_ticket_price %> | ₹<%= s.golden_ticket_price %> | ₹<%= s.clasic_ticket_price %></td>
+                  <td><%= s.avl_prime_seats[0] %> | <%= s.avl_golden_seats[0] %> | <%= s.avl_classic_seats[0] %></td>
+                  <td>
+                    <a href="/organizer/event/edit/<%= eventdata._id %>" class="btn btn-warning me-2">Edit</a>
+                   <button onclick="confirmDelete('<%= eventdata._id %>')" class="btn btn-danger">Delete</button>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+        </div>
+      <!-- Event Info -->
+     
+
+    </div>
+    <%- include('../../../layout/corporatelayout/corporate_footer.ejs') %>
+  </div>
+</div>
+<script>
+  function confirmDelete(eventId) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "This event will be permanently deleted!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#aaa',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = `/organizer/event/delete/${eventId}`;
+      }
+    });
+  }
+</script>
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+<script src="/js/sb-admin-2.min.js"></script>
+
+</body>
+</html>

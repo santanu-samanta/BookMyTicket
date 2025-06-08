@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="zxx">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %></title>
+  	<link rel="stylesheet" href="/assets/css/style-starter.css" />
+  <link rel="shortcut icon" type="image/x-icon" href="/images-removebg-preview (2).png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<!-- Bootstrap CSS (if not already included) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    /* Fade-in animation for Video Highlight Section */
+    .fade-in {
+      animation: fadeInAnimation ease 2s;
+      animation-iteration-count: 1;
+      animation-fill-mode: forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeInAnimation {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hover-zoom {
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .hover-zoom:hover {
+      transform: scale(1.05);
+    }
+
+    .movie-card {
+      border-radius: 12px;
+      overflow: hidden;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .movie-card:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .movie-card img {
+      height: 250px;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .movie-card:hover img {
+      transform: scale(1.07);
+    }
+
+    /* Button above the video */
+    .btn-above-video {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 3;
+      opacity: 0.9;
+    }
+  </style>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body  style="background-color: rgb(179, 195, 189);">
+  <!-- Header -->
+  <header id="site-header" class="w3l-header fixed-top">
+    <%- include('../../layout/user_layout/navbar.ejs') %>
+  </header>
+<section class="position-relative text-white" style="margin-top: 100px;  ">
+  <% 
+  let bgUrl = (moviedata && moviedata.posters && moviedata.posters[0]) 
+    ? moviedata.posters[0].replace(/^uploads[\\/]/, '').replace(/\\/g, '/') 
+    : '/images/default-banner.jpg'; 
+%>
+  <div 
+    class="bg-image position-relative" 
+   style="background-image: url('/images/<%= bgUrl %>'); height: 65vh; background-size: cover; background-position: center; background-repeat: no-repeat;">
+    
+    <!-- Dark overlay with opacity -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-75"></div>
+
+    <!-- Button above video -->
+    <a href="/show_traller/<%=moviedata._id%>" 
+       class="btn btn-warning shadow position-absolute" 
+       style="top: 200px; left: 360px; z-index: 4; transition: transform 0.3s ease;">
+      Trailers
+    </a>
+
+    <div class="container position-relative h-100 d-flex align-items-center" style="z-index: 3; left: 100px; ">
+      <div class="row w-100 align-items-center" >
+        <!-- Video Column -->
+        <div class="col-md-6 mb-4 mt-2" >
+          <img src="/images/<%=moviedata.posters[0]%>" alt="" style="height: 400px; width: 400px; ">
+        </div>
+
+        <!-- Text Content Column -->
+        <div class="col-md-6">
+         <h2 class="display-5 fw-bold mb-3"><%= moviedata?.name || 'Untitled Movie' %></h2>
+         <div class="d-flex align-items-center bg-white text-dark p-3 rounded shadow-sm" style="width:70%;">
+            <div class="me-1 d-flex align-items-center">
+              <i class="bi bi-star-fill text-warning fs-4 me-1"></i>
+              <span class="fw-semibold fs-5">9.8/10</span>
+              <span class="text-muted ms-2">(145 Votes)</span>
+            </div> 
+            <!-- Rate Button -->
+<!-- Rate or Update Button -->
+<a href="#" id="bentoggle" class="btn <%= userReview ? 'btn-warning' : 'btn-danger' %> ms-auto">
+  <%= userReview ? 'Update Review' : 'Rate Now' %>
+</a>
+
+<!-- Review Form Container - Hidden initially -->
+<div id="reviewFormContainer" class="mt-3" style="display: none;">
+  <div class="card card-body">
+    <textarea class="form-control mb-2" id="reviewText" rows="4" placeholder="Write your review here..."><%= userReview ? userReview.review : '' %></textarea>
+
+    <select class="form-select mb-2" id="reviewRating">
+      <% for (let i = 5; i >= 1; i--) { %>
+        <option value="<%= i %>" <%= userReview && userReview.rating === i ? 'selected' : '' %>>
+          <%= '⭐️'.repeat(i) %>
+        </option>
+      <% } %>
+    </select>
+
+    <button id="submitReview" class="btn <%= userReview ? 'btn-warning' : 'btn-primary' %>">
+      <%= userReview ? 'Update Review' : 'Submit' %>
+    </button>
+  </div>
+</div>                      
+         </div>
+       
+      
+    
+          <!-- <p class="lead mb-4">
+            An exciting movie experience awaits you. Enjoy the thrill, drama, and adventure in this new release.
+          </p> -->
+          <ul class="list-unstyled fs-5 mb-4" style="line-height: 1.6;">
+            <li style="padding: 8px;">
+                <% if (moviedata && moviedata.languages && moviedata.languages.length) { %>
+                  <% moviedata.languages.forEach((data) => { %>
+                    <span style="background-color: wheat; padding: 5px; color: black; border-radius: 5px; margin-right: 5px;">
+                      <%= data %>
+                    </span>
+                  <% }) %>
+                <% } else { %>
+                  <span>No languages available</span>
+                <% } %>
+              </li>
+
+            
+          <li style="font-size: 1rem; color: #e7dcdc; padding-top: 10px;">
+          <span>⏰ <%= moviedata.duration || 'N/A' %></span>
+          <span style="margin: 0 8px;">•</span>
+          <span><%= moviedata.genre.join(', ') %></span>
+          <span style="margin: 0 8px;">•</span>
+          <span>🎖️ <%= moviedata.movieCertificate || 'N/A' %></span>
+          <span style="margin: 0 8px;">•</span>
+          <span>📅 <%= new Date(moviedata.releaseDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) || 'N/A' %></span>
+        </li>   
+          </ul>
+        <button class="btn btn-danger book-ticket-btn"
+          data-movie-id="<%= moviedata._id %>"
+          data-movie-name="<%= moviedata.name %>"
+          data-languages='<%- JSON.stringify(moviedata.languages) %>'
+          data-formats_everylanguage='<%- JSON.stringify(["2D", "3D"]) %>'>
+          Book Tickets
+        </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  a.btn-warning:hover {
+    transform: scale(1.1);
+  }
+</style>
+
+  <!-- About the Movie -->
+  <section class="container my-5" >
+  <h1 class="mb-4">About the Movie</h1>
+<p id="shortDesc" class="text-muted fs-5"><%= moviedata.description.slice(0, 200) %>...</p>
+<p id="fullDesc" class="text-muted fs-5 d-none"><%= moviedata.description %></p>
+
+<button id="toggleBtn" class="btn btn-link p-0">Show more</button>
+
+
+<script>
+  const shortDesc = document.getElementById("shortDesc");
+  const fullDesc = document.getElementById("fullDesc");
+  const toggleBtn = document.getElementById("toggleBtn");
+
+  toggleBtn.addEventListener("click", () => {
+    if (fullDesc.classList.contains("d-none")) {
+      shortDesc.classList.add("d-none");
+      fullDesc.classList.remove("d-none");
+      toggleBtn.textContent = "Show less";
+    } else {
+      shortDesc.classList.remove("d-none");
+      fullDesc.classList.add("d-none");
+      toggleBtn.textContent = "Show more";
+    }
+  });
+</script>
+
+
+  <!-- Cast Section -->
+  <h2 class="mt-5 mb-4">Cast</h2>
+  <div class="row g-4">
+     <%moviedata.cast.forEach((da)=>{%>
+    <div class="col-6 col-sm-4 col-md-2 text-center">
+      <div class="card border-0 shadow-sm p-3" style="background-color: rgb(222, 228, 225);">
+        <img src="/images/<%= da.cast_id.image.replace('uploads\\images\\', '') %>" alt="....Cast Member" class="rounded-circle mx-auto d-block mb-3" style="width: 100px; height: 100px; object-fit: cover;" />
+       <a href="/artist-profile/<%=da.cast_id._id%>" style="text-decoration: none; color: black;"><h5 class="card-title mb-1 fw-semibold"><%=da.cast_id.artist_name%></h5></a> 
+        <p class="text-muted mb-0"><%da.cast_id.occupation.forEach((da)=>{%><span><%=da%></span>
+          <%})%></p>
+          <%if(da.cast_nickname){%>
+          <p class="text-muted mb-0"><b>Nick Name :- </b><%=da.cast_nickname%></span>
+            <%}%>
+      </div>
+    </div>
+    <%})%>
+  </div>
+
+  <!-- Crew Section -->
+  <h2 class="mt-5 mb-4">Crew</h2>
+  <div class="row g-4">
+     <%moviedata.crew.forEach((da)=>{%>
+    <div class="col-6 col-sm-4 col-md-2 text-center" >
+      <div class="card border-0 shadow-sm p-3" style="background-color: rgb(222, 228, 225);">
+        <img src="/images/<%=da.crew_id.image.replace('uploads\\images\\', '')%>" alt="....Crew Member" class="rounded-circle mx-auto d-block mb-3" style="width: 100px; height: 100px; object-fit: cover;" />
+        <a href="/artist-profile/<%=da.crew_id._id%>" style="text-decoration: none; color: black;"><h5 class="card-title mb-1 fw-semibold"><%=da.crew_id.artist_name%></h5></a>
+        <p class="text-muted mb-0"><%da.crew_id.occupation.forEach((da)=>{%><span><%=da%></span>
+          <%})%></p>
+           <%if(da.crew_nickname){%>
+          <p class="text-muted mb-0"><b>Nick Name :- </b><%=da.crew_nickname%></span>
+            <%}%>
+      </div>
+    </div>
+    <%})%>
+   
+  </div>
+
+  <!-- Reviews Section as Carousel -->
+  <!-- You can add the professional review carousel here -->
+</section>
+
+  <!-- Reviews Section (Full Width Carousel) -->
+<section class=" py-5" style="background-color: rgb(222, 228, 225);">
+  <div class="container-fluid px-5" >
+    <h2 class="mb-4 text-center">Reviews</h2>
+    <div id="reviewCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+      <div class="carousel-inner">
+
+           <% if (reviews.length === 0) { %>
+          <div class="carousel-item active">
+            <div class="card mx-auto text-center" style="max-width: 700px;">
+              <div class="card-body">
+                <p class="text-muted fs-5">No reviews yet. Be the first to review!</p>
+              </div>
+            </div>
+          </div>
+        <% } else { %>
+        <% reviews.forEach(function(review, index) { %>
+          <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
+            <div class="card mx-auto" style="max-width: 700px;">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                  <img src="/default-avatar.png" alt="User" class="rounded-circle me-3" width="50" height="50" />
+                  <div>
+                    <h5 class="mb-0"><%= review.username %></h5>
+                    <small class="text-muted"><%= review.userRole %></small>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <strong>Rating: <span class="text-warning"><%= '★'.repeat(review.rating) %></span><span class="text-muted"><%= '☆'.repeat(10 - review.rating) %></span> (<%= review.rating %>/10)</strong>
+                </div>
+                <p class="card-text fst-italic">"<%= review.text %>"</p>
+              </div>
+            </div>
+          </div>
+        <% }); %>
+           <% } %>
+      </div>
+
+       <% if (reviews.length > 1) { %>
+        <button class="carousel-control-prev" type="button" data-bs-target="#reviewCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#reviewCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon bg-dark rounded-circle p-2" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+  <!-- More Movies Section with Carousel -->
+  <section class="container my-5">
+    <h2 class="mb-4 text-center">More Movies</h2>
+
+    
+
+    <div id="movieCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <% 
+        const moviesPerSlide = 4;
+        const slideCount = Math.ceil(movies.length / moviesPerSlide);
+        for(let slideIndex = 0; slideIndex < slideCount; slideIndex++) { %>
+          <div class="carousel-item <%= slideIndex === 0 ? 'active' : '' %>">
+            <div class="row">
+              <% for(let i = slideIndex * moviesPerSlide; i < (slideIndex + 1) * moviesPerSlide && i < movies.length; i++) {
+                const movie = movies[i];
+              %>
+                <div class="col-md-3 mb-3">
+                  <div class="card h-100 shadow movie-card hover-zoom">
+                    <img src="/images/<%= movie.img %>" class="card-img-top" alt="<%= movie.title %>" />
+                    <div class="card-body d-flex flex-column">
+                      <h5 class="card-title"><%= movie.title %></h5>
+                      <!-- <p class="card-text text-muted">Experience the thrill in theaters now!</p> -->
+                      <div class="mt-auto">
+                        <a href="/single-event/<%= movie.id %>" class="btn btn-outline-danger w-100 mb-2">View Details</a>
+                        <a href="/booking-panal/<%= movie.id %>" class="btn btn-danger w-100">Book Ticket</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Stylish Controls -->
+      <button
+        class="carousel-control-prev"
+        type="button"
+        data-bs-target="#movieCarousel"
+        data-bs-slide="prev"
+        style="
+          width: 60px;
+          height: 60px;
+          background-color: rgba(0, 0, 0, 0.5);
+          border-radius: 50%;
+          top: 50%;
+          transform: translateY(-50%);
+          border: none;
+          transition: background-color 0.3s ease;
+        "
+        onmouseover="this.style.backgroundColor='rgba(0,0,0,0.8)'"
+        onmouseout="this.style.backgroundColor='rgba(0,0,0,0.5)'"
+      >
+        <span
+          class="carousel-control-prev-icon"
+          aria-hidden="true"
+          style="filter: drop-shadow(0 0 2px rgba(255,255,255,0.7));"
+        ></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+
+      <button
+        class="carousel-control-next"
+        type="button"
+        data-bs-target="#movieCarousel"
+        data-bs-slide="next"
+        style="
+          width: 60px;
+          height: 60px;
+          background-color: rgba(0, 0, 0, 0.5);
+          border-radius: 50%;
+          top: 50%;
+          transform: translateY(-50%);
+          border: none;
+          transition: background-color 0.3s ease;
+        "
+        onmouseover="this.style.backgroundColor='rgba(0,0,0,0.8)'"
+        onmouseout="this.style.backgroundColor='rgba(0,0,0,0.5)'"
+      >
+        <span
+          class="carousel-control-next-icon"
+          aria-hidden="true"
+          style="filter: drop-shadow(0 0 2px rgba(255,255,255,0.7));"
+        ></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+
+<%- include("../../layout/user_layout/footer.ejs") %>
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  const isLoggedIn = <%= user ? 'true' : 'false' %>;
+  const itemId = "<%= moviedata._id %>";
+
+  $(document).ready(function () {
+    $('#bentoggle').click(function (e) {
+      e.preventDefault();
+
+      if (!isLoggedIn) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Login Required',
+          text: 'Please log in to submit a review.',
+          showCancelButton: true,
+          confirmButtonText: 'Login',
+          cancelButtonText: 'Cancel'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = '/user/loginpage-display';
+          }
+        });
+      } else {
+        // Toggle the form visibility only when button clicked
+        $('#reviewFormContainer').slideToggle();
+      }
+    });
+
+    $('#submitReview').click(function () {
+      const reviewText = $('#reviewText').val().trim();
+      const rating = $('#reviewRating').val();
+
+      if (!reviewText) {
+        Swal.fire('Oops!', 'Please write a review first.', 'error');
+        return;
+      }
+
+      $.ajax({
+        url: `/user/testimonial/${itemId}`,
+        method: 'POST',
+        data: {
+          review: reviewText,
+          rating: rating,
+          movie: true
+        },
+        success: function () {
+          Swal.fire({
+            icon: 'success',
+            title: 'Review Submitted!',
+            text: 'Thank you for your feedback.',
+            timer: 2000,
+            showConfirmButton: false
+          });
+          $('#reviewFormContainer').slideUp();
+
+          // Optionally, update the button text and style to "Update Review"
+          $('#bentoggle')
+            .text('Update Review')
+            .removeClass('btn-danger')
+            .addClass('btn-warning');
+        },
+        error: function () {
+          Swal.fire('Error', 'Something went wrong. Please try again.', 'error');
+        }
+      });
+    });
+  });
+</script>
+
+
+
+<script>
+  document.querySelectorAll('.book-ticket-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      const movieId = button.getAttribute('data-movie-id');
+      const movieName = button.getAttribute('data-movie-name');
+
+      let languages = [];
+      let formats = [];
+
+      try {
+        languages = JSON.parse(button.getAttribute('data-languages'));
+        formats = JSON.parse(button.getAttribute('data-formats_everylanguage'));
+      } catch (e) {
+        console.error("Error parsing JSON attributes:", e);
+        return;
+      }
+
+      // Build the HTML popup for SweetAlert
+      let popupHTML = '';
+      languages.forEach(lang => {
+        popupHTML += `<div><strong>${lang}</strong></div>`;
+        popupHTML += `<div style="margin-bottom: 15px;">` + formats.map(format =>
+          `<button class="swal2-confirm swal2-styled format-btn" data-lang="${lang}" data-format="${format}" style="margin-right: 5px; margin-bottom: 5px;">${format}</button>`
+        ).join("") + `</div><hr>`;
+      });
+
+      Swal.fire({
+        title: 'Choose Format & Language',
+        html: popupHTML,
+        showConfirmButton: false,
+        didOpen: () => {
+          const popup = Swal.getPopup();
+
+          popup.querySelectorAll('.format-btn').forEach(fBtn => {
+            fBtn.addEventListener('click', () => {
+              const selectedFormat = fBtn.getAttribute('data-format');
+              const selectedLanguage = fBtn.getAttribute('data-lang');
+
+              // Highlight selected
+              popup.querySelectorAll('.format-btn').forEach(btn => btn.classList.remove('swal2-success'));
+              fBtn.classList.add('swal2-success');
+
+              // Redirect to booking
+              const redirectUrl = `/booking-panal/${movieId}?language=${encodeURIComponent(selectedLanguage)}&format=${encodeURIComponent(selectedFormat)}`;
+              Swal.close();
+              window.location.href = redirectUrl;
+            });
+          });
+        }
+      });
+    });
+  });
+</script>
+
+
+<!-- jQuery (CDN) -->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<!-- Bootstrap (CDN) -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Edit Artist - Admin Panel</title>
+
+  <!-- Fonts and Stylesheets -->
+  <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,700" rel="stylesheet" />
+  <link href="/css/sb-admin-2.min.css" rel="stylesheet" />
+
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    #image-preview {
+      max-height: 200px;
+      border-radius: 10px;
+      object-fit: cover;
+      margin-top: 10px;
+      display: block;
+      border: 1px solid #ccc;
+    }
+
+    .form-section {
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      background-color: #f9f9f9;
+    }
+
+    .form-section h5 {
+      margin-bottom: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .required:after {
+      content: "*";
+      color: red;
+      margin-left: 4px;
+    }
+
+    select[multiple] {
+      height: auto;
+      min-height: 120px;
+    }
+
+    .family-row {
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #ccc;
+    }
+  </style>
+</head>
+
+<body id="page-top">
+
+  <div id="wrapper">
+    <%- include('../../layout/adminlayout/admin_sidebar.ejs') %>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+      <div id="content">
+        <%- include('../../layout/adminlayout/admin_navbar.ejs') %>
+
+        <div class="container-fluid">
+          <div class="container mt-5 mb-5">
+            <h2 class="mb-4 text-center">Edit Artist</h2>
+
+            <form action="/admin/artists/artist-update/<%= artist._id %>" method="POST" enctype="multipart/form-data">
+              <div class="form-section">
+                <h5>Basic Information</h5>
+
+                <div class="row mb-3">
+                  <div class="col-md-4">
+                    <label class="form-label">Artist Image</label>
+                    <input type="file" name="image" id="image" class="form-control" accept="image/*" /><%console.log(artist.image)%>
+                    <img id="image-preview" src="<%= '/' + artist.image.replace(/\\/g, '/').split('/').slice(1).join('/') %>" alt="Image" />
+                  </div>
+
+                  <div class="col-md-8">
+                    <label class="form-label required">Artist Name</label>
+                    <input type="text" name="artist_name" class="form-control" value="<%= artist.artist_name %>" required />
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label required">Occupation(s)</label>
+                    <select class="form-select" name="occupation" multiple required>
+                      <% ["Actor", "Director", "Writer", "Producer", "Musician"].forEach(function(role) { %>
+                        <option value="<%= role %>" <%= artist.occupation.includes(role) ? 'selected' : '' %>><%= role %></option>
+                      <% }) %>
+                    </select>
+                    <small class="text-muted">Hold Ctrl (Cmd) to select multiple</small>
+                  </div>
+
+                  <div class="col-md-6">
+                    <label class="form-label required">About</label>
+                    <textarea name="about" rows="3" class="form-control" required><%= artist.about %></textarea>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-4">
+                    <label class="form-label">Birthplace</label>
+                    <input type="text" name="Birthplace" class="form-control" value="<%= artist.Birthplace || '' %>" />
+                  </div>
+
+                  <div class="col-md-4">
+                    <label class="form-label">Born</label>
+                    <input type="date" name="Born" class="form-control" value="<%= artist.Born ? (new Date(artist.Born)).toISOString().split('T')[0] : '' %>" />
+                  </div>
+
+                  <div class="col-md-4">
+                    <label class="form-label">Other Info</label>
+                    <textarea name="other" rows="1" class="form-control"><%= artist.other || '' %></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h5>Family Members (Optional)</h5>
+
+                <div id="family-container">
+                  <% artist.family.forEach((fam, index) => { %>
+                    <div class="row family-row align-items-end">
+                      <div class="col-md-6 mb-2">
+                        <label class="form-label required">Family Member</label>
+                        <select name="family[<%= index %>][f_id]" class="form-select" required>
+                          <option value="" disabled>Select Artist</option>
+                          <% artists.forEach(a => { %>
+                            <option value="<%= a._id %>" <%= a._id.toString() === fam.f_id.toString() ? 'selected' : '' %>><%= a.artist_name %></option>
+                          <% }) %>
+                        </select>
+                      </div>
+                      <div class="col-md-5 mb-2">
+                        <label class="form-label required">Relationship</label>
+                        <select name="family[<%= index %>][relationship]" class="form-select" required>
+                          <% ["Father", "Mother", "Brother", "Sister", "Spouse", "Child", "Friend", "Colleague"].forEach(r => { %>
+                            <option value="<%= r %>" <%= fam.relationship === r ? 'selected' : '' %>><%= r %></option>
+                          <% }) %>
+                        </select>
+                      </div>
+                      <div class="col-md-1 mb-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removeFamilyRow(this)">−</button>
+                      </div>
+                    </div>
+                  <% }) %>
+                </div>
+
+                <button type="button" class="btn btn-success btn-sm mt-2" id="add-family-btn">+ Add Family Member</button>
+              </div>
+
+              <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">Update Artist</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <%- include('../../layout/adminlayout/admin_footer.ejs') %>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const artists = <%- JSON.stringify(artists) %>;
+    const relationships = ["Father", "Mother", "Brother", "Sister", "Spouse", "Child", "Friend", "Colleague"];
+
+    function buildArtistOptions(selectedId = '') {
+      return artists.map(artist =>
+        `<option value="${artist._id}" ${artist._id === selectedId ? 'selected' : ''}>${artist.artist_name}</option>`
+      ).join('');
+    }
+
+    function buildRelationshipOptions(selectedRel = '') {
+      return relationships.map(rel =>
+        `<option value="${rel}" ${rel === selectedRel ? 'selected' : ''}>${rel}</option>`
+      ).join('');
+    }
+
+    function createFamilyRow(index) {
+      return `
+        <div class="row family-row align-items-end">
+          <div class="col-md-6 mb-2">
+            <label class="form-label required">Family Member</label>
+            <select name="family[${index}][f_id]" class="form-select" required>
+              ${buildArtistOptions()}
+            </select>
+          </div>
+          <div class="col-md-5 mb-2">
+            <label class="form-label required">Relationship</label>
+            <select name="family[${index}][relationship]" class="form-select" required>
+              ${buildRelationshipOptions()}
+            </select>
+          </div>
+          <div class="col-md-1 mb-2 d-flex align-items-end">
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeFamilyRow(this)">−</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function removeFamilyRow(button) {
+      $(button).closest('.family-row').remove();
+    }
+
+    $(document).ready(() => {
+      let familyIndex = <%= artist.family.length %>;
+
+      $('#add-family-btn').on('click', () => {
+        $('#family-container').append(createFamilyRow(familyIndex));
+        familyIndex++;
+      });
+
+      $('#image').on('change', function () {
+        const file = this.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            $('#image-preview').attr('src', e.target.result).show();
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
