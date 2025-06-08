@@ -64,8 +64,8 @@ A comprehensive web application built with **Node.js**, **Express**, **MongoDB**
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/bookmyticket.git
-   cd bookmyticket
+   git clone https://github.com/santanu-samanta/BookMyTicket
+   cd BookMyTicket
 
 ### Demo Credentials
 
