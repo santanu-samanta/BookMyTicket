@@ -50,7 +50,7 @@ class organizerController {
             const matched = await v.check();
 
             if (!matched) {
-                req.flash('error', Object.values(v.errors).map(err => err.message))
+                req.flash('warning', Object.values(v.errors).map(err => err.message))
                 return res.redirect('/organizer/register')
             }
             const { company_name, phone, email, city, state, pin, landmark,company_type } = req.body
@@ -108,7 +108,7 @@ class organizerController {
             const matched = await v.check();
             if (!matched) {
                 // If validation fails, send errors to the client
-                req.flash('error', Object.values(v.errors).map(err => err.message))
+                req.flash('warning', Object.values(v.errors).map(err => err.message))
                 return res.redirect('/organizer/login')
             }
             const { email, password } = req.body
@@ -117,26 +117,26 @@ class organizerController {
 
             if (!userexist) {
                 // If validation fails, send errors to the client
-                req.flash('error', `Invalid email`)
+                req.flash('warning', `Invalid email`)
                 return res.redirect('/organizer/login')
             }
             if (userexist.status !== 'Approved') {
-                req.flash('error', `Email Not Found`)
+                req.flash('warning', `Email Not Found`)
                 return res.redirect('/organizer/login')
             }
 
             if (userexist.isadmindelete) {
-                req.flash('error', `Your account has been restricted because ${userexist.admindelete_msg}`);
+                req.flash('warning', `Your account has been restricted because ${userexist.admindelete_msg}`);
                 return res.redirect('/organizer/login')
 
             }
             if (userexist.isdelete) {
-                req.flash('error', `Email Not Found`);
+                req.flash('warning', `Email Not Found`);
                 return res.redirect('/organizer/login')
             }
             const passwordchack = await bycript.compare(password, userexist.password)
             if (!passwordchack) {
-                req.flash('error', `Invalid password`)
+                req.flash('warning', `Invalid password`)
                 return res.redirect('/organizer/login')
             }
             if (userexist.role == 'Corporate') {
@@ -166,13 +166,13 @@ class organizerController {
                 res.cookie('organizertoken', token)
                 res.cookie('organizerreftoken', refreshtoken)
                 if (!userexist.isverify) {
-                    req.flash('error', `Please Change Your Password First`)
+                    req.flash('warning', `Please Change Your Password First`)
                     return res.redirect(`/organizer/change-password`)
                 }
                 req.flash('success', 'Login successful');
                 return res.redirect('/organizer/dashboard')
             }
-            req.flash('error', `Only Corporate Can Login`)
+            req.flash('warning', `Only Corporate Can Login`)
             return res.redirect('/organizer/login')
 
 
@@ -210,19 +210,19 @@ class organizerController {
             const matched = await v.check();
             if (!matched) {
                 // If validation fails, send errors to the client
-                req.flash('error', Object.values(v.errors).map(err => err.message))
+                req.flash('warning', Object.values(v.errors).map(err => err.message))
                 return res.redirect(`/organizer/change-password`)
             }
             const { currentPassword, newPassword, confirmPassword } = req.body
             const userexist = await organizerRepositories.find(organizer.email)
             const passwordchack = await bycript.compare(currentPassword, userexist.password)
             if (!passwordchack) {
-                req.flash('error', `Invalid Current password`)
+                req.flash('warning', `Invalid Current password`)
                 return res.redirect('/organizer/change-password')
             }
             const passwordchack2 = await bycript.compare(newPassword, userexist.password)
             if (passwordchack2) {
-                req.flash('error', `Current password and New Password Can't be same`)
+                req.flash('warning', `Current password and New Password Can't be same`)
                 return res.redirect('/organizer/change-password')
             }
             const haspass = await hashpassword(newPassword);
@@ -240,8 +240,15 @@ class organizerController {
 
     // company profile
     async organizer_profile(req, res) {
-        try {
-            const user = req.organizer
+        try {           
+            const user = req.organizer;
+                        const email = user.email;
+                        const companyexist = await organizerRepositories.find(email);
+            
+                        if (!companyexist.isverify) {
+                            req.flash('warning', `Please Change Your Password First`);
+                            return res.redirect(`/organizer/change-password`);
+                        }
             const id = user._id
             const company = await organizerRepositories.findallcompanybyid(id)
             return res.render('organizer/auth/opranizer_profile', {
@@ -281,7 +288,7 @@ class organizerController {
 
             if (error) {
                 const errorMessages = error.details.map((err) => err.message);
-                req.flash('error', errorMessages.join(', '));
+                req.flash('warning', errorMessages.join(', '));
                 return res.redirect('/organizer/profile-update');
             }
             const cdata = await organizerRepositories.findallcompanybyid(id)
@@ -389,7 +396,7 @@ class organizerController {
             const companyexist = await organizerRepositories.find(email)
             const lastUpdated = new Date().toLocaleString();
             if (!companyexist.isverify) {
-                req.flash('error', `Please Change Your Password First`)
+                req.flash('warning', `Please Change Your Password First`)
                 return res.redirect(`/organizer/change-password`)
             }
 
@@ -454,7 +461,7 @@ class organizerController {
             const matched = await v.check();
             if (!matched) {
                 // If validation fails, send errors to the client
-                req.flash('error', Object.values(v.errors).map(err => err.message))
+                req.flash('warning', Object.values(v.errors).map(err => err.message))
                 return res.redirect('/organizer/forgot/password')
 
             }
@@ -462,7 +469,7 @@ class organizerController {
             const usereesistchack = await organizerRepositories.existuser(email)
 
             if (!usereesistchack) {
-                req.flash('error', 'Wrong Email')
+                req.flash('warning', 'Wrong Email')
                 return res.redirect('/organizer/forgot/password')
 
             }
@@ -585,7 +592,7 @@ class organizerController {
 
             if (!matched) {
                 // If validation fails, send errors to the client
-                req.flash('error', Object.values(v.errors).map(err => err.message))
+                req.flash('warning', Object.values(v.errors).map(err => err.message))
                 return res.redirect(`/organizer/forgot/password/page/${token}`)
             }
 
@@ -629,7 +636,7 @@ class organizerController {
             console.log(req.body);
 
             if (!user) {
-                req.flash('error', 'User NotFound');
+                req.flash('warning', 'User NotFound');
                 return res.redirect('/organizer/delete-account');
             }
             const v = new Validator(req.body, {
@@ -638,7 +645,7 @@ class organizerController {
             const matched = await v.check();
 
             if (!matched) {
-                req.flash('error', Object.values(v.errors).map(err => err.message))
+                req.flash('warning', Object.values(v.errors).map(err => err.message))
                 return res.redirect('/organizer/delete-account');
             }
             const { email } = req.body
@@ -646,26 +653,26 @@ class organizerController {
             console.log(usereemail);
 
             if (email !== usereemail.email) {
-                req.flash('error', 'User already exists');
+                req.flash('warning', 'User already exists');
                 return res.redirect('/organizer/delete-account');;
             }
             const useredata = await organizerRepositories.existuser(email)
             if (!useredata) {
-                req.flash('error', 'Invalid email');
+                req.flash('warning', 'Invalid email');
                 return res.redirect('/organizer/delete-account');
 
             }
             if (useredata.isdelete) {
-                req.flash('error', 'Your account already delete');
+                req.flash('warning', 'Your account already delete');
                 return res.redirect('/organizer/delete-account');
             }
             const deletedata = await organizerRepositories.deleteaccount(email)
             if (deletedata) {
-                req.flash('error', 'Account Delete successfully');
+                req.flash('warning', 'Account Delete successfully');
                 return res.redirect('/organizer/logout');
 
             }
-            req.flash('error', 'Account Not Delete Error Oucurred');
+            req.flash('warning', 'Account Not Delete Error Oucurred');
             return res.redirect('/organizer/delete-account');
         } catch (error) {
             console.log(error)

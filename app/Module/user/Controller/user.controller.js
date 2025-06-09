@@ -87,6 +87,8 @@ class usereController {
     async dashboard_display(req, res) {
         try {
             const user = req.user;
+            console.log(user);
+            
             const data = await ticketRepositories.getTicketStatsforuserdashboard(user._id);
             const { stats, upcomingevents, pastevents, todaysEvents } = data;
 
@@ -194,7 +196,7 @@ class usereController {
             const matched = await v.check();
 
             if (!matched) {
-                req.flash('error', Object.values(v.errors).map(err => err.message))
+                req.flash('warning', Object.values(v.errors).map(err => err.message))
                 return res.redirect('/user/registerpage-display')
             }
 
@@ -213,11 +215,11 @@ class usereController {
                             return res.redirect('/user/loginpage-display');
                         }
 
-                        req.flash('error', 'User registered successfully but verification email not sent');
+                        req.flash('warning', 'User registered successfully but verification email not sent');
                         return res.redirect('/user/loginpage-display');
                     }
                 }
-                req.flash('error', 'User already exists');
+                req.flash('warning', 'User already exists');
                 return res.redirect('/user/registerpage-display');
             }
 
@@ -230,7 +232,7 @@ class usereController {
                     req.flash('success', 'User registered successfully and sent verification email');
                     return res.redirect('/user/loginpage-display');
                 }
-                req.flash('error', 'User registered successfully but verification email not sent');
+                req.flash('warning', 'User registered successfully but verification email not sent');
                 return res.redirect('/user/loginpage-display');
             }
 
@@ -247,11 +249,11 @@ class usereController {
             const user = req.user;
             const usereesistchack = await userRepositories.existuser(user.email)
             if (!usereesistchack) {
-                req.flash('error', 'User Not Exist In our System');
+                req.flash('warning', 'User Not Exist In our System');
                 return res.redirect('/user/loginpage-display')
             }
             if (usereesistchack.isverify) {
-                req.flash('error', 'User Already Verified');
+                req.flash('warning', 'User Already Verified');
                 return res.redirect('/user/loginpage-display')
             }
             const verifyemail = await userRepositories.verifyemail(user.email)
@@ -276,7 +278,7 @@ class usereController {
             const matched = await v.check();
             if (!matched) {
                 // If validation fails, send errors to the client
-                req.flash('error', Object.values(v.errors).map(err => err.message))
+                req.flash('warning', Object.values(v.errors).map(err => err.message))
                 return res.redirect('/user/loginpage-display')
             }
             const { email, password } = req.body
@@ -285,27 +287,27 @@ class usereController {
 
             if (!usereexist) {
                 // If validation fails, send errors to the client
-                req.flash('error', `Invalid email`)
+                req.flash('warning', `Invalid email`)
                 return res.redirect('/user/loginpage-display')
             }
             if (usereexist.isadmindelete) {
-                req.flash('error', `Your account has been restricted because ${usereexist.admindelete_msg}`);
+                req.flash('warning', `Your account has been restricted because ${usereexist.admindelete_msg}`);
                 return res.redirect('/user/loginpage-display')
 
             }
             if (usereexist.isdelete) {
-                req.flash('error', `Email Not Found`);
+                req.flash('warning', `Email Not Found`);
                 return res.redirect('/user/loginpage-display')
 
             }
             if (!usereexist.isverify) {
-                req.flash('error', `Verify Your Email`);
+                req.flash('warning', `Verify Your Email`);
                 return res.redirect('/user/loginpage-display')
 
             }
             const passwordchack = await bycript.compare(password, usereexist.password)
             if (!passwordchack) {
-                req.flash('error', `Invalid password`);
+                req.flash('warning', `Invalid password`);
                 return res.redirect('/user/loginpage-display')
 
             }
@@ -317,14 +319,15 @@ class usereController {
                     phone: usereexist.phone,
                     email: usereexist.email,
                     date_of_birth: usereexist.date_of_birth,
-                    role: usereexist.role
+                    role: usereexist.role,
+                    createdAt: usereexist.createdAt,
                 }, process.env.JWTSECRECT || 'WEBSKITTERFINALPROJECT', { expiresIn: '2h' })
 
                 res.cookie('usertoken', token, { maxAge: 7200000, httpOnly: true })
                 req.flash('success', 'Login successful');
                 return res.redirect('/')
             }
-            req.flash('error', `Only user Can Login`);
+            req.flash('warning', `Only user Can Login`);
             return res.redirect('/user/loginpage-display')
 
 
@@ -459,7 +462,7 @@ class usereController {
 
             if (!matched) {
                 // If validation fails, send errors to the client
-                req.flash('error', Object.values(v.errors).map(err => err.message))
+                req.flash('warning', Object.values(v.errors).map(err => err.message))
                 return res.redirect(`/user/forgot/password/${token}`)
             }
 
@@ -488,7 +491,7 @@ class usereController {
             console.log(req.body)
             const user = req.user;
             if (!user) {
-                req.flash('error', 'Not Authenticate usere');
+                req.flash('warning', 'Not Authenticate usere');
                 return res.redirect('/user/loginpage-display');
             }
             const v = new Validator(req.body, {
@@ -500,7 +503,7 @@ class usereController {
 
             if (!matched) {
                 // If validation fails, send errors to the client
-                req.flash('error', Object.values(v.errors).map(err => err.message))
+                req.flash('warning', Object.values(v.errors).map(err => err.message))
                 return res.redirect('/user/change-password')
             }
             const { newPassword, confirmPassword, currentPassword } = req.body
@@ -510,7 +513,7 @@ class usereController {
             console.log(passwordchack);
 
             if (!passwordchack) {
-                req.flash('error', `Invalid Current password`);
+                req.flash('warning', `Invalid Current password`);
                 return res.redirect('/user/change-password')
 
             }
@@ -541,7 +544,7 @@ class usereController {
             console.log(req.body);
 
             if (!user) {
-                req.flash('error', 'User NotFound');
+                req.flash('warning', 'User NotFound');
                 return res.redirect('/user/delete/account');
             }
             const v = new Validator(req.body, {
@@ -550,7 +553,7 @@ class usereController {
             const matched = await v.check();
 
             if (!matched) {
-               req.flash('error', Object.values(v.errors).map(err => err.message))
+               req.flash('warning', Object.values(v.errors).map(err => err.message))
                 return res.redirect('/user/delete/account');
             }
             const { email } = req.body
@@ -558,23 +561,23 @@ class usereController {
             console.log(usereemail);
 
             if (email !== usereemail.email) {
-                req.flash('error', 'User already exists');
+                req.flash('warning', 'User already exists');
                 return res.redirect('/user/delete/account');
             }
             const useredata = await userRepositories.existuser(email)
             if (!useredata) {
-                req.flash('error', 'Invalid email');
+                req.flash('warning', 'Invalid email');
                 return res.redirect('/user/delete/account');
 
             }
             if (useredata.isdelete) {
-                req.flash('error', 'Your account already delete');
+                req.flash('warning', 'Your account already delete');
                 return res.redirect('/user/delete/account');
 
             }
             const deletedata = await userRepositories.deleteaccount(email)
             if (deletedata) {
-                req.flash('error', 'Account Delete successfully');
+                req.flash('success', 'Account Delete successfully');
                 return res.redirect('/user/logout');
 
             }
@@ -614,7 +617,7 @@ class usereController {
             const matched = await v.check();
             if (!matched) {
                 // If validation fails, send errors to the client
-                req.flash('error', Object.values(v.errors).map(err => err.message))
+                req.flash('warning', Object.values(v.errors).map(err => err.message))
                 // return res.redirect('/user/loginpage-display')
                 return res.status(400).json({ message: v.errors });
             }
@@ -668,13 +671,33 @@ class usereController {
             const user = req.user;
             // Initialize Validator with the input validation rules
             if (!user) {
-                req.flash('error', `Not Authenticate user`)
+                req.flash('warning', `Not Authenticate user`)
                 return res.status(400).json({ message: "Not Authenticate user" });
             }
             const datastore = await userRepositories.testimonialdelete(id)
             if (datastore) {
                 req.flash('success', `Testimonial delete successfully`)
                 return res.status(200).json({ message: "Testimonial delete successfully" });
+            }
+            req.flash('error', `Server Error`)
+            return res.status(400).json({ message: "Server Error" });
+
+        } catch (error) {
+            console.log(error)
+            
+        }
+    }
+    // tsetimonial delete
+    async subscriber(req, res) {
+        try {
+
+            const {email}=req.body
+            // Initialize Validator with the input validation rules
+            
+            const datastore = await userRepositories.subscriber(email)
+            if (datastore) {
+                req.flash('success', `Testimonial delete successfully`)
+                return res.status(200).json({ message: "Email delete successfully" });
             }
             req.flash('error', `Server Error`)
             return res.status(400).json({ message: "Server Error" });

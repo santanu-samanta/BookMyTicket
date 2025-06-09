@@ -126,7 +126,7 @@
   <%- include("../../layout/user_layout/navbar.ejs") %>
 </header>
 
-<section style="margin-top: 80px;">
+<section style="margin-top: 100px;">
   <div class="container my-5 pt-4">
     <h2 class="mb-4 text-center">
       🎬 Book Tickets for
@@ -300,7 +300,11 @@
     data.forEach(theater => {
       const card = $(`
         <div class="theater-card">
-          <h5 class="fw-bold mb-3">${theater.company_name}</h5>
+          <h5 class="fw-bold mb-3"><span>${theater.company_name}  </span>,<span>${theater.company_add.city.charAt(0).toUpperCase() + theater.company_add.city.slice(1).toLowerCase()}</span>,
+                                  <span>${theater.company_add.state.charAt(0).toUpperCase() + theater.company_add.state.slice(1).toLowerCase()}</span>,
+                                  <span>${theater.company_add.pin}</span>,
+                                  <span>${theater.company_add.landmark.charAt(0).toUpperCase() + theater.company_add.landmark.slice(1).toLowerCase()}</span>
+                                  </h5>
           <div class="row"></div>
         </div>
       `);

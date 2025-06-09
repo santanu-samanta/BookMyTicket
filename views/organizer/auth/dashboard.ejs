@@ -113,7 +113,9 @@
           <div
             class="d-sm-flex align-items-center justify-content-between mb-4"
           >
-            <h1 class="h3 mb-0 fw-bold text-primary">🎯 Organizer Dashboard</h1>
+           <h1 class="h3 mb-0 fw-bold text-primary">
+            <i class="fas fa-tachometer-alt me-2"></i> <%= user.company_name %> Dashboard
+          </h1>
             <%if(user.company_type=='Production House' || user.company_type=='Theatre Company' ){%>
                <a href="/organizer/add_event" class="btn btn-primary shadow-sm">
               <i class="fas fa-plus fa-sm text-white-50 me-2"></i> Create New Movie

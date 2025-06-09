@@ -13,7 +13,7 @@ class adminreviewanduserController {
             const userdata= await userRepositories.findalldatauser();
             console.log(JSON.stringify(userdata,null,2))
             return res.render('admin_page/reviewanduser/user-list', {
-                title: 'Review list - BookMyTicket', userdata
+                title: 'Review list - BookMyTicket', userdata, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -24,7 +24,7 @@ class adminreviewanduserController {
             const userdata= await userRepositories.findalldatauseradmin();
            
             return res.render('admin_page/reviewanduser/userdel-list', {
-                title: 'Review list - BookMyTicket', userdata
+                title: 'Review list - BookMyTicket', userdata, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -38,7 +38,7 @@ class adminreviewanduserController {
             const reviewdata= await userRepositories.findalldatatestimonial();
             console.log(JSON.stringify(reviewdata,null,2))
             return res.render('admin_page/reviewanduser/review-list', {
-                title: 'Review list - BookMyTicket', reviewdata
+                title: 'Review list - BookMyTicket', reviewdata, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -52,7 +52,7 @@ class adminreviewanduserController {
             const reviewdata= await userRepositories.findalldeletedatatestimonial();
             // console.log(JSON.stringify(eventdata,null,2))
             return res.render('admin_page/reviewanduser/reviewdel-list', {
-                title: 'Event list - BookMyTicket', reviewdata
+                title: 'Event list - BookMyTicket', reviewdata, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -67,7 +67,7 @@ class adminreviewanduserController {
             const event= await userRepositories.finddatabyidtestimon(id);
             console.log(JSON.stringify(event,null,2))
             return res.render('admin_page/reviewanduser/review_det', {
-                title: 'Event list - BookMyTicket',eventdata:event
+                title: 'Event list - BookMyTicket',eventdata:event, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -120,7 +120,7 @@ class adminreviewanduserController {
                   req.flash('success', 'Testimonial Delete Sucessfully and  Worning Email Not Send');
                     return res.redirect('/admin/review/list')
             }
-            req.flash('error', 'Some error occurred');
+            req.flash('warning', 'Some error occurred');
                     return res.redirect('/admin/review/list')
            }
         } catch (err) {
@@ -163,7 +163,7 @@ class adminreviewanduserController {
                   req.flash('success', 'User Account Delete  and  Email Not Send');
                     return res.redirect('/admin/delete/user/list')
             }
-            req.flash('error', 'Some error occurred');
+            req.flash('warning', 'Some error occurred');
                     return res.redirect('/admin/delete/user/list')
         } catch (err) {
             console.log(err)
@@ -188,7 +188,7 @@ class adminreviewanduserController {
                   req.flash('success', 'User Account Undo Successfuly');
                     return res.redirect('/admin/delete/user/list') 
             }
-            req.flash('error', 'Some error occurred');
+            req.flash('warning', 'Some error occurred');
                     return res.redirect('/admin/delete/user/list')
         } catch (err) {
             console.log(err)
@@ -205,7 +205,7 @@ class adminreviewanduserController {
                  req.flash('success', 'users Undo successfully');
                 return  res.redirect('/admin/delete/user/list');
             }
-           req.flash('error', 'error in users undo');
+           req.flash('warning', 'error in users undo');
                     return res.redirect('/admin/delete/user/list');
         } catch (error) {
             console.error(error);
@@ -312,7 +312,7 @@ class adminreviewanduserController {
                   req.flash('success', 'Event Approved  Sucessfully and Approved  Email Not Send');
                     return res.redirect('/admin/delete/event/list')
             }
-            req.flash('error', 'Some error occurred');
+            req.flash('warning', 'Some error occurred');
                     return res.redirect('/admin/delete/event/list')
         } catch (err) {
             console.log(err)

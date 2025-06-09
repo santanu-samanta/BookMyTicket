@@ -12,7 +12,7 @@ class admineventController {
             const eventdata= await adminEventRepositories.findalldata();
             console.log(JSON.stringify(eventdata,null,2))
             return res.render('admin_page/event/event-list', {
-                title: 'Event list - BookMyTicket', eventdata
+                title: 'Event list - BookMyTicket', eventdata, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -23,7 +23,7 @@ class admineventController {
             const eventdata= await adminEventRepositories.deletefindalldata();
             console.log(JSON.stringify(eventdata,null,2))
             return res.render('admin_page/event/delete-event-list', {
-                title: 'Event list - BookMyTicket', eventdata
+                title: 'Event list - BookMyTicket', eventdata, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -35,7 +35,7 @@ class admineventController {
             const event= await adminEventRepositories.finddatabyid(id);
             // console.log(JSON.stringify(eventdata,null,2))
             return res.render('admin_page/event/event-detailse', {
-                title: 'Event list - BookMyTicket', event
+                title: 'Event list - BookMyTicket', event, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -127,7 +127,7 @@ class admineventController {
                   req.flash('success', 'Event Reject Sucessfully and Reject Email Not Send');
                     return res.redirect('/admin/event/list')
             }
-            req.flash('error', 'Some error occurred');
+            req.flash('warning', 'Some error occurred');
                     return res.redirect('/admin/event/list')
         } catch (err) {
             console.log(err)
@@ -230,7 +230,7 @@ class admineventController {
                   req.flash('success', 'Event Approved  Sucessfully and Approved  Email Not Send');
                     return res.redirect('/admin/delete/event/list')
             }
-            req.flash('error', 'Some error occurred');
+            req.flash('warning', 'Some error occurred');
                     return res.redirect('/admin/delete/event/list')
         } catch (err) {
             console.log(err)

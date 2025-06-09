@@ -24,6 +24,7 @@ class adminController {
     }
     async admin_logout(req, res) {
         try {
+             
             res.clearCookie('admintoken')
             req.flash('success', 'Logout Successfuly');
             return res.redirect('/admin/login');
@@ -42,7 +43,7 @@ class adminController {
             const matched = await v.check();
             if (!matched) {
                 // If validation fails, send errors to the client
-                req.flash('error', Object.values(v.errors).map(err => err.message))
+                req.flash('warning', Object.values(v.errors).map(err => err.message))
                 return res.redirect('/admin/login')
             }
             const { email, password } = req.body
@@ -50,16 +51,16 @@ class adminController {
             const userexist = await userRepositories.existuser(email)
             if (!userexist) {
                 // If validation fails, send errors to the client
-                req.flash('error', `Invalid email`)
+                req.flash('warning', `Invalid email`)
                 return res.redirect('/admin/login')
             }
             if (userexist.isdelete) {
-                req.flash('error', `Email Not Found`);
+                req.flash('warning', `Email Not Found`);
                 return res.redirect('/admin/login')
             }
             const passwordchack = await bycript.compare(password, userexist.password)
             if (!passwordchack) {
-                req.flash('error', `Invalid password`)
+                req.flash('warning', `Invalid password`)
                 return res.redirect('/admin/login')
             }
             if (userexist.role == 'admin') {
@@ -78,7 +79,7 @@ class adminController {
                 req.flash('success', 'Login successful');
                 return res.redirect('/admin/dashboard')
             }
-            req.flash('error', `Only admin Can Login`)
+            req.flash('warning', `Only admin Can Login`)
             return res.redirect('/admin/login')
 
 
@@ -350,14 +351,14 @@ class adminController {
 
 
             return res.render('admin_page/auth/admin_dashbord', {
-                title: 'Admin Dashboard - BookMyTicket', user: null,
+                title: 'Admin Dashboard - BookMyTicket',  user:req.admin,
                 stats,
                 largeAreaChartConfig,
                 labels,
                 categoryData: categoryMap,
                 pieChartConfig,
                 barChartConfig,
-               
+
                 pieLabels,
                 signupLabels: movieticketsChart.labels,
                 signupData: movieticketsChart.data,
@@ -374,7 +375,7 @@ class adminController {
         try {
             const companydata = await organizerRepositories.findallcompanydetailse()
             return res.render('admin_page/company/company_table', {
-                title: 'Admin Dashboard - BookMyTicket', companydata
+                title: 'Admin Dashboard - BookMyTicket', companydata, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -389,7 +390,7 @@ class adminController {
             const company = await eventRepositories.finbbookingdata()
 
             return res.render('admin_page/movie_taking/booking_histroy', {
-                title: 'Admin Dashboard - BookMyTicket', company
+                title: 'Admin Dashboard - BookMyTicket', company, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -401,7 +402,7 @@ class adminController {
             const company = await eventRepositories.finbbookingdatabyid(id)
 
             return res.render('admin_page/movie_taking/booking_detailse', {
-                company: company[0], moment
+                company: company[0], moment, user:req.admin
             })
         } catch (err) {
             console.log(err)

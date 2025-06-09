@@ -20,7 +20,7 @@ router.get('/token-refresh', (req, res) => {
     const redirectUrl = req.query.redirect || '/organizer/dashboard';
 
     if (!refreshToken) {
-        req.flash('error', 'Session expired. Please login again.');
+        req.flash('warning', 'Session expired. Please login again.');
         return res.redirect('/organizer/login');
     }
 
@@ -36,7 +36,7 @@ router.get('/token-refresh', (req, res) => {
         return res.redirect(redirectUrl);
     } catch (err) {
         console.log(err)
-        req.flash('error', 'Refresh token expired. Please login again.');
+        req.flash('warning', 'Refresh token expired. Please login again.');
         return res.redirect('/organizer/login');
     }
 });

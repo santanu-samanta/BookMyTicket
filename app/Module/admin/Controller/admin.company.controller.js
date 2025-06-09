@@ -13,7 +13,7 @@ class adminCompanyController {
         try {
             const companydata = await organizerRepositories.findallcompanydetailse()
             return res.render('admin_page/company/company_table', {
-                title: 'Cpmany Table - BookMyTicket', companydata
+                title: 'Cpmany Table - BookMyTicket', companydata, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -26,7 +26,7 @@ class adminCompanyController {
             const company = await organizerRepositories.findallcompanybyid(id)
             console.log(company)
             return res.render('admin_page/company/single_company_details', {
-                 company
+                 company, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -38,7 +38,7 @@ class adminCompanyController {
             console.log(req.query)
             const company = await organizerRepositories.findallcompanybyid(id);
             return res.render('admin_page/company/companyreject', {
-                title: 'Company Reject  - BookMyTicket', company
+                title: 'Company Reject  - BookMyTicket', company, user:req.admin
             })
         } catch (err) {
             console.log(err)

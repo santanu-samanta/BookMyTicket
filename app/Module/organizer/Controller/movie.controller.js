@@ -59,7 +59,7 @@ class organizerEventController {
             console.log(JSON.stringify(companydata, null, 2));
 
             if (!companyexist.isverify) {
-                req.flash('error', `Please Change Your Password First`);
+                req.flash('warning', `Please Change Your Password First`);
                 return res.redirect(`/organizer/change-password`);
             }
 
@@ -68,7 +68,7 @@ class organizerEventController {
             });
         } catch (error) {
             console.log(error);
-            req.flash('error', 'Something went wrong.');
+            req.flash('warning', 'Something went wrong.');
             return res.redirect('/organizer/dashboard');
         }
     }
@@ -116,7 +116,7 @@ class organizerEventController {
             console.log(JSON.stringify(companydata, null, 2));
 
             if (!companyexist.isverify) {
-                req.flash('error', `Please Change Your Password First`);
+                req.flash('warning', `Please Change Your Password First`);
                 return res.redirect(`/organizer/change-password`);
             }
 
@@ -125,7 +125,7 @@ class organizerEventController {
             });
         } catch (error) {
             console.log(error);
-            req.flash('error', 'Something went wrong.');
+            req.flash('warning', 'Something went wrong.');
             return res.redirect('/organizer/dashboard');
         }
     }
@@ -141,7 +141,7 @@ class organizerEventController {
             console.log(JSON.stringify(companydata, null, 2));
 
             if (!companyexist.isverify) {
-                req.flash('error', `Please Change Your Password First`);
+                req.flash('warning', `Please Change Your Password First`);
                 return res.redirect(`/organizer/change-password`);
             }
 
@@ -150,7 +150,7 @@ class organizerEventController {
             });
         } catch (error) {
             console.log(error);
-            req.flash('error', 'Something went wrong.');
+            req.flash('warning', 'Something went wrong.');
             return res.redirect('/organizer/dashboard');
         }
     }
@@ -166,7 +166,7 @@ class organizerEventController {
             console.log(JSON.stringify(companydata, null, 2));
 
             if (!companyexist.isverify) {
-                req.flash('error', `Please Change Your Password First`);
+                req.flash('warning', `Please Change Your Password First`);
                 return res.redirect(`/organizer/change-password`);
             }
 
@@ -176,7 +176,7 @@ class organizerEventController {
             }
         } catch (error) {
             console.log(error);
-            req.flash('error', 'Something went wrong.');
+            req.flash('warning', 'Something went wrong.');
             return res.redirect('/organizer/dashboard');
         }
     }
@@ -190,7 +190,7 @@ class organizerEventController {
             const movies = await adminMovieRepo.moviedatadindwithid();
 
             if (!companyexist.isverify) {
-                req.flash('error', `Please Change Your Password First`);
+                req.flash('warning', `Please Change Your Password First`);
                 return res.redirect(`/organizer/change-password`);
             }
 
@@ -200,7 +200,7 @@ class organizerEventController {
             });
         } catch (error) {
             console.log(error);
-            req.flash('error', 'Something went wrong.');
+            req.flash('warning', 'Something went wrong.');
             return res.redirect('/organizer/events');
         }
     }
@@ -307,7 +307,7 @@ class organizerEventController {
             const { error } = schema.validate(req.body, { abortEarly: false });
 
             if (error) {
-                req.flash('error', error.details.map((err) => err.message));
+                req.flash('warning', error.details.map((err) => err.message));
                 return res.redirect('/organizer/add_event');
             }
 
@@ -326,7 +326,7 @@ class organizerEventController {
 
         } catch (error) {
             console.error(error);
-            req.flash('error', 'Something went wrong. Please try again.');
+            req.flash('warning', 'Something went wrong. Please try again.');
             return res.redirect('/organizer/add_event');
         }
     }
@@ -433,7 +433,7 @@ class organizerEventController {
             const { error } = schema.validate(req.body, { abortEarly: false });
 
             if (error) {
-                req.flash('error', error.details.map((err) => err.message));
+                req.flash('warning', error.details.map((err) => err.message));
                 return res.redirect('/organizer/add_event');
             }
 
@@ -454,7 +454,7 @@ class organizerEventController {
 
         } catch (error) {
             console.error(error);
-            req.flash('error', 'Something went wrong. Please try again.');
+            req.flash('warning', 'Something went wrong. Please try again.');
             return res.redirect('/organizer/add_event');
         }
     }
@@ -469,7 +469,7 @@ class organizerEventController {
 
 
             if (!companyexist.isverify) {
-                req.flash('error', `Please Change Your Password First`);
+                req.flash('warning', `Please Change Your Password First`);
                 return res.redirect(`/organizer/change-password`);
             }
 
@@ -479,7 +479,7 @@ class organizerEventController {
             });
         } catch (error) {
             console.log(error);
-            req.flash('error', 'Something went wrong.');
+            req.flash('warning', 'Something went wrong.');
             return res.redirect('/organizer/events');
         }
     }

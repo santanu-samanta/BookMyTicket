@@ -94,6 +94,9 @@ app.use(flash());
 app.use((req, res, next) => {
     res.locals.success_mssg = req.flash('success');
     res.locals.error_mssg = req.flash('error');
+    res.locals.info_mssg = req.flash('info');
+    res.locals.warning_mssg = req.flash('warning');
+    res.locals.msg_mssg = req.flash('message');
     // Debugging to check flash messages
     console.log(res.locals)
     next();

@@ -105,9 +105,9 @@
       margin-top: 8px;
     }
 
-    .seat.classic { background-color: #6cbb3c; color: #fff; }
+    .seat.classic { background-color: rgb(110, 205, 184); color: #fff; }
     .seat.golden { background-color: gold; color: #000; }
-    .seat.prime  { background-color: crimson; color: #fff; }
+    .seat.prime  { background-color: rgb(188, 107, 206); color: #fff; }
 
     .seat.selected { background-color: #007bff !important; color: #fff; }
     .seat.sold { background-color: #bbb !important; cursor: not-allowed; }
@@ -169,6 +169,19 @@
       .container { margin: 10px; padding: 15px; }
       .book-left, .book-right { width: 100%; float: none; }
     }
+    .screen-image-wrapper {
+      width: 40%;
+      margin: 0 auto 20px;
+      text-align: center;
+    }
+
+    .screen-image {
+      width: 100%;
+      opacity: 0.5; /* Low opacity */
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
   </style>
 </head>
 <body>
@@ -189,7 +202,10 @@
  
 
     <h2>Select Your Seat - Screen <%= schedule.screen %></h2>
-    <div class="screen">SCREEN</div>
+    <div class="screen-image-wrapper">
+    <img src="/screen.jpg" alt="Screen" class="screen-image">
+  </div>
+
 
     <div class="seat-section">
       <% const seatTypes = ['prime', 'golden', 'classic']; %>

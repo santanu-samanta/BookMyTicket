@@ -84,7 +84,7 @@ class eventorganizerrepozitoris {
     }
     async shoallevents() {
         try {
-            const eventdata = organizereventmodel.find({ isdelete: false });
+            const eventdata = organizereventmodel.find({ isdelete: false ,status: { $in: ["Pending", "Approved"]} });
             return eventdata;
         } catch (err) {
             console.log(err)

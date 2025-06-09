@@ -9,7 +9,7 @@ class adminmovieController {
             const artists = await adminArtistRepo.artistdatadindwithid();
 
             return res.render('admin_page/admin_add_event/add_movie', {
-                title: 'Movie Add - BookMyTicket', artists
+                title: 'Movie Add - BookMyTicket', artists, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -96,7 +96,7 @@ class adminmovieController {
             // Validate releaseDate is a valid date
             const releaseDateObj = new Date(releaseDate);
             if (isNaN(releaseDateObj.getTime())) {
-                req.flash('error', ['Invalid release date']);
+                req.flash('warning', ['Invalid release date']);
                 return res.redirect('/admin/movie-add');
             }
 
@@ -118,7 +118,7 @@ class adminmovieController {
                     isdelete: false
                 }, { abortEarly: false });
             } catch (validationError) {
-                req.flash('error', validationError.details.map(err => err.message));
+                req.flash('warning', validationError.details.map(err => err.message));
                 return res.redirect('/admin/movie-add');
             }
 
@@ -128,7 +128,7 @@ class adminmovieController {
             if (moviecreate) {
                 return res.redirect('/admin/movie-list');
             } else {
-                req.flash('error', ['Failed to save movie']);
+                req.flash('warning', ['Failed to save movie']);
                 return res.redirect('/admin/movie-add');
             }
 
@@ -145,7 +145,7 @@ class adminmovieController {
         try {
             const moviedata = await adminMovieRepo.shoalldata();
             return res.render('admin_page/admin_add_event/movie_list', {
-                title: 'Artist List - BookMyTicket', moviedata
+                title: 'Artist List - BookMyTicket', moviedata, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -155,7 +155,7 @@ class adminmovieController {
         try {
             const moviedata = await adminMovieRepo.shoallmoviedata();
             return res.render('admin_page/admin_add_event/detete_movie_list', {
-                title: 'Artist List - BookMyTicket', moviedata
+                title: 'Artist List - BookMyTicket', moviedata, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -170,7 +170,7 @@ class adminmovieController {
           console.log(JSON.stringify(movie, null, 2));
 
             return res.render('admin_page/admin_add_event/single_movie', {
-                title: 'Single Movie  - BookMyTicket', movie
+                title: 'Single Movie  - BookMyTicket', movie, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -260,7 +260,7 @@ class adminmovieController {
             // Parse and validate release date
             const releaseDateObj = new Date(releaseDate);
             if (isNaN(releaseDateObj.getTime())) {
-                req.flash('error', ['Invalid release date']);
+                req.flash('warning', ['Invalid release date']);
                 return res.redirect('/admin/movie-add');
             }
 
@@ -355,13 +355,13 @@ class adminmovieController {
                 // res.redirect('/admin/movies');
             } catch (validationError) {
                 console.log(validationError.details);
-                req.flash('error', validationError.details.map(err => err.message));
+                req.flash('warning', validationError.details.map(err => err.message));
                 return res.redirect(`/admin/movie-edit/${id}`);
             }
 
         } catch (err) {
             console.log(err);
-            req.flash('error', 'An unexpected error occurred');
+            req.flash('warning', 'An unexpected error occurred');
             res.redirect('/admin/movie-edit/' + req.params.id);
         }
     }
@@ -374,7 +374,7 @@ class adminmovieController {
             console.log(movie)
             console.log(artists)
             return res.render('admin_page/admin_add_event/movie_edit', {
-                title: 'Single Movie  - BookMyTicket', artists, movie
+                title: 'Single Movie  - BookMyTicket', artists, movie, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -400,7 +400,7 @@ class adminmovieController {
             req.flash('success', 'Movie Delete successfully');
                 return res.redirect('/admin/movie-list');
            }
-           req.flash('error', 'Error');
+           req.flash('warning', 'warning');
                 return res.redirect('/admin/movie-list');
         } catch (err) {
             console.log(err)
@@ -413,7 +413,7 @@ class adminmovieController {
           if(movie){
             req.flash('success', 'Movie Undo successfully');
                 return res.json({ success: true, message: "Movie restored successfully!" });           }
-           req.flash('error', 'Error');
+           req.flash('warning', 'warning');
                 return res.redirect('/admin/delete-movie-list');
         } catch (err) {
             console.log(err)
@@ -427,7 +427,7 @@ class adminmovieController {
                  req.flash('success', 'Movies Undo successfully');
                  return res.json({ success: true, message: "Movie restored successfully!" });          
             }
-           req.flash('error', 'error in Movies undo');
+           req.flash('warning', 'error in Movies undo');
                     return res.redirect('/admin/delete-movie-list');
         } catch (error) {
             console.error(error);

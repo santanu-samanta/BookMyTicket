@@ -201,7 +201,7 @@ class TicketController {
                     razorpay_signature: paymentDetails.razorpay_signature
                 }
             }
-            console.log('hello', newTicket);
+            // console.log('hello', newTicket);
             const ticketdata = await ticketRepositories.datasave(newTicket);
             if (ticketdata) {
                 const uutseat = await eventRepositories.updateseate(normalizedSeats, bookingData.id)

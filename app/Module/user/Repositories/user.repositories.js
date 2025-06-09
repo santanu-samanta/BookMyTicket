@@ -1,6 +1,7 @@
 const { default: mongoose } = require('mongoose');
 const userModel = require('../Model/user.model');
 const testimonial = require('../Model/user.testimonial');
+const subscriber = require('../Model/subcriber');
 
 
 class userRepositories {
@@ -57,7 +58,7 @@ class userRepositories {
   async findalldatauser(id) {
     try {
 
-      const userdata = await userModel.find({ isdelete: false, isadmindelete: false })
+      const userdata = await userModel.find({ isdelete: false, isadmindelete: false,role:"user" })
 
 
       return userdata;
@@ -306,6 +307,8 @@ class userRepositories {
         },
         {
           $sort: { reviewCount: -1, avgRating: -1 } // sort by popularity
+        }, {
+          $limit: 4
         }
       ]);
 
@@ -663,7 +666,7 @@ class userRepositories {
       }
     ]);
 
-    return {topMovie,topOrganizations}
+    return { topMovie, topOrganizations }
   };
   async artistundomany(artistIds) {
     try {
@@ -684,6 +687,16 @@ class userRepositories {
       const artist = await testimonial.findByIdAndUpdate(id, {
         isdelete: true
       })
+      return artist
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  }
+  async subscriber() {
+    try {
+
+      const artist = await subscriber.create(data)
       return artist
     } catch (err) {
       console.error(err);

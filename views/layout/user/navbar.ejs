@@ -1,17 +1,22 @@
- <!-- Top navbar -->
-    <div class="top-navbar">
-        
-      <div class="user-menu" id="userMenuToggle" tabindex="0" aria-haspopup="true" aria-expanded="false">
-        <img src="<%= user.profilePic || '/default-avatar.png' %>" alt="User profile picture" />
-        <i class="fa-solid fa-caret-down"></i>
+<div class="top-navbar d-flex justify-content-end align-items-center p-2 ">
+  <div class="dropdown">
+    <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="userMenuToggle" data-bs-toggle="dropdown" aria-expanded="false">
+      <img src="<%= user.profilePic || '/default-avatar.png' %>" alt="Profile" width="36" height="36" class="rounded-circle me-2" />
+      <span class="fw-semibold"><%= user.first_name %> <%= user.last_name %></span>
+    </a>
 
-        <!-- Dropdown menu -->
-        <div class="dropdown-menu" id="userDropdownMenu" role="menu" aria-label="User menu">
-          <a href="/user/dashboard-display" style="text-decoration: none; "><i class="fa-solid fa-house"></i> Dashboard</a>
-          <a href="/user/logout" style="text-decoration: none; "><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-        </div>
-      </div>
-    </div>
+    <ul class="dropdown-menu dropdown-menu-end text-small shadow" aria-labelledby="userMenuToggle">
+      <li class="px-3 py-2">
+        <div class="fw-bold text-dark">Hi <%= user.first_name %>!</div>
+        <small class="text-muted"><%= user.email || 'Welcome back' %></small>
+      </li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item" href="/user/dashboard-display"><i class="fa-solid fa-house me-2"></i>Dashboard</a></li>
+      <li><a class="dropdown-item text-danger" href="/user/logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+    </ul>
+  </div>
+</div>
+
    <%if(success_mssg[0]){%>
     <script>
         Swal.fire({
@@ -30,6 +35,40 @@
                      icon: 'error',
                      title: 'Error',
                     text: "<%=error_mssg%>"
+                });
+            </script>
+            <!-- <h5 class="alert alert-danger" style="color: black; ">
+                        <%=error_mssg%>
+                    </h5> -->
+            <%}%>
+        <%if(info_mssg[0]){%>
+            <script>
+                Swal.fire({
+                     icon: 'info',
+                     title: 'Info',
+                    text: "<%=info_mssg%>"
+                });
+            </script>
+            <!-- <h5 class="alert alert-danger" style="color: black; ">
+                        <%=error_mssg%>
+                    </h5> -->
+            <%}%>
+        <%if(warning_mssg[0]){%>
+            <script>
+                Swal.fire({
+                     icon: 'warning',
+                     title: 'Warning',
+                    text: "<%=warning_mssg%>"
+                });
+            </script>
+            <!-- <h5 class="alert alert-danger" style="color: black; ">
+                        <%=error_mssg%>
+                    </h5> -->
+            <%}%>
+        <%if(msg_mssg[0]){%>
+            <script>
+                Swal.fire({
+                    text: "<%=msg_mssg%>"
                 });
             </script>
             <!-- <h5 class="alert alert-danger" style="color: black; ">

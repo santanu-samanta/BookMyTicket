@@ -6,7 +6,7 @@ class adminartistController {
         try {
             const artists = await adminArtistRepo.artistdatadindwithid();
             return res.render('admin_page/artist/add_artist', {
-                title: 'Artist Add - BookMyTicket', artists
+                title: 'Artist Add - BookMyTicket', artists, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -16,7 +16,7 @@ class adminartistController {
     async artist_store_add(req, res) {
         try {
             if (!req.file) {
-                req.flash('error', 'Artist image is required');
+                req.flash('warning', 'Artist image is required');
                 return res.redirect('/admin/artists-add');
             }
 
@@ -82,12 +82,12 @@ class adminartistController {
                     return msg;
                 });
 
-                req.flash('error', formattedErrors.join('<br/>'));
+                req.flash('warning', formattedErrors.join('<br/>'));
                 return res.redirect('/admin/artists-add');
             }
 
             console.log('Unexpected error:', err);
-            req.flash('error', 'Something went wrong');
+            req.flash('warning', 'Something went wrong');
             return res.redirect('/admin/artists-add');
         }
     }
@@ -98,7 +98,7 @@ class adminartistController {
             const artist = await adminArtistRepo.sigleartist(id)
             const artists = await adminArtistRepo.artistdatadindwithid();
             return res.render('admin_page/artist/edit_artist', {
-                title: 'Artist Add - BookMyTicket', artists, artist
+                title: 'Artist Add - BookMyTicket', artists, artist, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -137,7 +137,7 @@ class adminartistController {
                 req.flash('success', 'Artist updated successfully');
                 return res.redirect('/admin/artists-list');
             } else {
-                req.flash('error', 'Failed to update artist');
+                req.flash('warning', 'Failed to update artist');
                 return res.redirect(`/admin/artists/profile_update/${id}`);
             }
 
@@ -173,12 +173,12 @@ class adminartistController {
                     return msg;
                 });
 
-                req.flash('error', formattedErrors.join('<br/>'));
+                req.flash('warning', formattedErrors.join('<br/>'));
                 return res.redirect(`/admin/artists/profile_update/${req.params.id}`);
             }
 
             console.log('Unexpected error:', err);
-            req.flash('error', 'Something went wrong');
+            req.flash('warning', 'Something went wrong');
             return res.redirect(`/admin/artists/profile_update/${req.params.id}`);
         }
     }
@@ -186,7 +186,7 @@ class adminartistController {
         try {
             const artistdata = await adminArtistRepo.shoalldata()
             return res.render('admin_page/artist/artist_list', {
-                title: 'Artist List - BookMyTicket', artistdata
+                title: 'Artist List - BookMyTicket', artistdata, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -196,7 +196,7 @@ class adminartistController {
         try {
             const artistdata = await adminArtistRepo.showalldeletedata()
             return res.render('admin_page/artist/delete_artist_list', {
-                title: 'Artist List - BookMyTicket', artistdata
+                title: 'Artist List - BookMyTicket', artistdata, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -210,7 +210,7 @@ class adminartistController {
             
             // const artists = await adminArtistRepo.artistdatadindwithid();
             return res.render('admin_page/artist/single_artist_detailse', {
-                title: 'Artist Profile  - BookMyTicket', artist
+                title: 'Artist Profile  - BookMyTicket', artist, user:req.admin
             })
         } catch (err) {
             console.log(err)
@@ -225,7 +225,7 @@ class adminartistController {
             req.flash('success', 'Artist Delete successfully');
                 return res.redirect('/admin/artists-list');
            }
-           req.flash('error', 'Error');
+           req.flash('warning', 'warning');
                 return res.redirect('/admin/artists-list');
         } catch (err) {
             console.log(err)
@@ -240,7 +240,7 @@ class adminartistController {
                 req.flash('success', 'Artist Undo successfully');
                 return res.redirect('/admin/delete_artists-list');
             }
-              req.flash('error', 'error in artist undo');
+              req.flash('warning', 'error in artist undo');
                 return res.redirect('/admin/artists-list');
         } catch (err) {
             console.log(err)
@@ -254,7 +254,7 @@ class adminartistController {
              req.flash('success', 'Artists Undo successfully');
             return  res.redirect('/admin/delete_artists-list');
         }
-       req.flash('error', 'error in artists undo');
+       req.flash('warning', 'error in artists undo');
                 return res.redirect('/admin/delete_artists-list');
     } catch (error) {
         console.error(error);

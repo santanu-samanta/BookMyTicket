@@ -10,16 +10,23 @@
         <li class="nav-item dropdown no-arrow">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
-
-            <img 
+            <span><span style="color: black; padding-right: 10px; font-size: 20px; font-weight: 700;"><%=user.company_name%> </span><br><span style="color: black; padding: 5px 20px; font-size: 15px; font-weight: 500;"><%=user.address.city.charAt(0).toUpperCase() + user.address.city.slice(1).toLowerCase() %></span></span>
+            <%if(user.logo == 'null'){%>
+                 <img 
             class="img-profile rounded-circle" 
             src="/default-avatar.png" 
             >
+                <%}else{%>
+                     <img 
+            class="img-profile rounded-circle" 
+            src="/<%= user.logo.replace(/^uploads[\\/]/, '').replace(/\\/g, '/') %>" 
+            >
+                    <%}%>
            
             </a>
             <!-- Dropdown - User Information -->
             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                <a class="dropdown-item" href="/organizer/profile-update">
+                <a class="dropdown-item" href="/organizer/profile">
                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                     Profile
                 </a>
@@ -42,7 +49,7 @@
     </ul>
 
 </nav>
- <%if(success_mssg[0]){%>
+  <%if(success_mssg[0]){%>
     <script>
         Swal.fire({
             icon: 'success',
@@ -60,6 +67,40 @@
                      icon: 'error',
                      title: 'Error',
                     text: "<%=error_mssg%>"
+                });
+            </script>
+            <!-- <h5 class="alert alert-danger" style="color: black; ">
+                        <%=error_mssg%>
+                    </h5> -->
+            <%}%>
+        <%if(info_mssg[0]){%>
+            <script>
+                Swal.fire({
+                     icon: 'info',
+                     title: 'Info',
+                    text: "<%=info_mssg%>"
+                });
+            </script>
+            <!-- <h5 class="alert alert-danger" style="color: black; ">
+                        <%=error_mssg%>
+                    </h5> -->
+            <%}%>
+        <%if(warning_mssg[0]){%>
+            <script>
+                Swal.fire({
+                     icon: 'warning',
+                     title: 'Warning',
+                    text: "<%=warning_mssg%>"
+                });
+            </script>
+            <!-- <h5 class="alert alert-danger" style="color: black; ">
+                        <%=error_mssg%>
+                    </h5> -->
+            <%}%>
+       <%if(msg_mssg[0]){%>
+            <script>
+                Swal.fire({
+                    text: "<%=msg_mssg%>"
                 });
             </script>
             <!-- <h5 class="alert alert-danger" style="color: black; ">

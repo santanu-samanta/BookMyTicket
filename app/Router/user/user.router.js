@@ -47,4 +47,5 @@ namedRouter.post("user.deleteaccount", '/deleteaccount', userauthCheck, userrole
 namedRouter.post("user.testimonial", '/testimonial/:id', userauthCheck, userrolechack, userController.testimonial)
 // testimonial delete
 namedRouter.get("user.testimonial-delete", '/delete/testimonial/:id', userauthCheck, userrolechack, userController.testimonialdelete);
+namedRouter.get("user.subscriber", '/subscriber', userauthCheck, userrolechack, userController.subscriber);
 module.exports = router

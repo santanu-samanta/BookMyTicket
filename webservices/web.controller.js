@@ -165,12 +165,13 @@ class WebController {
     async event_booking_panal(req, res) {
         try {
             const id = req.params.id
+            console.log(id)
             const movies = await eventOrganizerRepositories.single_movie_data(id);
-            //    console.log(movies)
+               console.log("hello",movies)
             const movie = await eventRepositories.single_movie_data(id);
             const uniqueMovies = movies[0].event_name
 
-            console.log(uniqueMovies)
+            // console.log(uniqueMovies)
             const moviedata = movies.reduce((acc, da, ind,) => {
                 const data = {};
                 data.id = da._id
@@ -181,7 +182,7 @@ class WebController {
                 return acc
             }, [])
 
-            console.log(JSON.stringify(moviedata, null, 2))
+            // console.log(JSON.stringify(moviedata, null, 2))
 
             return res.render('webpages/events/event_shedule', {
                 title: "contact Page - BookMyTicket", theaterData: moviedata, uniqueMovies, user: req.user
@@ -458,6 +459,7 @@ class WebController {
                 const data = {};
                 data.id = da._id
                 data.company_name = da.company_id.company_name;
+                data.company_add = da.company_id.address;
                 data.company_id = da.company_id._id
                 data.show_shedule = da.schedules;
                 acc.push(data);
@@ -520,8 +522,6 @@ class WebController {
                 golden_seats_sold: movie.golden_seats_book,
                 classic_seats_sold: movie.classic_seats_book,
                 enentid: moviee._id,
-
-
             }
             console.log(schedule)
             // console.log(JSON.stringify(moviedata, null, 2))

@@ -9,8 +9,9 @@
         <li class="nav-item dropdown no-arrow">
             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                 aria-haspopup="true" aria-expanded="false">
-
+ <span class="fw-semibold" style="color: black; padding-right: 10px;"><%= user.first_name %> <%= user.last_name %></span>
                 <img class="img-profile rounded-circle" src="/default-avatar.png">
+                
             </a>
             <!-- Dropdown - User Information -->
             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -23,7 +24,7 @@
 
     </ul>
 </nav>
- <%if(success_mssg[0]){%>
+  <%if(success_mssg[0]){%>
     <script>
         Swal.fire({
             icon: 'success',
@@ -41,6 +42,40 @@
                      icon: 'error',
                      title: 'Error',
                     text: "<%=error_mssg%>"
+                });
+            </script>
+            <!-- <h5 class="alert alert-danger" style="color: black; ">
+                        <%=error_mssg%>
+                    </h5> -->
+            <%}%>
+        <%if(info_mssg[0]){%>
+            <script>
+                Swal.fire({
+                     icon: 'info',
+                     title: 'Info',
+                    text: "<%=info_mssg%>"
+                });
+            </script>
+            <!-- <h5 class="alert alert-danger" style="color: black; ">
+                        <%=error_mssg%>
+                    </h5> -->
+            <%}%>
+        <%if(warning_mssg[0]){%>
+            <script>
+                Swal.fire({
+                     icon: 'warning',
+                     title: 'Warning',
+                    text: "<%=warning_mssg%>"
+                });
+            </script>
+            <!-- <h5 class="alert alert-danger" style="color: black; ">
+                        <%=error_mssg%>
+                    </h5> -->
+            <%}%>
+       <%if(msg_mssg[0]){%>
+            <script>
+                Swal.fire({
+                    text: "<%=msg_mssg%>"
                 });
             </script>
             <!-- <h5 class="alert alert-danger" style="color: black; ">

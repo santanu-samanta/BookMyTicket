@@ -26,7 +26,7 @@ class eventorganizerController {
             const companyexist = await organizerRepositories.find(email);
 
             if (!companyexist.isverify) {
-                req.flash('error', `Please Change Your Password First`);
+                req.flash('warning', `Please Change Your Password First`);
                 return res.redirect(`/organizer/change-password`);
             }
             const eventdata = await eventOrganizerRepositories.shoalldata(user._id)
@@ -91,7 +91,7 @@ class eventorganizerController {
             const companyexist = await organizerRepositories.find(email);
 
             if (!companyexist.isverify) {
-                req.flash('error', `Please Change Your Password First`);
+                req.flash('warning', `Please Change Your Password First`);
                 return res.redirect(`/organizer/change-password`);
             }
             const eventdata = await eventOrganizerRepositories.shoalldatareject(user._id)
@@ -154,13 +154,13 @@ class eventorganizerController {
         try {
 
             const user = req.organizer;
-            console.log(user)
+            // console.log(user)
             const email = user.email;
             const companyexist = await organizerRepositories.find(email);
             const movies = await adminMovieRepo.moviedatadindwithid();
 
             if (!companyexist.isverify) {
-                req.flash('error', `Please Change Your Password First`);
+                req.flash('warning', `Please Change Your Password First`);
                 return res.redirect(`/organizer/change-password`);
             }
 
@@ -185,7 +185,7 @@ class eventorganizerController {
             // console.log(JSON.stringify(eventdata, null, 2));
 
             if (!companyexist.isverify) {
-                req.flash('error', `Please Change Your Password First`);
+                req.flash('warning', `Please Change Your Password First`);
                 return res.redirect(`/organizer/change-password`);
             }
 
@@ -206,7 +206,7 @@ class eventorganizerController {
             // 1. Validate with Joi
             const { error, value } = eventSchema.validate(req.body, { abortEarly: false });
             if (error) {
-                req.flash('error', error.details.map(e => e.message).join(', '));
+                req.flash('warning', error.details.map(e => e.message).join(', '));
                 return res.redirect('/organizer/event/create');
             }
 
@@ -326,7 +326,7 @@ class eventorganizerController {
             // 1. Validate with Joi
             const { error, value } = eventSchema.validate(req.body, { abortEarly: false });
             if (error) {
-                req.flash('error', error.details.map(e => e.message).join(', '));
+                req.flash('warning', error.details.map(e => e.message).join(', '));
                 return res.redirect('/organizer/event/create');
             }
 
@@ -457,7 +457,7 @@ class eventorganizerController {
             // console.log(JSON.stringify(companydata,null,2));
 
             if (!companyexist.isverify) {
-                req.flash('error', `Please Change Your Password First`);
+                req.flash('warning', `Please Change Your Password First`);
                 return res.redirect(`/organizer/change-password`);
             }
             const companydata = await eventOrganizerRepositories.bookingdataforsingledelete(id)

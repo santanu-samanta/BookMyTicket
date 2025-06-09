@@ -4,7 +4,7 @@ const userrolechack = async (req, res, next) => {
     try {
         const user = req.user;
         if (!user) {
-            req.flash('error', 'Please Login')
+            req.flash('warning', 'Please Login')
             return res.redirect('/user/loginpage-display')
             
         }
@@ -12,14 +12,14 @@ const userrolechack = async (req, res, next) => {
             // const user=req.user;
             // const userfind=await userRepositories.existuser(user.email)
             // if(userfind.isadmindelete){
-            //      req.flash('error', `Admin Hasbeen Delete Your Account Because ${userfind.admindelete_msg}`)
+            //      req.flash('warning', `Admin Hasbeen Delete Your Account Because ${userfind.admindelete_msg}`)
             //     return res.redirect('/user/logout')
             // }
                 return next()
              
         }
 
-        req.flash('error', 'Please Login')
+        req.flash('warning', 'Please Login')
         return res.redirect('/user/loginpage-display')
 
     } catch (error) {
@@ -33,7 +33,7 @@ const corporeterolechack = async (req, res, next) => {
         if (user.role == 'Corporate') {
             return next()
         }
-        req.flash('error', 'Only Corporate Can Login')
+        req.flash('warning', 'Only Corporate Can Login')
         return res.redirect('/organizer/login')
     } catch (error) {
         console.log(error)
@@ -46,7 +46,7 @@ const adminrolechack = async (req, res, next) => {
         if (user.role == 'admin') {
             return next()
         }
-        req.flash('error', 'Only Admin Can Login')
+        req.flash('warning', 'Only Admin Can Login')
         return res.redirect('/admin/login')
     } catch (error) {
         console.log(error)

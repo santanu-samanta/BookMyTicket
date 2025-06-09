@@ -57,7 +57,8 @@
 
               <div class="col-md-12">
                 <label for="msg">Message (Optional)</label>
-                <textarea id="msg" name="msg" rows="4" class="form-control" placeholder="Additional notes or message"></textarea>
+               <textarea id="msg" name="msg" rows="4" class="form-control" placeholder="Additional notes or message"></textarea>
+                <small id="msgCounter" class="text-muted">0 characters</small>
               </div>
             </div>
 
@@ -89,6 +90,39 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
+    const msgInput = document.getElementById('msg');
+const msgCounter = document.getElementById('msgCounter');
+
+// Update character count as user types
+msgInput.addEventListener('input', () => {
+  msgCounter.textContent = `${msgInput.value.length} characters`;
+});
+
+// On submit, check if message exists and is less than 40 characters
+eventForm.addEventListener('submit', function (e) {
+  const schedules = scheduleContainer.querySelectorAll('.schedule-group');
+
+  if (schedules.length === 0) {
+    e.preventDefault();
+    Swal.fire({
+      icon: 'warning',
+      title: 'No schedule added!',
+      text: 'Please add at least one schedule before submitting.',
+    });
+    return;
+  }
+
+  const msgText = msgInput.value.trim();
+  if (msgText && msgText.length < 10) {
+    e.preventDefault();
+    Swal.fire({
+      icon: 'warning',
+      title: 'Message Too Short',
+      text: 'Message must be at least 10 characters long.',
+    });
+  }
+});
+
     document.addEventListener('DOMContentLoaded', function () {
       const movieSelect = document.getElementById('movie_id');
       const scheduleContainer = document.getElementById('scheduleContainer');

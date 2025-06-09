@@ -12,7 +12,7 @@ const userauthCheck = (req, res, next) => {
 
     jwt.verify(token, process.env.JWT_SECRECT || 'WEBSKITTERFINALPROJECT', (err, decoded) => {
         if (err) {
-            req.flash('error', 'Session Expired');
+            req.flash('warning', 'Session Expired');
             return res.redirect('/user/loginpage-display');
         }
 
@@ -25,13 +25,13 @@ const adminauthCheck = (req, res, next) => {
     const token = req.cookies.admintoken || req.params.token;
 
     if (!token) {
-        req.flash('error', 'Please Login');
+        req.flash('warning', 'Please Login');
         return res.redirect('/admin/login');
     }
 
     jwt.verify(token, process.env.JWT_SECRECT || 'WEBSKITTERFINALPROJECT', (err, decoded) => {
         if (err) {
-            req.flash('error', 'Session Expired');
+            req.flash('warning', 'Session Expired');
             return res.redirect('/admin/login');
         }
 
@@ -44,7 +44,7 @@ const companyauthCheck = (req, res, next) => {
     const token = req.cookies.organizertoken || req.params.token;
 
     if (!token) {
-        req.flash('error', 'Please Login');
+        req.flash('warning', 'Please Login');
         return res.redirect('/organizer/login');
     }
 
