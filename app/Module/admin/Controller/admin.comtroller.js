@@ -388,6 +388,18 @@ class adminController {
     async booking_table(req, res) {
         try {
             const company = await eventRepositories.finbbookingdata()
+            console.log(JSON.stringify(company,null,2));
+            
+            return res.render('admin_page/movie_taking/booking_histroy', {
+                title: 'Admin Dashboard - BookMyTicket', company, user:req.admin
+            })
+        } catch (err) {
+            console.log(err)
+        }
+    }
+    async booking_past_table(req, res) {
+        try {
+            const company = await eventRepositories.finbbookingdata_past()
 
             return res.render('admin_page/movie_taking/booking_histroy', {
                 title: 'Admin Dashboard - BookMyTicket', company, user:req.admin

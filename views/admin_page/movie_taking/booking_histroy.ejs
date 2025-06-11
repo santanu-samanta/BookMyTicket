@@ -78,8 +78,8 @@
                                          <% company.forEach(data => { %>
                                                 <tr>
                                                      <td><%= data.movie_details.name %></td>
-                                                    <td><%=data.company_details.company_name %></td>                                                   
-                                                    <td><%= new Date(data.createdAt).toLocaleString() %></td>
+                                                    <td><%=data.company_details.company_name %></td> 
+                                                    <td>  <% data.schedules.forEach((boo, index) => { %><span  ><%= new Date(boo.date).toDateString() %></span> <br>  <% }) %>  </td>
                                                     <td><%if(data.status== 'Reject'){%>
                                                         <span style="color: red;"><%= data.status%> <br> (<%= data.adminreject_msg%> )</span>
                                                         <%}else{%>

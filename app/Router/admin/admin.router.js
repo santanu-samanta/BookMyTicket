@@ -88,6 +88,8 @@ namedRouter.get('admin.logout', '/logout', adminauthCheck, adminrolechack, admin
 // booking 
 // booking table show in admin panal
 namedRouter.get('admin.companies_booking_histroy', '/booking-histroy', adminauthCheck, adminrolechack, adminComtroller.booking_table)
+// past booking 
+namedRouter.get('admin.past_companies_booking_histroy', '/past/booking-histroy', adminauthCheck, adminrolechack, adminComtroller.booking_past_table)
 // booking detailse show in admin panal
 namedRouter.get('admin.companies_booking_detailse', '/booking-detailse/:id', adminauthCheck, adminrolechack, adminComtroller.booking_detailse)
 // booking approved
@@ -181,6 +183,8 @@ namedRouter.post('admin.movie_undo_bulk', '/bulk-movie-undo', adminauthCheck, ad
 // event
 // event list
 namedRouter.get('admin.event-list','/event/list',adminauthCheck,adminrolechack,adminEventController.event_list)
+// past event list
+namedRouter.get('admin.past_event-list','/past-event/list',adminauthCheck,adminrolechack,adminEventController.past_event_list)
 // delete event list
 namedRouter.get('admin.delete_event-list','/delete/event/list',adminauthCheck,adminrolechack,adminEventController.delete_event_list)
 // single event detailse

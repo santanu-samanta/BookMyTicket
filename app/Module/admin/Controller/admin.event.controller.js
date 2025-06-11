@@ -18,6 +18,17 @@ class admineventController {
             console.log(err)
         }
     }
+    async past_event_list(req, res) {
+        try {
+            const eventdata= await adminEventRepositories.pastfindalldata();
+            console.log(JSON.stringify(eventdata,null,2))
+            return res.render('admin_page/event/event-list', {
+                title: 'Event list - BookMyTicket', eventdata, user:req.admin
+            })
+        } catch (err) {
+            console.log(err)
+        }
+    }
     async delete_event_list(req, res) {
         try {
             const eventdata= await adminEventRepositories.deletefindalldata();

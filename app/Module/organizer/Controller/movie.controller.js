@@ -14,7 +14,6 @@ const Joi = require('joi');
 const eventRepositories = require('../Repositories/event.repositories');
 
 
-
 class organizerEventController {
 
     async show_events(req, res) {
@@ -24,6 +23,61 @@ class organizerEventController {
             const companyexist = await organizerRepositories.find(email);
 
             const companydata = await eventRepositories.finbbookingdatafordashboard(company._id)
+            const companyda = companydata.map(curr => {
+                const schedules = curr.schedules.map(schedule => {
+                    const totalTickets =
+                        schedule.prime_seats +
+                        schedule.golden_seats +
+                        schedule.clasic_seats;
+
+                    const ticketsSold =
+                        (schedule.prime_seats_book?.length || 0) +
+                        (schedule.golden_seats_book?.length || 0) +
+                        (schedule.classic_seats_book?.length || 0);
+
+                    const revenue =
+                        (schedule.prime_seats_book?.length || 0) * schedule.prime_ticket_price +
+                        (schedule.golden_seats_book?.length || 0) * schedule.golden_ticket_price +
+                        (schedule.classic_seats_book?.length || 0) * schedule.clasic_ticket_price;
+
+                    return {
+                        Date: schedule.date,
+                        Time: `${schedule.start_time} - ${schedule.end_time}`,
+                        Tickets: totalTickets,
+                        Tickets_Sold: ticketsSold,
+                        Revenue: revenue
+                    };
+                });
+
+                return {
+                    event_id: curr._id,
+                    Event: curr.movie_details?.name || 'Unknown',
+                    Date_time: schedules
+                };
+            });
+            console.log(JSON.stringify(companydata, null, 2));
+
+            if (!companyexist.isverify) {
+                req.flash('warning', `Please Change Your Password First`);
+                return res.redirect(`/organizer/change-password`);
+            }
+
+            return res.render('organizer/dashbord/Events/eventstable', {
+                title: 'Event Table - BookMyTicket', companyda,user:company
+            });
+        } catch (error) {
+            console.log(error);
+            req.flash('warning', 'Something went wrong.');
+            return res.redirect('/organizer/dashboard');
+        }
+    }
+    async completed_movie(req, res) {
+        try {
+            const company = req.organizer;
+            const email = company.email;
+            const companyexist = await organizerRepositories.find(email);
+
+            const companydata = await eventRepositories.findPastBookingDataForDashboard(company._id)
             const companyda = companydata.map(curr => {
                 const schedules = curr.schedules.map(schedule => {
                     const totalTickets =

@@ -48,7 +48,7 @@ class eventrepo {
     async bookingapproved(id) {
         try {
             const eventdata = await eventmodel.findByIdAndUpdate(id, {
-                 isadmindelete:false,
+                isadmindelete: false,
                 isverify: true,
                 status: 'Approved'
             });
@@ -60,7 +60,7 @@ class eventrepo {
     async bookingreject(id, msg) {
         try {
             const eventdata = await eventmodel.findByIdAndUpdate(id, {
-                isadmindelete:true,
+                isadmindelete: true,
                 status: 'Reject',
                 adminreject_msg: msg
             });
@@ -124,14 +124,20 @@ class eventrepo {
                 return []; // or handle appropriately
             }
 
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // normalize to start of the day
+
             const eventdata = await eventmodel.find({
                 movie_id: id,
-                status: { $in: ["Pending", "Approved"] }
+                status: { $in: ["Pending", "Approved"] },
+                schedules: {
+                    $elemMatch: {
+                        date: { $gte: today }
+                    }
+                }
             })
                 .populate('company_id')
                 .populate('movie_id');
-
-
             return eventdata;
         } catch (err) {
             console.log(err)
@@ -151,12 +157,130 @@ class eventrepo {
             console.log(err)
         }
     }
-    async finbbookingdata() {
+    // async findalldata() {
+    //     try {
+    //         const today = new Date();
+    //         today.setHours(0, 0, 0, 0); // Start of today
+
+    //         let data = await organizereventmodel.find({
+    //             isadmindelete: false,
+    //             schedules: {
+    //                 $elemMatch: {
+    //                     date: { $gte: today }
+    //                 }
+    //             }
+    //         }).populate('company_id').lean();
+
+    //         // Sort by the earliest schedule date
+    //         data.sort((a, b) => {
+    //             const dateA = new Date(a.schedules[0]?.date);
+    //             const dateB = new Date(b.schedules[0]?.date);
+    //             return dateA - dateB; // Ascending order
+    //         });
+
+    //         return data;
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // }
+
+async finbbookingdata() {
+    try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Normalize to start of day
+
+        const companydata = await eventmodel.aggregate([
+            {
+                $match: {
+                    isdelete: false,
+                    "schedules.date": { $gte: today }
+                }
+            },
+            {
+                $addFields: {
+                    upcoming_schedules: {
+                        $filter: {
+                            input: "$schedules",
+                            as: "schedule",
+                            cond: { $gte: ["$$schedule.date", today] }
+                        }
+                    }
+                }
+            },
+            {
+                $match: {
+                    "upcoming_schedules.0": { $exists: true }
+                }
+            },
+            {
+                $lookup: {
+                    from: "movies",
+                    localField: "movie_id",
+                    foreignField: "_id",
+                    as: "movie_details"
+                }
+            },
+            { $unwind: "$movie_details" },
+            {
+                $lookup: {
+                    from: "companies",
+                    localField: "company_id",
+                    foreignField: "_id",
+                    as: "company_details"
+                }
+            },
+            { $unwind: "$company_details" },
+            {
+                $project: {
+                    schedules: "$upcoming_schedules",
+                    msg: 1,
+                    adminreject_msg: 1,
+                    status: 1,
+                    createdAt: 1,
+                    "movie_details.name": 1,
+                    "movie_details.language": 1,
+                    "movie_details.genre": 1,
+                    "company_details.company_name": 1,
+                    "company_details.email": 1,
+                }
+            }
+        ]);
+
+        return companydata;
+    } catch (err) {
+        console.log("Error in finbbookingdata:", err);
+    }
+}
+
+    async finbbookingdata_past() {
         try {
-            const companydata =await eventmodel.aggregate([
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize to start of day
+
+            const companydata = await eventmodel.aggregate([
                 {
-                    $match: { isdelete: false }
-                }, {
+                    $match: {
+                        isdelete: false,
+                        "schedules.date": { $lt: today }
+                    }
+                },
+                {
+                    $addFields: {
+                        past_schedules: {
+                            $filter: {
+                                input: "$schedules",
+                                as: "schedule",
+                                cond: { $lt: ["$$schedule.date", today] }
+                            }
+                        }
+                    }
+                },
+                {
+                    $match: {
+                        "past_schedules.0": { $exists: true }
+                    }
+                },
+                {
                     $lookup: {
                         from: "movies",
                         localField: "movie_id",
@@ -176,9 +300,9 @@ class eventrepo {
                 { $unwind: "$company_details" },
                 {
                     $project: {
-                        schedules: 1,
+                        schedules: "$past_schedules",
                         msg: 1,
-                        adminreject_msg:1,
+                        adminreject_msg: 1,
                         status: 1,
                         createdAt: 1,
                         "movie_details.name": 1,
@@ -186,26 +310,31 @@ class eventrepo {
                         "movie_details.genre": 1,
                         "company_details.company_name": 1,
                         "company_details.email": 1,
-                       
                     }
                 }
-
             ]);
-            
-            
-            return companydata
+
+            return companydata;
         } catch (err) {
-            console.log(err)
+            console.log("Error in finbbookingdata_past:", err);
         }
     }
-    async finbbookingdatafordashboard(id) {
-        // console.log(id);
 
+    async finbbookingdatafordashboard(id) {
         try {
-            const companydata = eventmodel.aggregate([
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // normalize time to start of the day
+
+            const companydata = await eventmodel.aggregate([
                 {
-                    $match: { isdelete: false, company_id: new mongoose.Types.ObjectId(id),status: { $in: ["Pending", "Approved"]} }
-                }, {
+                    $match: {
+                        isdelete: false,
+                        company_id: new mongoose.Types.ObjectId(id),
+                        status: { $in: ["Pending", "Approved"] },
+                        "schedules.date": { $gte: today }
+                    }
+                },
+                {
                     $lookup: {
                         from: "movies",
                         localField: "movie_id",
@@ -223,21 +352,92 @@ class eventrepo {
                     }
                 },
                 { $unwind: "$company_details" },
-
-
+                {
+                    $addFields: {
+                        upcoming_schedules: {
+                            $filter: {
+                                input: "$schedules",
+                                as: "schedule",
+                                cond: { $gt: ["$$schedule.date", today] }
+                            }
+                        }
+                    }
+                },
+                {
+                    $match: {
+                        "upcoming_schedules.0": { $exists: true } // ensure at least one schedule exists
+                    }
+                }
             ]);
-            return companydata
+
+            return companydata;
         } catch (err) {
-            console.log(err)
+            console.log(err);
         }
     }
+    async findPastBookingDataForDashboard(id) {
+        try {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // normalize to start of the day
+
+            const companydata = await eventmodel.aggregate([
+                {
+                    $match: {
+                        isdelete: false,
+                        company_id: new mongoose.Types.ObjectId(id),
+                        status: { $in: ["Pending", "Approved"] },
+                        "schedules.date": { $lt: today } // match at least one past schedule
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "movies",
+                        localField: "movie_id",
+                        foreignField: "_id",
+                        as: "movie_details"
+                    }
+                },
+                { $unwind: "$movie_details" },
+                {
+                    $lookup: {
+                        from: "companies",
+                        localField: "company_id",
+                        foreignField: "_id",
+                        as: "company_details"
+                    }
+                },
+                { $unwind: "$company_details" },
+                {
+                    $addFields: {
+                        past_schedules: {
+                            $filter: {
+                                input: "$schedules",
+                                as: "schedule",
+                                cond: { $lt: ["$$schedule.date", today] }
+                            }
+                        }
+                    }
+                },
+                {
+                    $match: {
+                        "past_schedules.0": { $exists: true } // ensure there is at least one past schedule
+                    }
+                }
+            ]);
+
+            return companydata;
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     async rejectfinbbookingdatafordashboard(id) {
         // console.log(id);
 
         try {
             const companydata = eventmodel.aggregate([
                 {
-                    $match: { isdelete: false, company_id: new mongoose.Types.ObjectId(id),status: 'Reject' }
+                    $match: { isdelete: false, company_id: new mongoose.Types.ObjectId(id), status: 'Reject' }
                 }, {
                     $lookup: {
                         from: "movies",

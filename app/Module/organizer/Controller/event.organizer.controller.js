@@ -84,6 +84,71 @@ class eventorganizerController {
             return res.redirect('/organizer/dashboard');
         }
     }
+    async completed_show_events(req, res) {
+        try {
+            const user = req.organizer;
+            const email = user.email;
+            const companyexist = await organizerRepositories.find(email);
+
+            if (!companyexist.isverify) {
+                req.flash('warning', `Please Change Your Password First`);
+                return res.redirect(`/organizer/change-password`);
+            }
+            const eventdata = await eventOrganizerRepositories.showPastData(user._id)
+            const companyda = eventdata.map(curr => {
+                const schedules = curr.schedules.map(schedule => {
+                    const totalTickets =
+                        schedule.prime_seats +
+                        schedule.golden_seats +
+                        schedule.clasic_seats;
+
+                    const availablePrime = schedule.avl_prime_seats ? schedule.avl_prime_seats : 0;
+                    const availableGolden = schedule.avl_golden_seats ? schedule.avl_golden_seats : 0;
+                    const availableClassic = schedule.avl_classic_seats ? schedule.avl_classic_seats : 0;
+
+
+                    const soldPrime = schedule.prime_seats - availablePrime;
+                    const soldGolden = schedule.golden_seats - availableGolden;
+                    const soldClassic = schedule.clasic_seats - availableClassic;
+
+                    const ticketsSold = soldPrime + soldGolden + soldClassic;
+
+                    const revenue =
+                        soldPrime * schedule.prime_ticket_price +
+                        soldGolden * schedule.golden_ticket_price +
+                        soldClassic * schedule.clasic_ticket_price;
+
+                    return {
+                        Date: schedule.date,
+                        Time: `${schedule.start_time} - ${schedule.end_time}`,
+                        Tickets: totalTickets,
+                        Tickets_Sold: ticketsSold,
+                        Revenue: revenue,
+                        location: schedule.location
+                    };
+                });
+
+                return {
+                    event_id: curr._id,
+                    Event: curr.event_name || 'Unknown',
+                    category: curr.category,
+                    status:curr.status,
+                    Date_time: schedules
+                };
+            });
+
+            console.log(JSON.stringify(companyda, null, 2));
+            // console.log(JSON.stringify(eventdata, null, 2));
+
+            return res.render('organizer/events/crud/event_table', {
+                title: 'Event Table - BookMyTicket', companyda, user
+            });
+        } catch (error) {
+            console.log(error);
+            req.flash('error', 'Something went wrong.');
+            return res.redirect('/organizer/dashboard');
+        }
+    }
     async reject_show_events(req, res) {
         try {
             const user = req.organizer;

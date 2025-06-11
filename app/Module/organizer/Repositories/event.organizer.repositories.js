@@ -68,12 +68,47 @@ class eventorganizerrepozitoris {
     }
     async shoalldata(id) {
         try {
-            const eventdata = organizereventmodel.find({ isdelete: false, company_id: id,status: { $in: ["Pending", "Approved"]} });
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize to start of day
+
+            const eventdata = await organizereventmodel.find({
+                isdelete: false,
+                company_id: id,
+                status: { $in: ["Pending", "Approved"] },
+                schedules: {
+                    $elemMatch: {
+                        date: { $gte: today }
+                    }
+                }
+            });
+
             return eventdata;
         } catch (err) {
-            console.log(err)
+            console.log(err);
         }
     }
+    async showPastData(id) {
+        try {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize to start of the day
+
+            const pastEvents = await organizereventmodel.find({
+                isdelete: false,
+                company_id: id,
+                status: { $in: ["Pending", "Approved"] },
+                schedules: {
+                    $elemMatch: {
+                        date: { $lt: today }
+                    }
+                }
+            });
+
+            return pastEvents;
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     async shoalldatareject(id) {
         try {
             const eventdata = organizereventmodel.find({ isdelete: false, company_id: id, status: 'Reject' });
@@ -84,7 +119,15 @@ class eventorganizerrepozitoris {
     }
     async shoallevents() {
         try {
-            const eventdata = organizereventmodel.find({ isdelete: false ,status: { $in: ["Pending", "Approved"]} });
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize to start of day
+            const eventdata = organizereventmodel.find({
+                isdelete: false, status: { $in: ["Pending", "Approved"] }, schedules: {
+                    $elemMatch: {
+                        date: { $gte: today }
+                    }
+                }
+            });
             return eventdata;
         } catch (err) {
             console.log(err)
@@ -92,15 +135,30 @@ class eventorganizerrepozitoris {
     }
     async filteralldata(filterQuery) {
         try {
-            return await organizereventmodel.find(filterQuery).lean();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize to start of day
+
+            const finalQuery = {
+                ...filterQuery,
+                status: { $in: ["Pending", "Approved"] },
+                schedules: {
+                    $elemMatch: {
+                        date: { $gte: today }
+                    }
+                },
+                isdelete: false
+            };
+
+            return await organizereventmodel.find(finalQuery).lean();
         } catch (error) {
             console.error("Filter error:", error);
             return [];
         }
     }
+
     async single_movie_data(id) {
         try {
-            return await organizereventmodel.find({ _id: new mongoose.Types.ObjectId(id) , status: { $in: ["Pending", "Approved"]}}).populate('company_id')
+            return await organizereventmodel.find({ _id: new mongoose.Types.ObjectId(id), status: { $in: ["Pending", "Approved"] } }).populate('company_id')
         } catch (error) {
             console.error("Filter error:", error);
             return [];
@@ -108,20 +166,38 @@ class eventorganizerrepozitoris {
     }
     async schedules_data(id) {
         try {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Normalize to start of day
+
             const mongoose = require('mongoose');
-            console.log('ID is valid:', mongoose.Types.ObjectId.isValid(id));  // should be true
-            // Optional: convert string to ObjectId
+            if (!mongoose.Types.ObjectId.isValid(id)) {
+                console.log("Invalid ID format");
+                return null;
+            }
+
             const scheduleId = new mongoose.Types.ObjectId(id);
-            const data = await organizereventmodel.findOne({
-                "schedules._id": scheduleId
-            },
-                { schedules: { $elemMatch: { _id: scheduleId } } }
-            )
+
+            const data = await organizereventmodel.findOne(
+                {
+                    schedules: {
+                        $elemMatch: {
+                            _id: scheduleId,
+                            date: { $gte: today }
+                        }
+                    }
+                },
+                {
+                    schedules: { $elemMatch: { _id: scheduleId } }
+                }
+            );
+
             return data;
         } catch (err) {
-            console.log(err)
+            console.log("Error in schedules_data:", err);
+            return null;
         }
     }
+
     async findallcompanybyid(id) {
         try {
             const mongoose = require('mongoose');

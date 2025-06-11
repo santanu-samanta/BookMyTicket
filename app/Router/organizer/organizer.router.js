@@ -81,6 +81,8 @@ namedRouter.post('organizer.delete_coaccount','/delete/account',companyauthCheck
 // movie events
 // events table
 namedRouter.get('organizer.events_table','/events',companyauthCheck,corporeterolechack,movieController.show_events)
+// completed movie
+namedRouter.get('organizer.completed_table','/completed-movie',companyauthCheck,corporeterolechack,movieController.completed_movie)
 namedRouter.get('organizer.reject_events_table','/reject-events',companyauthCheck,corporeterolechack,movieController.show_reject_events)
 // delete movie list
 namedRouter.get('organizer.events_delete','/movies/delete/:id',companyauthCheck,corporeterolechack,movieController.show_events_single_del)
@@ -117,6 +119,7 @@ namedRouter.post('organizer.edit_events_organizer_data','/event/edit/data/:id',c
 
 // events table
 namedRouter.get('organizer.events-organizer_table','/events-table',companyauthCheck,corporeterolechack,eventOrganizerController.show_events)
+namedRouter.get('organizer.completade_events-organizer_table','/completed-events-table',companyauthCheck,corporeterolechack,eventOrganizerController.completed_show_events)
 namedRouter.get('organizer.reject_events-organizer_table','/reject-events-table',companyauthCheck,corporeterolechack,eventOrganizerController.reject_show_events)
 // single event
 namedRouter.get('organizer.event_single','/event/single/details/:id',companyauthCheck,corporeterolechack,eventOrganizerController.event_single_details)

@@ -6,7 +6,8 @@ const eventOrganizerRepositories = require('../../organizer/Repositories/event.o
 const { generateQRCode } = require('../../../Helper/qrcode');
 const { log } = require('console');
 const organizerRepositories = require('../../organizer/Repositories/organizer.repositories');
-
+const transporter = require('../../../Config/emailConfig');
+const path = require('path');
 require('dotenv').config();
 const razorpayInstance = new Razorpay({
     key_id: process.env.APIKEY,
@@ -16,7 +17,7 @@ class TicketController {
     async payment_create(req, res) {
         try {
             const { amount } = req.body;
-            console.log(req.body)
+            // console.log(req.body)
             if (!amount || isNaN(amount) || amount < 100) {
                 return res.status(400).json({ error: "Invalid amount. Must be at least ₹1 (100 paise)." });
             }
@@ -78,7 +79,7 @@ class TicketController {
             const companyLogoUrl = '/images-removebg-preview.png';
             const eventPosterUrl = '/image.jpg';
             const qrCodeDataUrl = await generateQRCode(ticketDat)
-            console.log(ticketDat);
+            // console.log(ticketDat);
 
             return res.render('user_pages/ticket/ticket', { ticketData: ticketDat, companyLogoUrl, eventPosterUrl, user, qrCodeDataUrl })
         } catch (err) {
@@ -160,10 +161,10 @@ class TicketController {
 
     async createTicketformovie(req, res) {
         try {
-
+            const user = req.user
             const { paymentDetails, bookingData } = req.body
             const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = paymentDetails;
-            console.log('body', req.body)
+            // console.log('body', req.body)
             // console.log(paymentDetails)
             // console.log(bookingData)
             const secret = process.env.SERECTKEY
@@ -201,15 +202,175 @@ class TicketController {
                     razorpay_signature: paymentDetails.razorpay_signature
                 }
             }
+            const eventdata = await eventRepositories.findbyiddataforemail(bookingData.event_id)
+            const companydata = await organizerRepositories.findallcompanybyid(eventdata.company_id);
+
+            const ticketDat = {
+                showname: newTicket.moviename,
+                showDate: new Date(newTicket.moviedate), // Already in ISO format
+                showTime: newTicket.movietime,
+                venue: companydata.company_name,
+                add: companydata.address, // Make sure this includes full address details
+                seats: [
+                    ...(newTicket.seat.prime_seats || []),
+                    ...(newTicket.seat.golden_seats || []),
+                    ...(newTicket.seat.classic_seats || [])
+                ],
+                ticketId: newTicket._id, // or the inserted ticket's ID
+                noOfTicketsBought: newTicket.noOfTicketsBought,
+                eventPosterUrl: newTicket.movieimage,
+                ismovie: newTicket.ismovie
+            };
             // console.log('hello', newTicket);
             const ticketdata = await ticketRepositories.datasave(newTicket);
+            // console.log(ticketdata);
+
             if (ticketdata) {
                 const uutseat = await eventRepositories.updateseate(normalizedSeats, bookingData.id)
                 if (uutseat) {
-                    return res.status(200).json({ success: true, message: 'Payment conformed', id: ticketdata._id });
+                    const sendmail = await transporter.sendMail({
+                        from: `BookMyTicket <${process.env.EMAIL_FROM}>`,
+                        to: user.email,
+                        subject: `🎟️ Your Ticket is Confirmed - ${newTicket.moviename}`,
+                        html: ` 
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                        <style>
+                        body {
+                            font-family: 'Segoe UI', sans-serif;
+                            background: #f2f2f2;
+                            padding: 30px;
+                            color: #333;
+                        }
+                        .ticket-container {
+                            max-width: 600px;
+                            margin: auto;
+                            background: #fff;
+                            border: 2px dashed #999;
+                            border-radius: 12px;
+                            padding: 20px;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                        }
+                        .logo {
+                            text-align: center;
+                            margin-bottom: 20px;
+                        }
+                        .logo img {
+                            max-height: 60px;
+                        }
+                        .ticket-header {
+                            text-align: center;
+                            border-bottom: 1px dashed #ccc;
+                            padding-bottom: 10px;
+                        }
+                        .ticket-info {
+                            margin-top: 20px;
+                        }
+                        .ticket-info p {
+                            margin: 6px 0;
+                            font-size: 15px;
+                        }
+                        .label {
+                            font-weight: bold;
+                        }
+                        .poster {
+                            text-align: center;
+                            margin-top: 20px;
+                        }
+                        .poster img {
+                            max-width: 100%;
+                            max-height: 300px;
+                            border-radius: 8px;
+                        }
+                        .footer {
+                            margin-top: 30px;
+                            text-align: center;
+                            font-size: 14px;
+                            color: #555;
+                        }
+                        .seat-tag {
+                            display: inline-block;
+                            background-color: #eef;
+                            border: 1px solid #99c;
+                            padding: 4px 8px;
+                            margin: 3px;
+                            border-radius: 6px;
+                            font-weight: bold;
+                        }
+                        </style>
+                        </head>
+                        <body>
+                        <div class="ticket-container">
+                            <div class="logo">
+                            <img src="cid:companylogo" alt="Company Logo" />
+                            </div>
+
+                            <div class="ticket-header">
+                            <h2>🎟️ Movie Ticket Confirmation</h2>
+                            <p>Thank you for booking <strong>${ticketDat.showname}</strong> Movie</p>
+                            </div>
+
+                            <div class="ticket-info">
+                            <p><span class="label">🎫 Ticket ID:</span> BMT${ticketdata._id}</p>
+                            <p><span class="label">📅 Date:</span> ${ticketDat.showDate.toDateString()}</p>
+                            <p><span class="label">⏰ Time:</span> ${ticketDat.showTime}</p>
+                            <p><span class="label">🏢 Venue:</span> ${ticketDat.venue}</p>
+                            <p><span class="label">📍 Address:</span> ${ticketDat.add.city}, ${ticketDat.add.state} - ${ticketDat.add.pin}</p>
+                            <p><span class="label">🪑 Seats:</span></p>
+                            <div>
+                              <div>
+                                ${normalizedSeats.prime_seats && normalizedSeats.prime_seats.length > 0
+                                ? 'P' + normalizedSeats.prime_seats.map(seat => seat).join(', P') + ' '
+                                : ''}
+
+                                ${normalizedSeats.golden_seats && normalizedSeats.golden_seats.length > 0
+                                ? 'G' + normalizedSeats.golden_seats.map(seat => seat).join(', G') + ' '
+                                : ''}
+
+                                ${normalizedSeats.classic_seats && normalizedSeats.classic_seats.length > 0
+                                ? 'C' + normalizedSeats.classic_seats.map(seat => seat).join(', C')
+                                : ''}
+                                </div>
+                            <p><span class="label">🎟️ Tickets Bought:</span> ${ticketDat.noOfTicketsBought}</p>
+                            </div>
+
+                            <div class="poster">
+                           <div class="poster">
+                                <img src="cid:DDcompanylogo" alt="Event Poster">
+                                </div>
+                            </div>
+
+                            <div class="footer">
+                            Please show this email at the venue for a smooth entry.<br/>
+                            Enjoy the show! 🎬
+                            </div>
+                        </div>
+                        </body>
+                        </html>
+                    `,
+                        attachments: [
+                            {
+                                filename: 'logo.png',
+                                path: 'D:/nodeproject/BookMyTicket/public/images-removebg-preview.png',
+                                cid: 'companylogo' // referenced in <img src="cid:companylogo">
+                            },
+                            {
+                                filename: 'DDlogo.png',
+                                path: `D:/nodeproject/BookMyTicket/uploads/images/${ticketDat.eventPosterUrl}`,
+                                cid: 'DDcompanylogo' // referenced in <img src="cid:companylogo">
+                            }
+                        ]
+                    });
+
+                    if (sendmail) {
+                        return res.status(200).json({ success: true, message: 'Payment conformed E-ticket send email', id: ticketdata._id });
+                    }
+                    return res.status(200).json({ success: true, message: 'Payment conformed  E-ticket not send email', id: ticketdata._id });
                     // req.flash('success',"payment Success")
                     // return res.redirect(`/ticket/${ticketdata._id}`)
                 }
+
                 return res.status(400).json({ success: false, message: 'Pyment Not conformed' });
 
             }
@@ -222,10 +383,10 @@ class TicketController {
     }
     async createTicketforevent(req, res) {
         try {
-
+            const user = req.user
             const { paymentDetails, bookingData } = req.body
             const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = paymentDetails;
-            console.log('body', req.body)
+            // console.log('body', req.body)
             // console.log(paymentDetails)
             // console.log(bookingData)
             const secret = process.env.SERECTKEY
@@ -249,7 +410,10 @@ class TicketController {
                 (bookingData.selectedSeats.classic || 0);
             const movieDate = new Date(bookingData.showDate); // e.g., "2025-06-01"
             movieDate.setUTCHours(18, 30, 0, 0); // Set to 18:30 UTC
-
+            const eventdata = await eventOrganizerRepositories.findallcompanybyid(bookingData.eventId)
+            // console.log(eventdata)
+            const companydata = await organizerRepositories.findallcompanybyid(eventdata.company_id);
+            // console.log(companydata);
             const newTicket = {
                 organizerevent_id: bookingData.eventId,
                 user_id: req.user._id,
@@ -269,13 +433,160 @@ class TicketController {
                 }
             }
 
-            console.log('hello', newTicket, "gggg");
+            const ticketDat = {
+                showname: newTicket.moviename,
+                showDate: new Date(newTicket.moviedate), // Already in ISO format
+                showTime: newTicket.movietime,
+                venue: companydata.company_name,
+                add: companydata.address, // Make sure this includes full address details
+                seats: [
+                    ...(newTicket.seat.prime_seats || []),
+                    ...(newTicket.seat.golden_seats || []),
+                    ...(newTicket.seat.classic_seats || [])
+                ],
+                ticketId: newTicket._id, // or the inserted ticket's ID
+                noOfTicketsBought: newTicket.noOfTicketsBought,
+                eventPosterUrl: newTicket.movieimage,
+                ismovie: newTicket.ismovie
+            };
+
+            // console.log('hello', newTicket, "gggg");
             const ticketdata = await ticketRepositories.datasave(newTicket);
 
             if (ticketdata) {
                 const uutseat = await eventOrganizerRepositories.updateSeatsByCount(bookingData.selectedSeats, bookingData.sheduleId)
                 if (uutseat) {
-                    return res.status(200).json({ success: true, message: 'Payment conformed', id: ticketdata._id });
+
+
+                    const sendmail = await transporter.sendMail({
+                        from: `BookMyTicket <${process.env.EMAIL_FROM}>`,
+                        to: user.email,
+                        subject: `🎟️ Your Ticket is Confirmed - ${newTicket.moviename} Event`,
+                        html: ` 
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                        <style>
+                        body {
+                            font-family: 'Segoe UI', sans-serif;
+                            background: #f2f2f2;
+                            padding: 30px;
+                            color: #333;
+                        }
+                        .ticket-container {
+                            max-width: 600px;
+                            margin: auto;
+                            background: #fff;
+                            border: 2px dashed #999;
+                            border-radius: 12px;
+                            padding: 20px;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                        }
+                        .logo {
+                            text-align: center;
+                            margin-bottom: 20px;
+                        }
+                        .logo img {
+                            max-height: 60px;
+                        }
+                        .ticket-header {
+                            text-align: center;
+                            border-bottom: 1px dashed #ccc;
+                            padding-bottom: 10px;
+                        }
+                        .ticket-info {
+                            margin-top: 20px;
+                        }
+                        .ticket-info p {
+                            margin: 6px 0;
+                            font-size: 15px;
+                        }
+                        .label {
+                            font-weight: bold;
+                        }
+                        .poster {
+                            text-align: center;
+                            margin-top: 20px;
+                        }
+                        .poster img {
+                            max-width: 100%;
+                            max-height: 300px;
+                            border-radius: 8px;
+                        }
+                        .footer {
+                            margin-top: 30px;
+                            text-align: center;
+                            font-size: 14px;
+                            color: #555;
+                        }
+                        .seat-tag {
+                            display: inline-block;
+                            background-color: #eef;
+                            border: 1px solid #99c;
+                            padding: 4px 8px;
+                            margin: 3px;
+                            border-radius: 6px;
+                            font-weight: bold;
+                        }
+                        </style>
+                        </head>
+                        <body>
+                        <div class="ticket-container">
+                            <div class="logo">
+                            <img src="cid:companylogo" alt="Company Logo" />
+                            </div>
+
+                            <div class="ticket-header">
+                            <h2>🎟️ Event Ticket Confirmation</h2>
+                            <p>Thank you for booking <strong>${ticketDat.showname}</strong></p>
+                            </div>
+
+                            <div class="ticket-info">
+                            <p><span class="label">🎫 Ticket ID:</span> BMT${ticketdata._id}</p>
+                            <p><span class="label">📅 Date:</span> ${ticketDat.showDate.toDateString()}</p>
+                            <p><span class="label">⏰ Time:</span> ${ticketDat.showTime}</p>
+                            <p><span class="label">🏢 Venue:</span> ${ticketDat.venue}</p>
+                            <p><span class="label">📍 Address:</span> ${ticketDat.add.city}, ${ticketDat.add.state} - ${ticketDat.add.pin}</p>
+                            <p><span class="label">🪑 Seats:</span></p>
+                            <div>
+                               <div>                  
+                            ${seatData.prime_seats && seatData.prime_seats[0] ? 'P' + seatData.prime_seats + ' ' : ''}
+                            ${seatData.golden_seats && seatData.golden_seats[0] ? 'G' + seatData.golden_seats + ' ' : ''}
+                            ${seatData.classic_seats && seatData.classic_seats[0] ? 'C' + seatData.classic_seats : ''}
+                            </div>
+                            <p><span class="label">🎟️ Tickets Bought:</span> ${ticketDat.noOfTicketsBought}</p>
+                            </div>
+
+                            <div class="poster">
+                            <img src="cid:DDcompanylogo" alt="Event Poster">
+                            </div>
+
+                            <div class="footer">
+                            Please show this email at the venue for a smooth entry.<br/>
+                            Enjoy the show! 🎬
+                            </div>
+                        </div>
+                        </body>
+                        </html>
+                    `,
+                        attachments: [
+                            {
+                                filename: 'logo.png',
+                                path: 'D:/nodeproject/BookMyTicket/public/images-removebg-preview.png',
+                                cid: 'companylogo' // referenced in <img src="cid:companylogo">
+                            },
+                            {
+                                filename: 'DDlogo.png',
+                                path: `D:/nodeproject/BookMyTicket/uploads/images/${ticketDat.eventPosterUrl}`,
+                                cid: 'DDcompanylogo' // referenced in <img src="cid:companylogo">
+                            }
+                        ]
+                    });
+
+                    if (sendmail) {
+                        return res.status(200).json({ success: true, message: 'Payment conformed E-ticket send email', id: ticketdata._id });
+                    }
+                    return res.status(200).json({ success: true, message: 'Payment conformed  E-ticket not send email', id: ticketdata._id });
                     // req.flash('success',"payment Success")
                     // return res.redirect(`/ticket/${ticketdata._id}`)
                 }
