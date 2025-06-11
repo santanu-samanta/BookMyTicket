@@ -195,7 +195,7 @@
           <div class="col-md-3 mb-3 animate__animated animate__zoomIn animate__delay-<%= index %>s">
             <div class="card shadow border-0 h-100" style="max-width: 300px; margin: auto;">
               <div class="position-relative overflow-hidden">
-                <img src="/images/<%= event.image[0] %>" class="card-img-top img-hover-scale" alt="<%= event.name %>">
+                <img src="/images/<%= event.image[0] %>" class="card-img-top img-hover-scale" alt="<%= event.name %>" height="260px" width="300px">
 
                 <!-- Play Button -->
                 <button class="btn play-btn position-absolute top-50 start-50 translate-middle"
@@ -299,55 +299,6 @@
   </div>
 </section>
 
-
-
-	<section class="position-relative overflow-hidden" style="min-height: 400px;">
-  <!-- Background video -->
-  <video autoplay muted loop playsinline
-    class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover"
-    style="z-index: -1;">
-    <source src="/your-video.mp4" type="video/mp4" />
-    <!-- fallback image -->
-    <img src="assets/images/fallback.jpg" alt="Background Video Fallback" />
-  </video>
-
-  <div class="container py-5 position-relative text-white">
-	  <h2 class="mb-4 text-center">New Released Movies</h2>
-    <div class="owl-carousel owl-theme owl-mid" id="movie-slider">
-
-      <!-- Loop through each movie -->
-      <% newrelishedmovie.forEach(movie => { 
-          // Extract info
-          const genreBadge = movie.genre && movie.genre.length ? movie.genre[0] : 'Genre';
-          const releaseYear = new Date(movie.releaseDate).getFullYear();
-          
-          // Duration seconds to hh mm
-          const totalSeconds = parseInt(movie.duration) || 0;
-          const hours = Math.floor(totalSeconds / 3600);
-          const minutes = Math.floor((totalSeconds % 3600) / 60);
-          const durationFormatted = `${hours > 0 ? hours + 'h ' : ''}${minutes}m`;
-
-          // First poster image path - assume /uploads/movies/
-          const posterImg = movie.posters && movie.posters.length ? `/images/${movie.posters[0]}` : 'assets/images/default-movie.jpg';
-
-          // First trailer link placeholder (you might replace with actual trailer URL)
-          const trailerUrl = movie.trailers && movie.trailers.length ? `/show_traller/${movie._id || ''}` : '#';
-      %>
-      <div class="item px-3" style="color: black;">
-        <div class="bg-dark bg-opacity-50 rounded p-4" style="background-image: url('<%= posterImg %>'); background-size: cover; background-position: center;">
-          <span class="badge bg-warning text-dark mb-2"><%= genreBadge %></span>
-          <h3 class="fw-bold"><%= movie.name %></h3>
-          <p class="mb-3"><%= releaseYear %> ‧ <%= movie.genre.join('/') %> ‧ <%= durationFormatted %></p>
-          <a href="<%= trailerUrl %>" class="btn btn-outline-light" target="_blank" rel="noopener noreferrer">
-            <i class="fa fa-play me-2"></i> Watch Trailer
-          </a>
-        </div>
-      </div>
-      <% }) %>
-
-    </div>
-  </div>
-</section>
 
 
 	<!-- Footer -->
